@@ -13,6 +13,7 @@ type PedroServer struct {
 	routes        http.Handler
 	port          int
 	EventRecorder EventRecorder
+	Registry      domain.ArtistRegistry
 }
 
 type EventRecorder interface {
@@ -25,8 +26,8 @@ type Event struct {
 
 type Events []Event
 
-func NewServer(port int, recorder EventRecorder) PedroServer {
-	s := PedroServer{port: port, EventRecorder: recorder}
+func NewServer(port int, recorder EventRecorder, registry domain.ArtistRegistry) PedroServer {
+	s := PedroServer{port: port, EventRecorder: recorder, Registry: registry}
 
 	r := chi.NewRouter()
 	r.Use(s.logIncoming)
@@ -41,7 +42,7 @@ func (s PedroServer) Start() {
 }
 
 func (s PedroServer) getAllArtists(w http.ResponseWriter, r *http.Request) {
-	artists, _ := json.Marshal(domain.Artists{domain.Artist{Name: "Boys Noize"}})
+	artists, _ := json.Marshal(s.Registry.FindAll())
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(artists)
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"pedro-go/db/inmemory"
 	"pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
@@ -19,8 +20,10 @@ func (r *TestEventRecorder) Record(event Event) {
 
 func TestApiRoutes(t *testing.T) {
 	var (
+		artists       = domain.Artists{domain.Artist{Name: "Boys Noize"}}
+		registry      = inmemory.ArtistRegistry{}
 		eventRecorder = TestEventRecorder{Events{}}
-		server        = NewServer(0, &eventRecorder)
+		server        = NewServer(0, &eventRecorder, registry)
 		api           = server.routes.ServeHTTP
 	)
 
@@ -30,7 +33,7 @@ func TestApiRoutes(t *testing.T) {
 
 		var got domain.Artists
 		err := json.Unmarshal(res.Body.Bytes(), &got)
-		want := domain.Artists{domain.Artist{Name: "Boys Noize"}}
+		want := artists
 
 		expect.NoErr(t, err)
 		expect.SliceEqual(t, got, want)
