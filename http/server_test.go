@@ -11,28 +11,22 @@ import (
 )
 
 func TestApiRoutes(t *testing.T) {
-	var (
-		artists       = domain.Artists{domain.Artist{Name: "Boys Noize"}}
-		registry      = inmemory.ArtistRegistry{}
-		eventRecorder = domain.NewEventRecorder(domain.Events{})
-		server        = NewServer(0, &eventRecorder, registry)
-		api           = server.routes.ServeHTTP
-	)
-
 	t.Run("get all artists", func(t *testing.T) {
+		api, _ := newTestApiFixture(nil)
 		req, res := testSetupReqCtx(t, http.MethodGet, "/artists")
 		api(res, req)
 
 		var got domain.Artists
 		err := json.Unmarshal(res.Body.Bytes(), &got)
-		want := artists
+		want := domain.Artists{domain.Artist{Name: "Boys Noize"}}
 
 		expect.NoErr(t, err)
 		expect.SliceEqual(t, got, want)
 	})
 
 	t.Run("tracks incoming calls", func(t *testing.T) {
-		eventRecorder.Events = nil
+		initialEvents := domain.Events{}
+		api, eventRecorder := newTestApiFixture(initialEvents)
 
 		req, res := testSetupReqCtx(t, http.MethodGet, "/artists")
 		api(res, req)
@@ -42,6 +36,20 @@ func TestApiRoutes(t *testing.T) {
 
 		expect.SliceEqual(t, got, want)
 	})
+}
+
+func newTestApiFixture(events domain.Events) (func(http.ResponseWriter, *http.Request), *domain.JsonEventRecorder) {
+	if events == nil {
+		events = domain.Events{}
+	}
+
+	var (
+		registry      = inmemory.ArtistRegistry{}
+		eventRecorder = domain.NewEventRecorder(events)
+		server        = NewServer(0, &eventRecorder, registry)
+		api           = server.routes.ServeHTTP
+	)
+	return api, &eventRecorder
 }
 
 func testSetupReqCtx(t *testing.T, method, url string) (*http.Request, *httptest.ResponseRecorder) {
