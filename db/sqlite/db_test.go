@@ -2,24 +2,35 @@ package sqlite
 
 import (
 	"context"
+	"errors"
+	"pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
 )
 
 func TestDB(t *testing.T) {
-	var ctx = context.TODO()
+	var (
+		ctx      = context.TODO()
+		events   = domain.Events{}
+		recorder = domain.NewEventRecorder(events)
+	)
 	t.Run("opens in-memory connection", func(t *testing.T) {
-		checkConn(t, ctx, NewDB(":memory:"))
+		checkConn(t, ctx, NewDB(":memory:", &recorder))
 	})
 
 	t.Run("opens file connection", func(t *testing.T) {
-		checkConn(t, ctx, NewDB("../../local/local.db"))
+		checkConn(t, ctx, NewDB("../../local/local.db", &recorder))
 	})
 
 	t.Run("monitors errors", func(t *testing.T) {
+		db := NewDB("", &recorder)
 
+		err := db.Open()
+		expect.Err(t, err)
+
+		want := domain.Events{domain.ErrEvent{Err: errors.New("dsn required").Error()}}
+		expect.SliceEqual(t, recorder.Events, want)
 	})
-
 }
 
 func checkConn(t *testing.T, ctx context.Context, db *DB) {
@@ -39,4 +50,17 @@ func checkConn(t *testing.T, ctx context.Context, db *DB) {
 	}
 
 	expect.Equal(t, queryResult, 1)
+}
+
+func MustOpenDB(tb testing.TB, recorder domain.EventRecorder) *DB {
+	tb.Helper()
+
+	// Write to an in-memory database by default.
+	// If the -dump flag is set, generate a temp file for the database.
+	dsn := ":memory:"
+	db := NewDB(dsn, recorder)
+	if err := db.Open(); err != nil {
+		tb.Fatal(err)
+	}
+	return db
 }

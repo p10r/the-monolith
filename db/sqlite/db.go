@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"pedro-go/domain"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -26,12 +27,16 @@ type DB struct {
 	// Returns the current time. Defaults to time.Now().
 	// Can be mocked for tests.
 	Now func() time.Time
+
+	// tracks all events and takes care of logging and storing them
+	Events domain.EventRecorder
 }
 
-func NewDB(dsn string) *DB {
+func NewDB(dsn string, recorder domain.EventRecorder) *DB {
 	db := &DB{
-		DSN: dsn,
-		Now: time.Now,
+		DSN:    dsn,
+		Now:    time.Now,
+		Events: recorder,
 	}
 	db.ctx, db.cancel = context.WithCancel(context.Background())
 	return db
@@ -40,12 +45,15 @@ func NewDB(dsn string) *DB {
 func (db *DB) Open() (err error) {
 	// Ensure a DSN is set before attempting to open the database.
 	if db.DSN == "" {
-		return fmt.Errorf("dsn required")
+		err := "dsn required"
+		db.Events.Record(domain.ErrEvent{Err: err})
+		return fmt.Errorf(err)
 	}
 
 	// Make the parent directory unless using an in-memory db.
 	if db.DSN != ":memory:" {
 		if err := os.MkdirAll(filepath.Dir(db.DSN), 0700); err != nil {
+			db.Events.Record(domain.ErrEvent{Err: err.Error()})
 			return err
 		}
 	}
@@ -57,10 +65,12 @@ func (db *DB) Open() (err error) {
 
 	// WAL allows multiple readers to operate while data is being written.
 	if _, err := db.db.Exec(`PRAGMA journal_mode = wal;`); err != nil {
+		db.Events.Record(domain.ErrEvent{Err: err.Error()})
 		return fmt.Errorf("enable wal: %w", err)
 	}
 
 	if _, err := db.db.Exec(`PRAGMA foreign_keys = ON;`); err != nil {
+		db.Events.Record(domain.ErrEvent{Err: err.Error()})
 		return fmt.Errorf("foreign keys pragma: %w", err)
 	}
 
@@ -85,6 +95,7 @@ func (db *DB) Close() error {
 func (db *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
 	tx, err := db.db.BeginTx(ctx, opts)
 	if err != nil {
+		db.Events.Record(domain.ErrEvent{Err: err.Error()})
 		return nil, err
 	}
 
@@ -116,6 +127,7 @@ func (n *NullTime) Scan(value interface{}) error {
 		*(*time.Time)(n), _ = time.Parse(time.RFC3339, value)
 		return nil
 	}
+
 	return fmt.Errorf("NullTime: cannot scan to time.Time: %T", value)
 }
 

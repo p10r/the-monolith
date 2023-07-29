@@ -14,7 +14,7 @@ func TestApiRoutes(t *testing.T) {
 	var (
 		artists       = domain.Artists{domain.Artist{Name: "Boys Noize"}}
 		registry      = inmemory.ArtistRegistry{}
-		eventRecorder = domain.TestEventRecorder{domain.Events{}}
+		eventRecorder = domain.NewEventRecorder(domain.Events{})
 		server        = NewServer(0, &eventRecorder, registry)
 		api           = server.routes.ServeHTTP
 	)
