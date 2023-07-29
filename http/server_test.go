@@ -10,19 +10,11 @@ import (
 	"testing"
 )
 
-type TestEventRecorder struct {
-	Events Events
-}
-
-func (r *TestEventRecorder) Record(event Event) {
-	r.Events = append(r.Events, event)
-}
-
 func TestApiRoutes(t *testing.T) {
 	var (
 		artists       = domain.Artists{domain.Artist{Name: "Boys Noize"}}
 		registry      = inmemory.ArtistRegistry{}
-		eventRecorder = TestEventRecorder{Events{}}
+		eventRecorder = domain.TestEventRecorder{domain.Events{}}
 		server        = NewServer(0, &eventRecorder, registry)
 		api           = server.routes.ServeHTTP
 	)
@@ -46,7 +38,7 @@ func TestApiRoutes(t *testing.T) {
 		api(res, req)
 
 		got := eventRecorder.Events
-		want := Events{Event{"/artists"}}
+		want := domain.Events{HttpEvent{"/artists"}}
 
 		expect.SliceEqual(t, got, want)
 	})

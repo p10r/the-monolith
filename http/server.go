@@ -12,21 +12,19 @@ import (
 type PedroServer struct {
 	routes        http.Handler
 	port          int
-	EventRecorder EventRecorder
+	EventRecorder domain.EventRecorder
 	Registry      domain.ArtistRegistry
 }
 
-type EventRecorder interface {
-	Record(event Event)
-}
-
-type Event struct {
+type HttpEvent struct {
 	Uri string
 }
 
-type Events []Event
+func (e HttpEvent) EventName() string {
+	return "HttpEvent"
+}
 
-func NewServer(port int, recorder EventRecorder, registry domain.ArtistRegistry) PedroServer {
+func NewServer(port int, recorder domain.EventRecorder, registry domain.ArtistRegistry) PedroServer {
 	s := PedroServer{port: port, EventRecorder: recorder, Registry: registry}
 
 	r := chi.NewRouter()
@@ -49,7 +47,7 @@ func (s PedroServer) getAllArtists(w http.ResponseWriter, r *http.Request) {
 
 func (s PedroServer) logIncoming(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.EventRecorder.Record(Event{Uri: r.URL.RequestURI()})
+		s.EventRecorder.Record(HttpEvent{Uri: r.URL.RequestURI()})
 		next.ServeHTTP(w, r)
 	})
 }
