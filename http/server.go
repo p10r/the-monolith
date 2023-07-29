@@ -39,7 +39,7 @@ func (s PedroServer) Start() {
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(s.port), s.routes))
 }
 
-func (s PedroServer) getAllArtists(w http.ResponseWriter, r *http.Request) {
+func (s PedroServer) getAllArtists(w http.ResponseWriter, _ *http.Request) {
 	artists, _ := json.Marshal(s.Registry.FindAll())
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(artists)

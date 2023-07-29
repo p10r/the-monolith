@@ -45,6 +45,8 @@ func TestApiRoutes(t *testing.T) {
 }
 
 func testSetupReqCtx(t *testing.T, method, url string) (*http.Request, *httptest.ResponseRecorder) {
+	t.Helper()
+
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		panic("do something") //TODO
