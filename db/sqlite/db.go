@@ -12,7 +12,7 @@ import (
 	"pedro-go/domain"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // DB represents the database connection.
@@ -59,7 +59,7 @@ func (db *DB) Open() (err error) {
 	}
 
 	// Connect to the database.
-	if db.db, err = sql.Open("sqlite3", db.DSN); err != nil {
+	if db.db, err = sql.Open("sqlite", db.DSN); err != nil {
 		return err
 	}
 
