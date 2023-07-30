@@ -13,7 +13,6 @@ func TestSqliteArtistRegistry(t *testing.T) {
 			ctx      = context.Background()
 			recorder = domain.NewEventRecorder(nil)
 			db       = MustOpenDB(t, &recorder)
-			//db       = NewDB("../../local/local.db", &recorder)
 			registry = NewArtistRegistry(db, &recorder)
 		)
 		db.Open()
