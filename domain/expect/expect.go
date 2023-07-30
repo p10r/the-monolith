@@ -27,6 +27,15 @@ func SliceEqual[T comparable](t *testing.T, got, want []T) {
 	}
 }
 
+func NotEmpty[T comparable](t *testing.T, got []T) {
+	t.Helper()
+	if len(got) > 0 {
+		return
+	} else {
+		t.Errorf("got %v, want at least 1", got)
+	}
+}
+
 func DeepEqual[T any](t *testing.T, got, want T) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {

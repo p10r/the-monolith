@@ -6,13 +6,16 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"embed"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"pedro-go/domain"
+	"sort"
 	"time"
 
-	_ "modernc.org/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // DB represents the database connection.
@@ -49,6 +52,7 @@ func (db *DB) Open() (err error) {
 		db.Events.Record(domain.ErrEvent{Err: err})
 		return fmt.Errorf(err)
 	}
+	db.Events.Record(domain.DbEvent{Msg: fmt.Sprintf("Setting up datasource '%v'", db.DSN)})
 
 	// Make the parent directory unless using an in-memory db.
 	if db.DSN != ":memory:" {
@@ -59,19 +63,27 @@ func (db *DB) Open() (err error) {
 	}
 
 	// Connect to the database.
-	if db.db, err = sql.Open("sqlite", db.DSN); err != nil {
+	if db.db, err = sql.Open("sqlite3", db.DSN); err != nil {
 		return err
 	}
 
+	db.Events.Record(domain.DbEvent{Msg: "Setting journal_mode = wal"})
 	// WAL allows multiple readers to operate while data is being written.
 	if _, err := db.db.Exec(`PRAGMA journal_mode = wal;`); err != nil {
 		db.Events.Record(domain.ErrEvent{Err: err.Error()})
 		return fmt.Errorf("enable wal: %w", err)
 	}
 
+	db.Events.Record(domain.DbEvent{Msg: "Setting foreign_keys = ON"})
 	if _, err := db.db.Exec(`PRAGMA foreign_keys = ON;`); err != nil {
 		db.Events.Record(domain.ErrEvent{Err: err.Error()})
 		return fmt.Errorf("foreign keys pragma: %w", err)
+	}
+
+	db.Events.Record(domain.DbEvent{Msg: "Running migrations"})
+	if err := db.migrate(); err != nil {
+		db.Events.Record(domain.ErrEvent{Err: err.Error()})
+		return fmt.Errorf("migrate: %w", err)
 	}
 
 	return nil
@@ -137,4 +149,78 @@ func (n *NullTime) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return (*time.Time)(n).UTC().Format(time.RFC3339), nil
+}
+
+//go:embed migrations/*.sql
+var migrationFS embed.FS
+
+// migrate sets up migration tracking and executes pending migration files.
+//
+// Migration files are embedded in the sqlite/migration folder and are executed
+// in lexigraphical order.
+//
+// Once a migration is run, its name is stored in the 'migrations' table so it
+// is not re-executed. Migrations run in a transaction to prevent partial
+// migrations.
+func (db *DB) migrate() error {
+	// Ensure the 'migrations' table exists, so we don't duplicate migrations.
+	if _, err := db.db.Exec(`CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY);`); err != nil {
+		return fmt.Errorf("cannot create migrations table: %w", err)
+	}
+
+	// Read migration files from our embedded file system.
+	// This uses Go 1.16's 'embed' package.
+	names, err := fs.Glob(migrationFS, "migrations/*.sql")
+	if err != nil {
+		return err
+	}
+	sort.Strings(names)
+
+	// Loop over all migration files and execute them in order.
+	for _, name := range names {
+		err := db.migrateFile(name)
+		if err != nil {
+			err := fmt.Errorf("migration error: name=%q err=%w", name, err)
+			return err
+		}
+	}
+	return nil
+}
+
+// migrate runs a single migration file within a transaction. On success, the
+// migration file name is saved to the "migrations" table to prevent re-running.
+func (db *DB) migrateFile(name string) error {
+
+	tx, err := db.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Ensure migration has not already been run.
+	var n int
+	if err := tx.QueryRow(`SELECT COUNT(*) FROM migrations WHERE name = ?`, name).Scan(&n); err != nil {
+		return err
+	} else if n != 0 {
+		return nil // already run migration, skip
+	}
+
+	// Read and execute migration file.
+	if buf, err := fs.ReadFile(migrationFS, name); err != nil {
+		return err
+	} else if _, err := tx.Exec(string(buf)); err != nil {
+		return err
+	}
+
+	//var a int
+	//tx.Exec(`INSERT INTO artists (name) VALUES ('tests')`)
+	//tx.QueryRow(`SELECT COUNT(*) FROM artists`).Scan(&a)
+	//fmt.Printf("a is %v \n", a)
+
+	// Insert record into migrations to prevent re-running migration.
+	if _, err := tx.Exec(`INSERT INTO migrations (name) VALUES (?)`, name); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

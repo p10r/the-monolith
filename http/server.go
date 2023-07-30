@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"log"
@@ -40,7 +41,8 @@ func (s PedroServer) Start() {
 }
 
 func (s PedroServer) getAllArtists(w http.ResponseWriter, _ *http.Request) {
-	artists, _ := json.Marshal(s.Registry.FindAll())
+	all, _ := s.Registry.FindAll(context.TODO()) //TODO check context
+	artists, _ := json.Marshal(all)
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(artists)
 }

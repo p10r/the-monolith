@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"context"
-	"errors"
 	"pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
@@ -22,14 +21,12 @@ func TestDB(t *testing.T) {
 		checkConn(t, ctx, NewDB("../../local/local.db", &recorder))
 	})
 
-	t.Run("monitors errors", func(t *testing.T) {
+	t.Run("monitors db actions", func(t *testing.T) {
 		db := NewDB("", &recorder)
 
 		err := db.Open()
 		expect.Err(t, err)
-
-		want := domain.Events{domain.ErrEvent{Err: errors.New("dsn required").Error()}}
-		expect.SliceEqual(t, recorder.Events, want)
+		expect.NotEmpty(t, recorder.Events)
 	})
 }
 
@@ -41,6 +38,7 @@ func checkConn(t *testing.T, ctx context.Context, db *DB) {
 	expect.NoErr(t, err)
 
 	rows, err := tx.Query("SELECT 1;")
+	defer rows.Close()
 	expect.NoErr(t, err)
 
 	var queryResult int
@@ -63,4 +61,12 @@ func MustOpenDB(tb testing.TB, recorder domain.EventRecorder) *DB {
 		tb.Fatal(err)
 	}
 	return db
+}
+
+// MustCloseDB closes the DB. Fatal on error.
+func MustCloseDB(tb testing.TB, db *DB) {
+	tb.Helper()
+	if err := db.Close(); err != nil {
+		tb.Fatal(err)
+	}
 }
