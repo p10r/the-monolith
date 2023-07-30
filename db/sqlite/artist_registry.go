@@ -18,14 +18,14 @@ func NewArtistRegistry(db *DB, recorder domain.EventRecorder) *ArtistRegistry {
 func (r ArtistRegistry) FindAll(ctx context.Context) (domain.Artists, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		r.EventRecorder.Record(domain.DbEvent{err.Error()})
+		r.EventRecorder.Record(domain.DbEvent{Msg: err.Error()})
 		return nil, err
 	}
 	defer tx.Rollback()
 
 	all, err := findAll(ctx, tx)
 	if err != nil {
-		r.EventRecorder.Record(domain.DbEvent{err.Error()})
+		r.EventRecorder.Record(domain.DbEvent{Msg: err.Error()})
 		return nil, err
 	}
 
@@ -64,15 +64,9 @@ func findAll(ctx context.Context, tx *Tx) (domain.Artists, error) {
 func (r ArtistRegistry) Add(ctx context.Context, artist domain.NewArtist) (domain.Artist, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		r.EventRecorder.Record(domain.DbEvent{err.Error()})
+		r.EventRecorder.Record(domain.DbEvent{Msg: err.Error()})
 		return domain.Artist{}, err
 	}
-
-	//_, err = tx.ExecContext(ctx, `CREATE TABLE artists(id INTEGER PRIMARY KEY AUTOINCREMENT)`, artist.Name)
-	//if err != nil {
-	//	r.EventRecorder.Record(DbEvent{Msg: err.Error()})
-	//	//return domain.Artist{}, err
-	//}
 
 	result, err := tx.ExecContext(ctx, `INSERT INTO artists (name) VALUES (?)`, artist.Name)
 	if err != nil {

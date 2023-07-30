@@ -35,7 +35,7 @@ func TestApiRoutes(t *testing.T) {
 		api(res, req)
 
 		got := eventRecorder.Events
-		want := domain.Events{HttpEvent{"/artists"}}
+		want := domain.Events{Event{"/artists"}}
 
 		expect.SliceEqual(t, got, want)
 	})
@@ -60,7 +60,7 @@ type ArtistRegistry struct {
 	domain.Artists
 }
 
-func (r ArtistRegistry) FindAll(ctx context.Context) (domain.Artists, error) {
+func (r ArtistRegistry) FindAll(_ context.Context) (domain.Artists, error) {
 	return r.Artists, nil
 }
 

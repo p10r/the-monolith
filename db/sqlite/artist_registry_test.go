@@ -1,7 +1,8 @@
-package sqlite
+package sqlite_test
 
 import (
 	"context"
+	"pedro-go/db/sqlite"
 	"pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
@@ -13,9 +14,9 @@ func TestSqliteArtistRegistry(t *testing.T) {
 			ctx      = context.Background()
 			recorder = domain.NewEventRecorder(nil)
 			db       = MustOpenDB(t, &recorder)
-			registry = NewArtistRegistry(db, &recorder)
+			registry = sqlite.NewArtistRegistry(db, &recorder)
 		)
-		db.Open()
+
 		defer MustCloseDB(t, db)
 
 		_, err := registry.Add(ctx, domain.NewArtist{Name: "Boys Noize"})

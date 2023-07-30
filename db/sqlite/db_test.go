@@ -1,7 +1,8 @@
-package sqlite
+package sqlite_test
 
 import (
 	"context"
+	"pedro-go/db/sqlite"
 	"pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
@@ -14,15 +15,15 @@ func TestDB(t *testing.T) {
 		recorder = domain.NewEventRecorder(events)
 	)
 	t.Run("opens in-memory connection", func(t *testing.T) {
-		checkConn(t, ctx, NewDB(":memory:", &recorder))
+		checkConn(t, ctx, sqlite.NewDB(":memory:", &recorder))
 	})
 
 	t.Run("opens file connection", func(t *testing.T) {
-		checkConn(t, ctx, NewDB("../../local/local.db", &recorder))
+		checkConn(t, ctx, sqlite.NewDB("../../local/local.db", &recorder))
 	})
 
 	t.Run("monitors db actions", func(t *testing.T) {
-		db := NewDB("", &recorder)
+		db := sqlite.NewDB("", &recorder)
 
 		err := db.Open()
 		expect.Err(t, err)
@@ -30,7 +31,7 @@ func TestDB(t *testing.T) {
 	})
 }
 
-func checkConn(t *testing.T, ctx context.Context, db *DB) {
+func checkConn(t *testing.T, ctx context.Context, db *sqlite.DB) {
 	err := db.Open()
 	expect.NoErr(t, err)
 
@@ -50,13 +51,13 @@ func checkConn(t *testing.T, ctx context.Context, db *DB) {
 	expect.Equal(t, queryResult, 1)
 }
 
-func MustOpenDB(tb testing.TB, recorder domain.EventRecorder) *DB {
+func MustOpenDB(tb testing.TB, recorder domain.EventRecorder) *sqlite.DB {
 	tb.Helper()
 
 	// Write to an in-memory database by default.
 	// If the -dump flag is set, generate a temp file for the database.
 	dsn := ":memory:"
-	db := NewDB(dsn, recorder)
+	db := sqlite.NewDB(dsn, recorder)
 	if err := db.Open(); err != nil {
 		tb.Fatal(err)
 	}
@@ -64,7 +65,7 @@ func MustOpenDB(tb testing.TB, recorder domain.EventRecorder) *DB {
 }
 
 // MustCloseDB closes the DB. Fatal on error.
-func MustCloseDB(tb testing.TB, db *DB) {
+func MustCloseDB(tb testing.TB, db *sqlite.DB) {
 	tb.Helper()
 	if err := db.Close(); err != nil {
 		tb.Fatal(err)

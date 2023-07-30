@@ -17,11 +17,11 @@ type PedroServer struct {
 	Registry      domain.ArtistRegistry
 }
 
-type HttpEvent struct {
+type Event struct {
 	Uri string
 }
 
-func (e HttpEvent) EventName() string {
+func (e Event) EventName() string {
 	return "HttpEvent"
 }
 
@@ -49,7 +49,7 @@ func (s PedroServer) getAllArtists(w http.ResponseWriter, _ *http.Request) {
 
 func (s PedroServer) logIncoming(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		s.EventRecorder.Record(HttpEvent{Uri: r.URL.RequestURI()})
+		s.EventRecorder.Record(Event{Uri: r.URL.RequestURI()})
 		next.ServeHTTP(w, r)
 	})
 }
