@@ -2,9 +2,11 @@ package expect
 
 import (
 	"reflect"
+	"slices"
 	"testing"
 )
 
+//goland:noinspection GoUnusedExportedFunction
 func Equal[T comparable](t *testing.T, got, want T) {
 	t.Helper()
 	if got != want {
@@ -12,6 +14,7 @@ func Equal[T comparable](t *testing.T, got, want T) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func SliceEqual[T comparable](t *testing.T, got, want []T) {
 	t.Helper()
 	if len(got) != len(want) {
@@ -27,6 +30,18 @@ func SliceEqual[T comparable](t *testing.T, got, want []T) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
+func SliceContains[T comparable](t *testing.T, got []T, want ...T) {
+	t.Helper()
+	for _, w := range want {
+		t.Helper()
+		if !slices.Contains(got, w) {
+			t.Errorf("got %v, want %v", got, w)
+		}
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
 func NotEmpty[T comparable](t *testing.T, got []T) {
 	t.Helper()
 	if len(got) > 0 {
@@ -36,6 +51,7 @@ func NotEmpty[T comparable](t *testing.T, got []T) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func DeepEqual[T any](t *testing.T, got, want T) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {
@@ -43,6 +59,7 @@ func DeepEqual[T any](t *testing.T, got, want T) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NotEqual[T comparable](t *testing.T, got, want T) {
 	t.Helper()
 	if got == want {
@@ -50,12 +67,14 @@ func NotEqual[T comparable](t *testing.T, got, want T) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func Len[T any](t *testing.T, got []T, want int) {
 	if len(got) != want {
 		t.Errorf("got length %d, want %d", len(got), want)
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func True(t *testing.T, got bool) {
 	t.Helper()
 	if !got {
@@ -63,6 +82,7 @@ func True(t *testing.T, got bool) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func False(t *testing.T, got bool) {
 	t.Helper()
 	if got {
@@ -70,6 +90,7 @@ func False(t *testing.T, got bool) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func NoErr(t testing.TB, err error) {
 	t.Helper()
 	if err != nil {
@@ -77,6 +98,7 @@ func NoErr(t testing.TB, err error) {
 	}
 }
 
+//goland:noinspection GoUnusedExportedFunction
 func Err(t *testing.T, err error) {
 	t.Helper()
 	if err == nil {
