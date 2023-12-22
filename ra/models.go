@@ -5,22 +5,24 @@ import (
 	"io"
 )
 
+type Slug string
+
 type ArtistResWrapper struct {
 	ArtistData `json:"data"`
 }
 
 type ArtistData struct {
-	ArtistRes `json:"artist"`
+	Artist `json:"artist"`
 }
 
-type ArtistRes struct {
+type Artist struct {
 	RAID string `json:"id"`
 	Name string `json:"name"`
 }
 
-func NewArtistFrom(input io.ReadCloser) (ArtistRes, error) {
+func NewArtistFrom(input io.ReadCloser) (Artist, error) {
 	var res ArtistResWrapper
 	err := json.NewDecoder(input).Decode(&res)
 
-	return res.ArtistRes, err
+	return res.Artist, err
 }

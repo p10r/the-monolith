@@ -15,7 +15,7 @@ func TestRAClient(t *testing.T) {
 			t.Skip()
 		}
 
-		want := ra.ArtistRes{RAID: "943", Name: "Boys Noize"}
+		want := ra.Artist{RAID: "943", Name: "Boys Noize"}
 
 		client := ra.New("https://ra.co")
 		got, err := client.GetArtistBySlug("boysnoize")
@@ -25,7 +25,7 @@ func TestRAClient(t *testing.T) {
 	})
 
 	t.Run("deserialize artist response", func(t *testing.T) {
-		want := ra.ArtistRes{RAID: "943", Name: "Boys Noize"}
+		want := ra.Artist{RAID: "943", Name: "Boys Noize"}
 		body := `
 			{
 			    "data": {
