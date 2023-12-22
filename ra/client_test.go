@@ -10,8 +10,11 @@ import (
 )
 
 func TestRAClient(t *testing.T) {
-	//TODO move behind env flag
 	t.Run("gets artist from resident advisor", func(t *testing.T) {
+		if testing.Short() {
+			t.Skip()
+		}
+
 		want := ra.ArtistRes{RAID: "943", Name: "Boys Noize"}
 
 		client := ra.New("https://ra.co")
