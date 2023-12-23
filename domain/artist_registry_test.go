@@ -9,21 +9,26 @@ import (
 	"testing"
 )
 
-func TestArtistRegistry(t *testing.T) {
+func NewInMemoryArtistRegistry(raArtists map[ra.Slug]ra.Artist) *ArtistRegistry {
 	repo := db.NewInMemoryArtistRepository()
-	repo.Add(Artist{RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"})
-	repo.Add(Artist{RAId: "222", RASlug: "sinamin", Name: "Sinamin"})
-
-	raArtists := map[ra.Slug]ra.Artist{
-		ra.Slug("boysnoize"): {RAID: "943", Name: "Boys Noize"},
-		ra.Slug("sinamin"):   {RAID: "222", Name: "Sinamin"},
-		ra.Slug("daftpunk"):  {RAID: "111", Name: "Daft Punk"},
-	}
 	raClient := inmemory.NewClient(raArtists)
 
-	registry := NewArtistRegistry(repo, raClient)
+	return NewArtistRegistry(repo, raClient)
+}
 
+func TestArtistRegistry(t *testing.T) {
 	t.Run("lists all artists", func(t *testing.T) {
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.Artist{
+				"boysnoize": {RAID: "943", Name: "Boys Noize"},
+				"sinamin":   {RAID: "222", Name: "Sinamin"},
+			},
+		)
+
+		err := registry.Add("boysnoize")
+		err = registry.Add("sinamin")
+
+		expect.NoErr(t, err)
 		expect.SliceContains(
 			t, registry.All(),
 			Artist{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"},
@@ -32,26 +37,37 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("adds an artist from resident advisor", func(t *testing.T) {
-		artist := Artist{Id: 3, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk"}
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.Artist{
+				"daftpunk": {RAID: "111", Name: "Daft Punk"},
+			},
+		)
 
-		expect.SliceContainsNot(t, repo.All(), artist)
-
+		want := Artist{Id: 1, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk"}
 		err := registry.Add("daftpunk")
 
 		expect.NoErr(t, err)
-		expect.SliceContains(t, repo.All(), artist)
+		expect.SliceContains(t, registry.All(), want)
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
-		want := repo.All()
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.Artist{
+				"boysnoize": {RAID: "943", Name: "Boys Noize"},
+			},
+		)
 
+		want := Artists{Artist{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"}}
 		err := registry.Add("boysnoize")
 
 		expect.NoErr(t, err)
-		expect.SliceEqual(t, repo.All(), want)
+		expect.SliceEqual(t, registry.All(), want)
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.Artist{},
+		)
 		err := registry.Add("unknown")
 
 		expect.Err(t, err)
