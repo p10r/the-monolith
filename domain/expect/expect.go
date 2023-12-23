@@ -41,6 +41,16 @@ func SliceContains[T comparable](t *testing.T, got []T, want ...T) {
 	}
 }
 
+func SliceContainsNot[T comparable](t *testing.T, got []T, wantNot ...T) {
+	t.Helper()
+	for _, w := range wantNot {
+		t.Helper()
+		if slices.Contains(got, w) {
+			t.Errorf("got %v, but also contains %v", got, w)
+		}
+	}
+}
+
 //goland:noinspection GoUnusedExportedFunction
 func NotEmpty[T comparable](t *testing.T, got []T) {
 	t.Helper()
