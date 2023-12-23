@@ -2,7 +2,7 @@ package domain
 
 type Artist struct {
 	Id   int64
-	RAId int64
+	RAId string
 	Name string
 }
 
