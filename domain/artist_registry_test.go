@@ -11,8 +11,8 @@ import (
 
 func TestArtistRegistry(t *testing.T) {
 	repo := db.NewInMemoryArtistRepository()
-	repo.Add(Artist{RAId: "943", Name: "A"})
-	repo.Add(Artist{RAId: "222", Name: "B"})
+	repo.Add(Artist{RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"})
+	repo.Add(Artist{RAId: "222", RASlug: "sinamin", Name: "Sinamin"})
 
 	raArtists := map[ra.Slug]ra.Artist{
 		ra.Slug("boysnoize"): {RAID: "943", Name: "Boys Noize"},
@@ -26,21 +26,23 @@ func TestArtistRegistry(t *testing.T) {
 	t.Run("lists all artists", func(t *testing.T) {
 		expect.SliceContains(
 			t, registry.All(),
-			Artist{Id: 1, RAId: "943", Name: "A"},
-			Artist{Id: 2, RAId: "222", Name: "B"},
+			Artist{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"},
+			Artist{Id: 2, RAId: "222", RASlug: "sinamin", Name: "Sinamin"},
 		)
 	})
 
 	t.Run("adds an artist from resident advisor", func(t *testing.T) {
-		expect.SliceContainsNot(t, repo.All(), Artist{Id: 3, RAId: "111", Name: "Daft Punk"})
+		artist := Artist{Id: 3, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk"}
 
+		expect.SliceContainsNot(t, repo.All(), artist)
 		registry.Add("daftpunk")
-
-		expect.SliceContains(t, repo.All(), Artist{Id: 3, RAId: "111", Name: "Daft Punk"})
+		expect.SliceContains(t, repo.All(), artist)
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
-		t.Fail()
+		want := repo.All()
+		registry.Add("boysnoize")
+		expect.SliceEqual(t, repo.All(), want)
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
