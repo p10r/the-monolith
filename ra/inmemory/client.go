@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"errors"
 	"pedro-go/ra"
 )
 
@@ -13,5 +14,11 @@ func NewClient(artists map[ra.Slug]ra.Artist) *Client {
 }
 
 func (c *Client) GetArtistBySlug(slug ra.Slug) (ra.Artist, error) {
-	return c.artists[slug], nil
+	res, ok := c.artists[slug]
+
+	if ok {
+		return res, nil
+	}
+
+	return ra.Artist{}, errors.New("artist not found")
 }

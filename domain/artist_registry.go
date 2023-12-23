@@ -1,10 +1,12 @@
 package domain
 
 import (
-	"log"
+	"errors"
 	"pedro-go/ra"
 	"slices"
 )
+
+var ErrNotFoundOnRA = errors.New("artist not found on ra.com")
 
 type ArtistRegistry struct {
 	Repo ArtistRepository
@@ -19,16 +21,18 @@ func (r *ArtistRegistry) All() Artists {
 	return r.Repo.All()
 }
 
-func (r *ArtistRegistry) Add(slug ra.Slug) {
+func (r *ArtistRegistry) Add(slug ra.Slug) error {
 	if slices.Contains(r.All().RASlugs(), slug) {
-		return
+		return nil
 	}
 
 	res, err := r.RA.GetArtistBySlug(slug)
 	if err != nil {
-		log.Fatal("Oh no, handle me")
+		return ErrNotFoundOnRA
 	}
 
 	artist := Artist{RAId: res.RAID, RASlug: slug, Name: res.Name}
 	r.Repo.Add(artist)
+
+	return nil
 }

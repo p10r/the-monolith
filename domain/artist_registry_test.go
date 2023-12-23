@@ -35,22 +35,30 @@ func TestArtistRegistry(t *testing.T) {
 		artist := Artist{Id: 3, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk"}
 
 		expect.SliceContainsNot(t, repo.All(), artist)
-		registry.Add("daftpunk")
+
+		err := registry.Add("daftpunk")
+
+		expect.NoErr(t, err)
 		expect.SliceContains(t, repo.All(), artist)
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
 		want := repo.All()
-		registry.Add("boysnoize")
+
+		err := registry.Add("boysnoize")
+
+		expect.NoErr(t, err)
 		expect.SliceEqual(t, repo.All(), want)
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
-		t.Fail()
+		err := registry.Add("unknown")
+
+		expect.Err(t, err)
+		expect.Equal(t, err.Error(), ErrNotFoundOnRA.Error())
 	})
 
-	t.Run("adds slug to queue if RA is not reachable", func(t *testing.T) {
-		t.Fail()
-	})
-
+	//t.Run("adds slug to queue if RA is not reachable", func(t *testing.T) {
+	//	t.Fail() TODO
+	//})
 }
