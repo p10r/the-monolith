@@ -1,17 +1,16 @@
 package domain_test
 
 import (
-	db "pedro-go/db/inmemory"
+	"pedro-go/db"
 	. "pedro-go/domain"
 	"pedro-go/domain/expect"
 	"pedro-go/ra"
-	"pedro-go/ra/inmemory"
 	"testing"
 )
 
 func NewInMemoryArtistRegistry(raArtists map[ra.Slug]ra.Artist) *ArtistRegistry {
 	repo := db.NewInMemoryArtistRepository()
-	raClient := inmemory.NewClient(raArtists)
+	raClient := ra.NewInMemoryClient(raArtists)
 
 	return NewArtistRegistry(repo, raClient)
 }
