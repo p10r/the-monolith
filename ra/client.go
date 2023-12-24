@@ -1,16 +1,19 @@
 package ra
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
 
+var ErrSlugNotFound = errors.New("slug not found on ra.co")
+
 type Client struct {
 	http    *http.Client
-	baseUri string //todo
+	baseUri string
 }
 
-func New(baseUri string) *Client {
+func NewClient(baseUri string) *Client {
 	return &Client{http: &http.Client{}, baseUri: baseUri}
 }
 
@@ -27,5 +30,10 @@ func (c Client) GetArtistBySlug(slug Slug) (Artist, error) {
 		return Artist{}, fmt.Errorf("request failed with status code: %v", res.StatusCode)
 	}
 
-	return NewArtistFrom(res.Body)
+	arist, err := NewArtistFrom(res.Body)
+	if arist == (Artist{}) {
+		return Artist{}, ErrSlugNotFound
+	}
+
+	return arist, err
 }

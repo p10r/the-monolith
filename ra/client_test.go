@@ -4,12 +4,33 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"pedro-go/domain"
 	"pedro-go/domain/expect"
 	"pedro-go/ra"
 	"testing"
 )
 
 func TestRAClient(t *testing.T) {
+	t.Run("test contract against real ra.co", func(t *testing.T) {
+		domain.RAContract{NewRA: func() domain.ResidentAdvisor {
+			return ra.NewInMemoryClient(
+				map[ra.Slug]ra.Artist{
+					"boysnoize": {RAID: "943", Name: "Boys Noize"},
+				},
+			)
+		}}.Test(t)
+	})
+
+	t.Run("test contract against real ra.co", func(t *testing.T) {
+		if testing.Short() {
+			t.Skip()
+		}
+
+		domain.RAContract{NewRA: func() domain.ResidentAdvisor {
+			return ra.NewClient("https://ra.co")
+		}}.Test(t)
+	})
+
 	t.Run("gets artist from resident advisor", func(t *testing.T) {
 		if testing.Short() {
 			t.Skip()
@@ -17,7 +38,7 @@ func TestRAClient(t *testing.T) {
 
 		want := ra.Artist{RAID: "943", Name: "Boys Noize"}
 
-		client := ra.New("https://ra.co")
+		client := ra.NewClient("https://ra.co")
 		got, err := client.GetArtistBySlug("boysnoize")
 
 		expect.NoErr(t, err)

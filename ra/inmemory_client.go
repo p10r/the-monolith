@@ -1,9 +1,5 @@
 package ra
 
-import (
-	"errors"
-)
-
 type InMemoryClient struct {
 	artists map[Slug]Artist
 }
@@ -19,5 +15,5 @@ func (c *InMemoryClient) GetArtistBySlug(slug Slug) (Artist, error) {
 		return res, nil
 	}
 
-	return Artist{}, errors.New("artist not found")
+	return Artist{}, ErrSlugNotFound
 }
