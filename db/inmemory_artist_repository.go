@@ -17,12 +17,18 @@ func NewInMemoryArtistRepository() *InMemoryArtistRepository {
 	return &InMemoryArtistRepository{id: &id, artists: map[int64]domain.Artist{}}
 }
 
-func (r *InMemoryArtistRepository) Add(artist domain.Artist) {
+func (r *InMemoryArtistRepository) Save(artist domain.Artist) domain.Artist {
+	if artist.Id != 0 {
+		r.artists[artist.Id] = artist
+		return artist
+	}
+
 	artist.Id = r.id.Load()
 	r.id.Add(1)
 
-	fmt.Printf("InMemoryArtistRepository: Adding %v\n", artist)
 	r.artists[artist.Id] = artist
+
+	return artist
 }
 
 func (r *InMemoryArtistRepository) All() []domain.Artist {
