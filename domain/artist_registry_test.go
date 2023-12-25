@@ -24,29 +24,31 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		err := registry.Add("boysnoize")
-		err = registry.Add("sinamin")
+		err := registry.Follow("boysnoize", UserId(1))
+		err = registry.Follow("sinamin", UserId(1))
+
+		got := registry.All()
+		want := Artists{
+			{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIds{UserId(1)}},
+			{Id: 2, RAId: "222", RASlug: "sinamin", Name: "Sinamin", FollowedBy: UserIds{UserId(1)}},
+		}
 
 		expect.NoErr(t, err)
-		expect.SliceContains(
-			t, registry.All(),
-			Artist{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"},
-			Artist{Id: 2, RAId: "222", RASlug: "sinamin", Name: "Sinamin"},
-		)
+		expect.DeepEqual(t, got, want)
 	})
 
-	t.Run("adds an artist from resident advisor", func(t *testing.T) {
+	t.Run("follows an artist from resident advisor", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
 			map[ra.Slug]ra.Artist{
 				"daftpunk": {RAID: "111", Name: "Daft Punk"},
 			},
 		)
 
-		want := Artist{Id: 1, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk"}
-		err := registry.Add("daftpunk")
+		want := []Artist{{Id: 1, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIds{UserId(1)}}}
+		err := registry.Follow("daftpunk", UserId(1))
 
 		expect.NoErr(t, err)
-		expect.SliceContains(t, registry.All(), want)
+		expect.DeepEqual(t, registry.All(), want)
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
@@ -56,18 +58,21 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		want := Artists{Artist{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"}}
-		err := registry.Add("boysnoize")
+		want := Artists{
+			{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIds{UserId(1)}},
+		}
+		err := registry.Follow("boysnoize", UserId(1))
 
 		expect.NoErr(t, err)
-		expect.SliceEqual(t, registry.All(), want)
+		expect.DeepEqual(t, registry.All(), want)
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
 			map[ra.Slug]ra.Artist{},
 		)
-		err := registry.Add("unknown")
+
+		err := registry.Follow("unknown", UserId(1))
 
 		expect.Err(t, err)
 		expect.Equal(t, err.Error(), ErrNotFoundOnRA.Error())
@@ -76,4 +81,65 @@ func TestArtistRegistry(t *testing.T) {
 	//t.Run("adds slug to queue if RA is not reachable", func(t *testing.T) {
 	//	t.Fail() TODO
 	//})
+
+	t.Run("follows new artist as user", func(t *testing.T) {
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.Artist{
+				"boysnoize": {RAID: "943", Name: "Boys Noize"},
+				"sinamin":   {RAID: "222", Name: "Sinamin"},
+			},
+		)
+
+		err := registry.Follow("boysnoize", UserId(1))
+		err = registry.Follow("sinamin", UserId(2))
+
+		got, err := registry.ArtistsFor(UserId(1))
+		want := Artists{
+			Artist{
+				Id:         1,
+				RAId:       "943",
+				RASlug:     "boysnoize",
+				Name:       "Boys Noize",
+				FollowedBy: UserIds{UserId(1)},
+			},
+		}
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, got, want)
+	})
+
+	t.Run("ignores follow if already following", func(t *testing.T) {
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.Artist{
+				"boysnoize": {RAID: "943", Name: "Boys Noize"},
+				"sinamin":   {RAID: "222", Name: "Sinamin"},
+			},
+		)
+		err := registry.Follow("boysnoize", UserId(1))
+		err = registry.Follow("boysnoize", UserId(1))
+
+		got, err := registry.ArtistsFor(UserId(1))
+
+		expect.NoErr(t, err)
+		expect.True(t, len(got) == 1)
+		expect.DeepEqual(t, got[0].FollowedBy, UserIds{UserId(1)})
+	})
+
+	t.Run("follows existing artist", func(t *testing.T) {
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.Artist{
+				"boysnoize": {RAID: "943", Name: "Boys Noize"},
+				"sinamin":   {RAID: "222", Name: "Sinamin"},
+			},
+		)
+		err := registry.Follow("boysnoize", UserId(1))
+		err = registry.Follow("boysnoize", UserId(2))
+
+		got, err := registry.ArtistsFor(UserId(2))
+
+		expect.NoErr(t, err)
+		expect.Equal(t, len(got), 1)
+		//expect.DeepEqual(t, got[0].FollowedBy, UserIds{UserId(1), UserId(2)})
+	})
+
 }
