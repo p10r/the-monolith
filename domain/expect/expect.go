@@ -2,7 +2,6 @@ package expect
 
 import (
 	"reflect"
-	"slices"
 	"testing"
 )
 
@@ -26,27 +25,6 @@ func SliceEqual[T comparable](t *testing.T, got, want []T) {
 		if got[i] != want[i] {
 			t.Errorf("got %v, want %v", got, want)
 			return
-		}
-	}
-}
-
-//goland:noinspection GoUnusedExportedFunction
-func SliceContains[T comparable](t *testing.T, got []T, want ...T) {
-	t.Helper()
-	for _, w := range want {
-		t.Helper()
-		if !slices.Contains(got, w) {
-			t.Errorf("got %v, want %v", got, w)
-		}
-	}
-}
-
-func SliceContainsNot[T comparable](t *testing.T, got []T, wantNot ...T) {
-	t.Helper()
-	for _, w := range wantNot {
-		t.Helper()
-		if slices.Contains(got, w) {
-			t.Errorf("got %v, but also contains %v", got, w)
 		}
 	}
 }

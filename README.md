@@ -6,3 +6,7 @@ area.
 ## TODOs:
 
 - use lefthook for pre-commit hooks, e.g. running tests
+- golang ci lint
+- parallel tests
+- short/long tests
+- move base package
