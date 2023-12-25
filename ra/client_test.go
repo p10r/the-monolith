@@ -11,7 +11,7 @@ import (
 )
 
 func TestRAClient(t *testing.T) {
-	t.Run("test contract against real ra.co", func(t *testing.T) {
+	t.Run("verify contract for prod ra.co", func(t *testing.T) {
 		domain.RAContract{NewRA: func() domain.ResidentAdvisor {
 			return ra.NewInMemoryClient(
 				map[ra.Slug]ra.Artist{
