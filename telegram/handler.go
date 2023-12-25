@@ -39,7 +39,7 @@ func Pedro(botToken string) {
 	bot.Handle("/follow", func(c tele.Context) error {
 		tags := c.Args()
 
-		_, err = r.Follow(ra.Slug(tags[0]), domain.UserId(c.Sender().ID))
+		err = r.Follow(ra.Slug(tags[0]), domain.UserId(c.Sender().ID))
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
