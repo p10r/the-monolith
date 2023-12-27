@@ -7,7 +7,7 @@ import (
 
 type ArtistWithEvents struct {
 	Artist     Artist
-	EventsData []Events
+	EventsData []Event
 }
 
 type InMemoryClient struct {
@@ -32,7 +32,7 @@ func (c *InMemoryClient) GetEventsByArtistId(
 	raId string,
 	_ time.Time,
 	_ time.Time,
-) ([]Events, error) {
+) ([]Event, error) {
 	var fil []ArtistWithEvents
 	for _, a := range c.artists {
 		if a.Artist.RAID == raId {

@@ -17,7 +17,7 @@ func TestRAClient(t *testing.T) {
 				map[ra.Slug]ra.ArtistWithEvents{
 					"boysnoize": {
 						Artist: ra.Artist{RAID: "943", Name: "Boys Noize"},
-						EventsData: []ra.Events{
+						EventsData: []ra.Event{
 							{
 								Id:         "1",
 								Title:      "Klubnacht",
@@ -36,7 +36,7 @@ func TestRAClient(t *testing.T) {
 					},
 					"sinamin": {
 						Artist: ra.Artist{RAID: "106972", Name: "Sinamin"},
-						EventsData: []ra.Events{
+						EventsData: []ra.Event{
 							{
 								Id:         "1",
 								Title:      "Klubnacht",

@@ -27,7 +27,7 @@ func NewArtistFrom(input io.ReadCloser) (Artist, error) {
 	return res.Artist, err
 }
 
-type Events struct {
+type Event struct {
 	Id         string `json:"id"`
 	Title      string `json:"title"`
 	Date       string `json:"date"`

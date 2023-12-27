@@ -9,7 +9,7 @@ import (
 
 type ResidentAdvisor interface {
 	GetArtistBySlug(slug ra.Slug) (ra.Artist, error)
-	GetEventsByArtistId(raId string, start time.Time, end time.Time) ([]ra.Events, error)
+	GetEventsByArtistId(raId string, start time.Time, end time.Time) ([]ra.Event, error)
 }
 
 type RAContract struct {

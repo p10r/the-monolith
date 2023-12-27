@@ -51,7 +51,7 @@ func (r *ArtistRegistry) ArtistsFor(userId UserId) (Artists, error) {
 	return r.All().FilterByUserId(userId), nil
 }
 
-func (r *ArtistRegistry) EventsFor(artist Artist) ([]ra.Events, error) {
+func (r *ArtistRegistry) EventsFor(artist Artist) ([]ra.Event, error) {
 	now := time.Now()
 	//TODO wrap error
 	return r.RA.GetEventsByArtistId(artist.RAId, now, now.Add(9*24*time.Hour))
