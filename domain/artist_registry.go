@@ -2,9 +2,9 @@ package domain
 
 import (
 	"errors"
-	"fmt"
 	"pedro-go/ra"
 	"slices"
+	"time"
 )
 
 var ErrNotFoundOnRA = errors.New("artist not found on ra.com")
@@ -48,7 +48,11 @@ func (r *ArtistRegistry) Follow(slug ra.Slug, userId UserId) error {
 }
 
 func (r *ArtistRegistry) ArtistsFor(userId UserId) (Artists, error) {
-	all := r.All()
-	fmt.Printf("artists for: %v\n", all)
-	return all.FilterByUserId(userId), nil
+	return r.All().FilterByUserId(userId), nil
+}
+
+func (r *ArtistRegistry) EventsFor(artist Artist) ([]ra.Events, error) {
+	now := time.Now()
+	//TODO wrap error
+	return r.RA.GetEventsByArtistId(artist.RAId, now, now.Add(9*24*time.Hour))
 }

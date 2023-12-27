@@ -4,10 +4,12 @@ import (
 	"pedro-go/domain/expect"
 	"pedro-go/ra"
 	"testing"
+	"time"
 )
 
 type ResidentAdvisor interface {
 	GetArtistBySlug(slug ra.Slug) (ra.Artist, error)
+	GetEventsByArtistId(raId string, start time.Time, end time.Time) ([]ra.Events, error)
 }
 
 type RAContract struct {
@@ -29,5 +31,16 @@ func (c RAContract) Test(t *testing.T) {
 
 		expect.Err(t, err)
 		expect.DeepEqual(t, err, ra.ErrSlugNotFound)
+	})
+
+	t.Run("returns events for artist", func(t *testing.T) {
+		sinaminId := "106972"
+		juneFirst23 := time.Date(2023, 11, 1, 0, 0, 0, 0, time.UTC)
+		julyFirst23 := time.Date(2023, 11, 15, 0, 0, 0, 0, time.UTC)
+
+		events, err := client.GetEventsByArtistId(sinaminId, juneFirst23, julyFirst23)
+
+		expect.NoErr(t, err)
+		expect.Equal(t, len(events), 2)
 	})
 }
