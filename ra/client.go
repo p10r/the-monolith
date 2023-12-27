@@ -33,12 +33,17 @@ func (c *Client) GetArtistBySlug(slug Slug) (Artist, error) {
 		return Artist{}, fmt.Errorf("request failed with status code: %v", res.StatusCode)
 	}
 
-	arist, err := NewArtistFrom(res.Body)
-	if arist == (Artist{}) {
+	var body struct {
+		Data struct {
+			Artist `json:"artist"`
+		} `json:"data"`
+	}
+	err = json.NewDecoder(res.Body).Decode(&body)
+	if body.Data.Artist == (Artist{}) {
 		return Artist{}, ErrSlugNotFound
 	}
 
-	return arist, err
+	return body.Data.Artist, err
 }
 
 func (c *Client) GetEventsByArtistId(raId string, start time.Time, end time.Time) ([]Event, error) {
