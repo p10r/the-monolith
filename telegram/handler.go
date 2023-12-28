@@ -15,6 +15,10 @@ import (
 
 func main() {
 	token := os.Getenv("TELEGRAM_TOKEN")
+	if token == "" {
+		log.Fatal("TELEGRAM_TOKEN is missing")
+	}
+
 	Pedro(token)
 }
 
@@ -65,6 +69,17 @@ func Pedro(botToken string) {
 		}
 
 		return c.Send(fmt.Sprintf("You're following:\n%v", strings.Join(res, "\n")))
+	})
+
+	bot.Handle("/events", func(c tele.Context) error {
+		artists, err := r.ArtistsFor(domain.UserId(c.Sender().ID))
+		eventsFor, err := r.EventsFor(artists[0])
+		if err != nil {
+			log.Print(err)
+			return c.Send("There was an error!")
+		}
+
+		return c.Send(fmt.Sprintf("Event:\n%v", eventsFor))
 	})
 
 	log.Print("Started Pedro")
