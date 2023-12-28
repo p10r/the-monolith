@@ -11,7 +11,7 @@ const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
 	" AppleWebKit/537.36 (KHTML, like Gecko)" +
 	" Chrome/113.0.0.0 Safari/537.36"
 
-func getArtistBySlugReq(slug Slug, baseUri string) (*http.Request, error) {
+func newGetArtistReq(slug Slug, baseUri string) (*http.Request, error) {
 	query := fmt.Sprintf(`{"query":"{\n artist(slug:\"%v\"){\n id\n name\n}\n}\n","variables":{}}`, slug)
 	reqBody := []byte(query)
 
@@ -22,7 +22,7 @@ func getArtistBySlugReq(slug Slug, baseUri string) (*http.Request, error) {
 	return req, err
 }
 
-func GetEventsFor(raId string, start, end time.Time, baseUri string) (*http.Request, error) {
+func newGetEvensReq(raId string, start, end time.Time, baseUri string) (*http.Request, error) {
 	fmtStart := start.Format("2006-01-02T03:04:05.000Z")
 	fmtEnd := end.Format("2006-01-02T03:04:05.000Z")
 

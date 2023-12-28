@@ -1,8 +1,10 @@
 package db
 
 import (
+	"cmp"
 	"fmt"
 	"pedro-go/domain"
+	"slices"
 	"sync/atomic"
 )
 
@@ -38,5 +40,11 @@ func (r *InMemoryArtistRepository) All() []domain.Artist {
 	for _, artist := range r.artists {
 		a = append(a, artist)
 	}
+
+	//Order by ID
+	slices.SortFunc(a, func(a, b domain.Artist) int {
+		return cmp.Compare(a.Id, b.Id)
+	})
+
 	return a
 }

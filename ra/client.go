@@ -21,7 +21,7 @@ func NewClient(baseUri string) *Client {
 }
 
 func (c *Client) GetArtistBySlug(slug Slug) (Artist, error) {
-	req, err := getArtistBySlugReq(slug, c.baseUri)
+	req, err := newGetArtistReq(slug, c.baseUri)
 
 	res, err := c.http.Do(req)
 	if err != nil {
@@ -47,7 +47,7 @@ func (c *Client) GetArtistBySlug(slug Slug) (Artist, error) {
 }
 
 func (c *Client) GetEventsByArtistId(raId string, start time.Time, end time.Time) ([]Event, error) {
-	req, err := GetEventsFor(raId, start, end, c.baseUri)
+	req, err := newGetEvensReq(raId, start, end, c.baseUri)
 
 	res, err := c.http.Do(req)
 	if err != nil {
