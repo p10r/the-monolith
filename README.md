@@ -10,3 +10,4 @@ area.
 - parallel tests
 - short/long tests
 - move base package
+- handle 404 when requesting events
