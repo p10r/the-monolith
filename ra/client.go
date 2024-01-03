@@ -25,7 +25,10 @@ func (c *Client) GetArtistBySlug(slug Slug) (Artist, error) {
 	}
 
 	res, err := c.http.Do(req)
-	return NewArtist(res, err)
+	if err != nil {
+		return Artist{}, fmt.Errorf("could not get response: %w", err)
+	}
+	return NewArtist(res)
 }
 
 func (c *Client) GetEventsByArtistId(
@@ -33,7 +36,7 @@ func (c *Client) GetEventsByArtistId(
 	start time.Time,
 	end time.Time,
 ) ([]Event, error) {
-	req, err := newGetEvensReq(raId, start, end, c.baseUri)
+	req, err := newGetEventsReq(raId, start, end, c.baseUri)
 	if err != nil {
 		return []Event{}, fmt.Errorf("could not create request: %w", err)
 	}

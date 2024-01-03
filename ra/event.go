@@ -27,6 +27,7 @@ type Event struct {
 	} `json:"venue"`
 }
 
+// TODO write tests
 func NewEvent(res *http.Response, err error) ([]Event, error) {
 	if err != nil {
 		return []Event{}, err

@@ -3,6 +3,7 @@ package ra
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -11,14 +12,16 @@ type Artist struct {
 	Name string `json:"name"`
 }
 
-func NewArtist(res *http.Response, err error) (Artist, error) {
-	if err != nil {
-		return Artist{}, err
-	}
+func NewArtist(res *http.Response) (Artist, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		return Artist{}, fmt.Errorf("request failed with status code: %v", res.StatusCode)
+	}
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return Artist{}, fmt.Errorf("cannot parse response body")
 	}
 
 	var body struct {
@@ -26,7 +29,12 @@ func NewArtist(res *http.Response, err error) (Artist, error) {
 			Artist `json:"artist"`
 		} `json:"data"`
 	}
-	err = json.NewDecoder(res.Body).Decode(&body)
+
+	err = json.Unmarshal(data, &body)
+	if err != nil {
+		return Artist{}, fmt.Errorf("JSON deserialization error. Body: %s", data)
+	}
+
 	if body.Data.Artist == (Artist{}) {
 		return Artist{}, ErrSlugNotFound
 	}

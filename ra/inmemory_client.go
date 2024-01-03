@@ -30,7 +30,7 @@ func (c *InMemoryClient) GetArtistBySlug(slug Slug) (Artist, error) {
 
 func (c *InMemoryClient) GetEventsByArtistId(
 	raId string,
-	_ time.Time,
+	_ time.Time, //TODO filter for time
 	_ time.Time,
 ) ([]Event, error) {
 	var fil []ArtistWithEvents
