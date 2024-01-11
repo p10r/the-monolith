@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"log"
 	"pedro-go/ra"
 	"slices"
 	"time"
@@ -19,7 +20,11 @@ func NewArtistRegistry(repo ArtistRepository, ra ResidentAdvisor) *ArtistRegistr
 }
 
 func (r *ArtistRegistry) All() Artists {
-	return r.Repo.All()
+	all, err := r.Repo.All()
+	if err != nil {
+		log.Fatalf("error when trying to read from the db %v\n", err)
+	}
+	return all
 }
 
 func (r *ArtistRegistry) Follow(slug ra.Slug, userId UserId) error {

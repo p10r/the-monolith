@@ -19,10 +19,10 @@ func NewInMemoryArtistRepository() *InMemoryArtistRepository {
 	return &InMemoryArtistRepository{id: &id, artists: map[int64]domain.Artist{}}
 }
 
-func (r *InMemoryArtistRepository) Save(artist domain.Artist) domain.Artist {
+func (r *InMemoryArtistRepository) Save(artist domain.Artist) (domain.Artist, error) {
 	if artist.Id != 0 {
 		r.artists[artist.Id] = artist
-		return artist
+		return artist, nil
 	}
 
 	artist.Id = r.id.Load()
@@ -30,10 +30,10 @@ func (r *InMemoryArtistRepository) Save(artist domain.Artist) domain.Artist {
 
 	r.artists[artist.Id] = artist
 
-	return artist
+	return artist, nil
 }
 
-func (r *InMemoryArtistRepository) All() []domain.Artist {
+func (r *InMemoryArtistRepository) All() (domain.Artists, error) {
 	fmt.Println("InMemoryArtistRepository: Requesting all artists")
 
 	a := make([]domain.Artist, 0, len(r.artists))
@@ -46,5 +46,5 @@ func (r *InMemoryArtistRepository) All() []domain.Artist {
 		return cmp.Compare(a.Id, b.Id)
 	})
 
-	return a
+	return a, nil
 }

@@ -6,8 +6,8 @@ import (
 )
 
 type ArtistRepository interface {
-	Save(artist Artist) Artist
-	All() []Artist
+	Save(artist Artist) (Artist, error)
+	All() (Artists, error)
 }
 
 type ArtistRepositoryContract struct {
@@ -15,24 +15,44 @@ type ArtistRepositoryContract struct {
 }
 
 func (c ArtistRepositoryContract) Test(t *testing.T) {
-	t.Run("returns all artists", func(t *testing.T) {
-
-	})
-
 	t.Run("adds artist", func(t *testing.T) {
 		r := c.NewRepository()
-		r.Save(Artist{RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"})
+		artist := Artist{
+			RAId:       "943",
+			RASlug:     "boysnoize",
+			Name:       "Boys Noize",
+			FollowedBy: UserIds{},
+		}
+		_, err := r.Save(artist)
 
-		want := Artists{Artist{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize"}}
-		expect.DeepEqual(t, r.All(), want)
+		want := Artists{
+			Artist{
+				Id:         1,
+				RAId:       "943",
+				RASlug:     "boysnoize",
+				Name:       "Boys Noize",
+				FollowedBy: UserIds{},
+			},
+		}
+		got, err := r.All()
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, got, want)
 	})
 
 	t.Run("updates artist", func(t *testing.T) {
 		r := c.NewRepository()
 
-		stored := r.Save(Artist{RAId: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIds{UserId(1)}})
-		stored.FollowedBy = UserIds{UserId(1), UserId(2)}
-		r.Save(stored)
+		artist := Artist{
+			RAId:       "943",
+			RASlug:     "boysnoize",
+			Name:       "Boys Noize",
+			FollowedBy: UserIds{UserId(1)},
+		}
+		first, err := r.Save(artist)
+
+		first.FollowedBy = UserIds{UserId(1), UserId(2)}
+		_, err = r.Save(first)
 
 		want := Artists{
 			Artist{
@@ -43,7 +63,10 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 				FollowedBy: UserIds{UserId(1), UserId(2)},
 			},
 		}
-		expect.DeepEqual(t, r.All(), want)
-	})
 
+		got, err := r.All()
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, got, want)
+	})
 }
