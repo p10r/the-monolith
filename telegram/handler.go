@@ -1,9 +1,8 @@
-package main
+package telegram
 
 import (
 	"fmt"
 	"log"
-	"os"
 	"pedro-go/db"
 	"pedro-go/domain"
 	"pedro-go/ra"
@@ -13,20 +12,13 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func main() {
-	token := os.Getenv("TELEGRAM_TOKEN")
-	if token == "" {
-		log.Fatal("TELEGRAM_TOKEN is missing")
+func Pedro(botToken, dsn string) {
+	repo, err := db.NewGormArtistRepository(dsn)
+	if err != nil {
+		log.Fatalf("Cannot connect to db %v", err)
 	}
 
-	Pedro(token)
-}
-
-func Pedro(botToken string) {
-	r := domain.NewArtistRegistry(
-		db.NewInMemoryArtistRepository(),
-		ra.NewClient("https://ra.co/graphql"),
-	)
+	r := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co/graphql"))
 
 	pref := tele.Settings{
 		Token:   botToken,
