@@ -33,29 +33,31 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 		return
 	}
 
-	bot.Use(middleware.Logger())
 	bot.Use(middleware.Whitelist(allowedUserIds...))
 
-	bot.Handle("/follow", func(c tele.Context) error {
-		tags := c.Args()
-		slug, err := ra.NewSlug(tags[0])
-		if err != nil {
-			log.Print(err)
-			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")
-		}
-		userId := domain.UserId(c.Sender().ID)
+	log.Print("Started Pedro")
 
-		log.Printf("%v started following %v", userId, slug)
-		err = r.Follow(slug, userId)
+	bot.Handle("/follow", followArtist(r))
+	bot.Handle("/list", listArtists(r))
+	bot.Handle("/events", listEvents(r))
+	bot.Start()
+}
+
+func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
+	return func(c tele.Context) error {
+		artists, err := r.ArtistsFor(domain.UserId(c.Sender().ID))
+		eventsFor, err := r.EventsFor(artists[0])
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
 		}
 
-		return c.Send("Done!")
-	})
+		return c.Send(fmt.Sprintf("Event:\n%v", eventsFor))
+	}
+}
 
-	bot.Handle("/list", func(c tele.Context) error {
+func listArtists(r *domain.ArtistRegistry) func(c tele.Context) error {
+	return func(c tele.Context) error {
 		artists, err := r.ArtistsFor(domain.UserId(c.Sender().ID))
 		if err != nil {
 			log.Print(err)
@@ -72,19 +74,26 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 		}
 
 		return c.Send(fmt.Sprintf("You're following:\n%v", strings.Join(res, "\n")))
-	})
+	}
+}
 
-	bot.Handle("/events", func(c tele.Context) error {
-		artists, err := r.ArtistsFor(domain.UserId(c.Sender().ID))
-		eventsFor, err := r.EventsFor(artists[0])
+func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
+	return func(c tele.Context) error {
+		tags := c.Args()
+		slug, err := ra.NewSlug(tags[0])
+		if err != nil {
+			log.Print(err)
+			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")
+		}
+		userId := domain.UserId(c.Sender().ID)
+
+		log.Printf("%v started following %v", userId, slug)
+		err = r.Follow(slug, userId)
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
 		}
 
-		return c.Send(fmt.Sprintf("Event:\n%v", eventsFor))
-	})
-
-	log.Print("Started Pedro")
-	bot.Start()
+		return c.Send("Done!")
+	}
 }
