@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"fmt"
+	"gopkg.in/telebot.v3/middleware"
 	"log"
 	"pedro-go/db"
 	"pedro-go/domain"
@@ -12,7 +13,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func Pedro(botToken, dsn string) {
+func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	repo, err := db.NewGormArtistRepository(dsn)
 	if err != nil {
 		log.Fatalf("Cannot connect to db %v", err)
@@ -32,16 +33,26 @@ func Pedro(botToken, dsn string) {
 		return
 	}
 
+	bot.Use(middleware.Logger())
+	bot.Use(middleware.Whitelist(allowedUserIds...))
+
 	bot.Handle("/follow", func(c tele.Context) error {
 		tags := c.Args()
+		slug, err := ra.NewSlug(tags[0])
+		if err != nil {
+			log.Print(err)
+			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")
+		}
+		userId := domain.UserId(c.Sender().ID)
 
-		err = r.Follow(ra.Slug(tags[0]), domain.UserId(c.Sender().ID))
+		log.Printf("%v started following %v", userId, slug)
+		err = r.Follow(slug, userId)
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
 		}
 
-		return c.Send("Hello!")
+		return c.Send("Done!")
 	})
 
 	bot.Handle("/list", func(c tele.Context) error {

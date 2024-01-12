@@ -1,6 +1,8 @@
 module pedro-go
 
-go 1.20
+go 1.21
+
+toolchain go1.21.4
 
 require (
 	gopkg.in/telebot.v3 v3.2.1
@@ -12,4 +14,5 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-sqlite3 v1.14.19 // indirect
+	github.com/sethvargo/go-envconfig v1.0.0 // indirect
 )

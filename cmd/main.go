@@ -1,25 +1,25 @@
 package main
 
 import (
+	"context"
+	"github.com/sethvargo/go-envconfig"
 	"log"
-	"os"
 	"pedro-go/telegram"
 )
 
-var (
-	token = os.Getenv("TELEGRAM_TOKEN")
-	dsn   = os.Getenv("DSN")
-)
+type PedroConfig struct {
+	TelegramToken  string  `env:"TELEGRAM_TOKEN"`
+	DSN            string  `env:"DSN"`
+	AllowedUserIds []int64 `env:"ALLOWED_USER_IDS"`
+}
 
 func main() {
-	if token == "" {
-		log.Fatal("TELEGRAM_TOKEN is missing")
+	ctx := context.Background()
+
+	var cfg PedroConfig
+	if err := envconfig.Process(ctx, &cfg); err != nil {
+		log.Fatal(err)
 	}
 
-	// GORM will create a new DB if the DSN doesn't match
-	if dsn == "" {
-		log.Fatal("DSN is missing")
-	}
-
-	telegram.Pedro(token, dsn)
+	telegram.Pedro(cfg.TelegramToken, cfg.DSN, cfg.AllowedUserIds)
 }
