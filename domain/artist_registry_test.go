@@ -102,10 +102,6 @@ func TestArtistRegistry(t *testing.T) {
 		expect.Equal(t, err.Error(), ErrNotFoundOnRA.Error())
 	})
 
-	//t.Run("adds slug to queue if RA is not reachable", func(t *testing.T) {
-	//	t.Fail() TODO
-	//})
-
 	t.Run("follows new artist as user", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
 			map[ra.Slug]ra.ArtistWithEvents{
@@ -184,7 +180,7 @@ func TestArtistRegistry(t *testing.T) {
 		//expect.DeepEqual(t, got[0].FollowedBy, UserIds{UserId(1), UserId(2)})
 	})
 
-	t.Run("fetches all events for artist in the next 7 days", func(t *testing.T) {
+	t.Run("fetches all events for artist in the next month", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
 			map[ra.Slug]ra.ArtistWithEvents{
 				"boysnoize": {
@@ -213,7 +209,7 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		events, err := registry.EventsFor(Artist{
+		events, err := registry.AllEventsForArtist(Artist{
 			Id:         1,
 			RAId:       "222",
 			RASlug:     "sinamin",
@@ -225,4 +221,51 @@ func TestArtistRegistry(t *testing.T) {
 		expect.Equal(t, len(events), 2)
 	})
 
+	t.Run("reports only new events to user", func(t *testing.T) {
+		events := []ra.Event{
+			{
+				Id:         "3",
+				Title:      "Kater Blau Night",
+				Date:       "2023-11-04T00:00:00.000",
+				StartTime:  "2023-11-04T13:00:00.000",
+				ContentUrl: "/events/3",
+			},
+			{
+				Id:         "1",
+				Title:      "Klubnacht",
+				Date:       "2023-11-04T00:00:00.000",
+				StartTime:  "2023-11-04T13:00:00.000",
+				ContentUrl: "/events/1789025",
+			},
+			{
+				Id:         "2",
+				Title:      "Klubnacht 2",
+				Date:       "2023-11-04T00:00:00.000",
+				StartTime:  "2023-11-04T13:00:00.000",
+				ContentUrl: "/events/1789025",
+			},
+		}
+		registry := NewInMemoryArtistRegistry(
+			map[ra.Slug]ra.ArtistWithEvents{
+				"boysnoize": {
+					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
+					EventsData: []ra.Event{events[0]},
+				},
+				"sinamin": {
+					Artist:     ra.Artist{RAID: "222", Name: "Sinamin"},
+					EventsData: []ra.Event{events[1], events[2]},
+				},
+			},
+		)
+
+		joe := UserId(1)
+
+		var err error
+		err = registry.Follow("boysnoize", joe)
+		err = registry.Follow("sinamin", joe)
+		eventsForUser, err := registry.NewEventsForUser(joe)
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, eventsForUser, events)
+	})
 }

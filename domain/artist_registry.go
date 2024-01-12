@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"pedro-go/ra"
 	"slices"
@@ -56,8 +57,29 @@ func (r *ArtistRegistry) ArtistsFor(userId UserId) (Artists, error) {
 	return r.All().FilterByUserId(userId), nil
 }
 
-func (r *ArtistRegistry) EventsFor(artist Artist) ([]ra.Event, error) {
+func (r *ArtistRegistry) AllEventsForArtist(artist Artist) ([]ra.Event, error) {
 	now := time.Now()
 	//TODO wrap error
-	return r.RA.GetEventsByArtistId(artist.RAId, now, now.Add(9*24*time.Hour))
+	return r.RA.GetEventsByArtistId(artist.RAId, now, now.Add(31*24*time.Hour))
+}
+
+func (r *ArtistRegistry) NewEventsForUser(id UserId) ([]ra.Event, error) {
+	artists, _ := r.ArtistsFor(id)
+
+	//TODO goroutine
+	var eventsPerArtist [][]ra.Event
+	for _, artist := range artists {
+		e, err := r.AllEventsForArtist(artist)
+		if err != nil {
+			return nil, fmt.Errorf("can't fetch events right now: %v", err)
+		}
+		eventsPerArtist = append(eventsPerArtist, e)
+	}
+
+	var flattened []ra.Event
+	for _, e := range eventsPerArtist {
+		flattened = append(flattened, e...)
+	}
+
+	return flattened, nil
 }

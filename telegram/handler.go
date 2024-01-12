@@ -46,7 +46,7 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
 	return func(c tele.Context) error {
 		artists, err := r.ArtistsFor(domain.UserId(c.Sender().ID))
-		eventsFor, err := r.EventsFor(artists[0])
+		eventsFor, err := r.AllEventsForArtist(artists[0])
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
