@@ -41,11 +41,11 @@ func (c *InMemoryClient) GetEventsByArtistId(
 	}
 
 	if len(fil) == 0 {
-		log.Fatalf("No artist found for Id %v", raId)
+		log.Fatalf("No artist found for ID %v", raId)
 	}
 
 	if len(fil) > 1 {
-		log.Fatalf("More than one artist found for Id %v", raId)
+		log.Fatalf("More than one artist found for ID %v", raId)
 	}
 
 	return fil[0].EventsData, nil

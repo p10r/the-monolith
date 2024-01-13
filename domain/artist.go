@@ -6,11 +6,12 @@ import (
 )
 
 type Artist struct {
-	Id         int64
-	RAId       string
-	RASlug     ra.Slug
-	Name       string
-	FollowedBy UserIds
+	ID            int64
+	RAId          string
+	RASlug        ra.Slug
+	Name          string
+	FollowedBy    UserIds
+	TrackedEvents EventIds
 }
 
 func (a Artist) AddFollower(id UserId) Artist {
@@ -50,3 +51,6 @@ func (a Artists) RASlugs() []ra.Slug {
 
 type UserId int64
 type UserIds []UserId
+
+type EventId int64
+type EventIds []EventId

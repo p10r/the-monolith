@@ -1,7 +1,6 @@
-package db_test
+package db
 
 import (
-	"pedro-go/db"
 	d "pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
@@ -10,7 +9,7 @@ import (
 func TestInMemoryArtistRepository(t *testing.T) {
 	t.Run("verify contract for in-memory repo", func(t *testing.T) {
 		d.ArtistRepositoryContract{NewRepository: func() d.ArtistRepository {
-			return db.NewInMemoryArtistRepository()
+			return NewInMemoryArtistRepository()
 		}}.Test(t)
 	})
 }
@@ -18,49 +17,51 @@ func TestInMemoryArtistRepository(t *testing.T) {
 func TestGormArtistRepository(t *testing.T) {
 	t.Run("verify contract for sqlite db", func(t *testing.T) {
 		d.ArtistRepositoryContract{NewRepository: func() d.ArtistRepository {
-			repo, _ := db.NewGormArtistRepository("file::memory:")
+			repo, _ := NewGormArtistRepository("file::memory:")
 			return repo
 		}}.Test(t)
 	})
 
-	t.Run("map user IDs to string list", func(t *testing.T) {
+	//same is being mapped for domain.EventIDs
+	t.Run("map domain IDs to string list", func(t *testing.T) {
 		for _, tc := range []struct {
 			Input d.UserIds
-			Want  db.UserIdsString
+			Want  commaSeparatedStr
 		}{
 			{
 				Input: d.UserIds{d.UserId(1), d.UserId(2), d.UserId(3), d.UserId(4)},
-				Want:  db.UserIdsString("1,2,3,4"),
+				Want:  commaSeparatedStr("1,2,3,4"),
 			},
 			{
 				Input: d.UserIds{},
-				Want:  db.UserIdsString(""),
+				Want:  commaSeparatedStr(""),
 			},
 		} {
-			got := db.NewUserIdString(tc.Input)
+			got := newUserIdString(tc.Input)
 			expect.Equal(t, got, tc.Want)
 		}
 	})
 
-	t.Run("map id string to user ids", func(t *testing.T) {
+	//same is being mapped for domain.EventIDs
+	t.Run("map id string to domain ids", func(t *testing.T) {
 		for _, tc := range []struct {
-			Input db.UserIdsString
+			Input commaSeparatedStr
 			Want  d.UserIds
 		}{
 			{
-				Input: db.UserIdsString("1,2,3,4"),
+				Input: commaSeparatedStr("1,2,3,4"),
 				Want:  d.UserIds{d.UserId(1), d.UserId(2), d.UserId(3), d.UserId(4)},
 			},
 			{
-				Input: db.UserIdsString(""),
+				Input: commaSeparatedStr(""),
 				Want:  d.UserIds{},
 			},
 			{
-				Input: db.UserIdsString("1 , 2 , 3 ,     4     "),
+				Input: commaSeparatedStr("1 , 2 , 3 ,     4     "),
 				Want:  d.UserIds{d.UserId(1), d.UserId(2), d.UserId(3), d.UserId(4)},
 			},
 		} {
-			expect.DeepEqual(t, tc.Input.ToUserIds(), tc.Want)
+			expect.DeepEqual(t, tc.Input.toUserIds(), tc.Want)
 		}
 	})
 }

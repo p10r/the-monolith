@@ -20,15 +20,15 @@ func NewInMemoryArtistRepository() *InMemoryArtistRepository {
 }
 
 func (r *InMemoryArtistRepository) Save(artist domain.Artist) (domain.Artist, error) {
-	if artist.Id != 0 {
-		r.artists[artist.Id] = artist
+	if artist.ID != 0 {
+		r.artists[artist.ID] = artist
 		return artist, nil
 	}
 
-	artist.Id = r.id.Load()
+	artist.ID = r.id.Load()
 	r.id.Add(1)
 
-	r.artists[artist.Id] = artist
+	r.artists[artist.ID] = artist
 
 	return artist, nil
 }
@@ -43,7 +43,7 @@ func (r *InMemoryArtistRepository) All() (domain.Artists, error) {
 
 	//Order by ID
 	slices.SortFunc(a, func(a, b domain.Artist) int {
-		return cmp.Compare(a.Id, b.Id)
+		return cmp.Compare(a.ID, b.ID)
 	})
 
 	return a, nil

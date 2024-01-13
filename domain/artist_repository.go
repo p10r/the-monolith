@@ -18,20 +18,22 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 	t.Run("adds artist", func(t *testing.T) {
 		r := c.NewRepository()
 		artist := Artist{
-			RAId:       "943",
-			RASlug:     "boysnoize",
-			Name:       "Boys Noize",
-			FollowedBy: UserIds{},
+			RAId:          "943",
+			RASlug:        "boysnoize",
+			Name:          "Boys Noize",
+			FollowedBy:    UserIds{UserId(1)},
+			TrackedEvents: EventIds{EventId(1)},
 		}
 		_, err := r.Save(artist)
 
 		want := Artists{
 			Artist{
-				Id:         1,
-				RAId:       "943",
-				RASlug:     "boysnoize",
-				Name:       "Boys Noize",
-				FollowedBy: UserIds{},
+				ID:            1,
+				RAId:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    UserIds{UserId(1)},
+				TrackedEvents: EventIds{EventId(1)},
 			},
 		}
 		got, err := r.All()
@@ -44,10 +46,11 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 		r := c.NewRepository()
 
 		artist := Artist{
-			RAId:       "943",
-			RASlug:     "boysnoize",
-			Name:       "Boys Noize",
-			FollowedBy: UserIds{UserId(1)},
+			RAId:          "943",
+			RASlug:        "boysnoize",
+			Name:          "Boys Noize",
+			FollowedBy:    UserIds{UserId(1)},
+			TrackedEvents: EventIds{},
 		}
 		first, err := r.Save(artist)
 
@@ -56,11 +59,44 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 
 		want := Artists{
 			Artist{
-				Id:         1,
-				RAId:       "943",
-				RASlug:     "boysnoize",
-				Name:       "Boys Noize",
-				FollowedBy: UserIds{UserId(1), UserId(2)},
+				ID:            1,
+				RAId:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    UserIds{UserId(1), UserId(2)},
+				TrackedEvents: EventIds{},
+			},
+		}
+
+		got, err := r.All()
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, got, want)
+	})
+
+	t.Run("updates events", func(t *testing.T) {
+		r := c.NewRepository()
+
+		artist := Artist{
+			RAId:          "943",
+			RASlug:        "boysnoize",
+			Name:          "Boys Noize",
+			FollowedBy:    UserIds{},
+			TrackedEvents: EventIds{EventId(1)},
+		}
+		first, err := r.Save(artist)
+
+		first.TrackedEvents = EventIds{EventId(1), EventId(2)}
+		_, err = r.Save(first)
+
+		want := Artists{
+			Artist{
+				ID:            1,
+				RAId:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    UserIds{},
+				TrackedEvents: EventIds{EventId(1), EventId(2)},
 			},
 		}
 

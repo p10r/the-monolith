@@ -36,14 +36,14 @@ func TestArtistRegistry(t *testing.T) {
 		got := registry.All()
 		want := Artists{
 			{
-				Id:         1,
+				ID:         1,
 				RAId:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
 				FollowedBy: UserIds{UserId(1)},
 			},
 			{
-				Id:         2,
+				ID:         2,
 				RAId:       "222",
 				RASlug:     "sinamin",
 				Name:       "Sinamin",
@@ -65,7 +65,7 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		want := []Artist{{Id: 1, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIds{UserId(1)}}}
+		want := []Artist{{ID: 1, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIds{UserId(1)}}}
 		err := registry.Follow("daftpunk", UserId(1))
 
 		expect.NoErr(t, err)
@@ -83,7 +83,7 @@ func TestArtistRegistry(t *testing.T) {
 		)
 
 		want := Artists{
-			{Id: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIds{UserId(1)}},
+			{ID: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIds{UserId(1)}},
 		}
 		err := registry.Follow("boysnoize", UserId(1))
 
@@ -122,7 +122,7 @@ func TestArtistRegistry(t *testing.T) {
 		got, err := registry.ArtistsFor(UserId(1))
 		want := Artists{
 			Artist{
-				Id:         1,
+				ID:         1,
 				RAId:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
@@ -210,7 +210,7 @@ func TestArtistRegistry(t *testing.T) {
 		)
 
 		events, err := registry.AllEventsForArtist(Artist{
-			Id:         1,
+			ID:         1,
 			RAId:       "222",
 			RASlug:     "sinamin",
 			Name:       "Sinamin",
@@ -267,5 +267,10 @@ func TestArtistRegistry(t *testing.T) {
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, eventsForUser, events)
+		//
+		//newlyFetched, err := registry.NewEventsForUser(joe)
+		//
+		//expect.NoErr(t, err)
+		//expect.Len(t, newlyFetched, 0)
 	})
 }

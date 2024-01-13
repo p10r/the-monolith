@@ -8,7 +8,7 @@ import (
 func TestArtist(t *testing.T) {
 	t.Run("add follower", func(t *testing.T) {
 		artist := Artist{
-			Id:         1,
+			ID:         1,
 			RAId:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
@@ -25,7 +25,7 @@ func TestArtist(t *testing.T) {
 
 	t.Run("ignores if already following", func(t *testing.T) {
 		artist := Artist{
-			Id:         1,
+			ID:         1,
 			RAId:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
@@ -42,7 +42,7 @@ func TestArtist(t *testing.T) {
 
 	t.Run("adds another follower on top", func(t *testing.T) {
 		artist := Artist{
-			Id:         1,
+			ID:         1,
 			RAId:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
@@ -59,7 +59,7 @@ func TestArtist(t *testing.T) {
 
 	t.Run("removes follower", func(t *testing.T) {
 		artist := Artist{
-			Id:         1,
+			ID:         1,
 			RAId:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
@@ -75,7 +75,7 @@ func TestArtist(t *testing.T) {
 
 	t.Run("doesn't remove follower if not present", func(t *testing.T) {
 		artist := Artist{
-			Id:         1,
+			ID:         1,
 			RAId:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
@@ -91,21 +91,21 @@ func TestArtist(t *testing.T) {
 	t.Run("filters artists by user id", func(t *testing.T) {
 		artists := Artists{
 			{
-				Id:         1,
+				ID:         1,
 				RAId:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
 				FollowedBy: UserIds{UserId(1)},
 			},
 			{
-				Id:         2,
+				ID:         2,
 				RAId:       "222",
 				RASlug:     "sinamin",
 				Name:       "Sinamin",
 				FollowedBy: UserIds{UserId(1), UserId(2)},
 			},
 			{
-				Id:         3,
+				ID:         3,
 				RAId:       "111",
 				RASlug:     "daftpunk",
 				Name:       "Daft Punk",
@@ -122,7 +122,7 @@ func TestArtist(t *testing.T) {
 	t.Run("returns empty list if none is matching the user id", func(t *testing.T) {
 		artists := Artists{
 			{
-				Id:         1,
+				ID:         1,
 				RAId:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
