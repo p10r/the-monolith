@@ -9,16 +9,16 @@ func TestArtist(t *testing.T) {
 	t.Run("add follower", func(t *testing.T) {
 		artist := Artist{
 			ID:         1,
-			RAId:       "943",
+			RAID:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
-			FollowedBy: UserIds{},
+			FollowedBy: UserIDs{},
 		}
 
-		got := artist.AddFollower(UserId(1))
+		got := artist.AddFollower(UserID(1))
 
 		want := artist
-		want.FollowedBy = UserIds{UserId(1)}
+		want.FollowedBy = UserIDs{UserID(1)}
 
 		expect.DeepEqual(t, got, want)
 	})
@@ -26,16 +26,16 @@ func TestArtist(t *testing.T) {
 	t.Run("ignores if already following", func(t *testing.T) {
 		artist := Artist{
 			ID:         1,
-			RAId:       "943",
+			RAID:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
-			FollowedBy: UserIds{},
+			FollowedBy: UserIDs{},
 		}
 
-		got := artist.AddFollower(UserId(1)).AddFollower(UserId(1))
+		got := artist.AddFollower(UserID(1)).AddFollower(UserID(1))
 
 		want := artist
-		want.FollowedBy = UserIds{UserId(1)}
+		want.FollowedBy = UserIDs{UserID(1)}
 
 		expect.DeepEqual(t, got, want)
 	})
@@ -43,16 +43,16 @@ func TestArtist(t *testing.T) {
 	t.Run("adds another follower on top", func(t *testing.T) {
 		artist := Artist{
 			ID:         1,
-			RAId:       "943",
+			RAID:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
-			FollowedBy: UserIds{},
+			FollowedBy: UserIDs{},
 		}
 
-		got := artist.AddFollower(UserId(1)).AddFollower(UserId(2))
+		got := artist.AddFollower(UserID(1)).AddFollower(UserID(2))
 
 		want := artist
-		want.FollowedBy = UserIds{UserId(1), UserId(2)}
+		want.FollowedBy = UserIDs{UserID(1), UserID(2)}
 
 		expect.DeepEqual(t, got, want)
 	})
@@ -60,15 +60,15 @@ func TestArtist(t *testing.T) {
 	t.Run("removes follower", func(t *testing.T) {
 		artist := Artist{
 			ID:         1,
-			RAId:       "943",
+			RAID:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
-			FollowedBy: UserIds{UserId(1)},
+			FollowedBy: UserIDs{UserID(1)},
 		}
 
-		got := artist.RemoveFollower(UserId(1))
+		got := artist.RemoveFollower(UserID(1))
 		want := artist
-		want.FollowedBy = UserIds{}
+		want.FollowedBy = UserIDs{}
 
 		expect.DeepEqual(t, got, want)
 	})
@@ -76,13 +76,13 @@ func TestArtist(t *testing.T) {
 	t.Run("doesn't remove follower if not present", func(t *testing.T) {
 		artist := Artist{
 			ID:         1,
-			RAId:       "943",
+			RAID:       "943",
 			RASlug:     "boysnoize",
 			Name:       "Boys Noize",
-			FollowedBy: UserIds{},
+			FollowedBy: UserIDs{},
 		}
 
-		got := artist.RemoveFollower(UserId(1))
+		got := artist.RemoveFollower(UserID(1))
 
 		want := artist
 		expect.DeepEqual(t, got, want)
@@ -92,28 +92,28 @@ func TestArtist(t *testing.T) {
 		artists := Artists{
 			{
 				ID:         1,
-				RAId:       "943",
+				RAID:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
-				FollowedBy: UserIds{UserId(1)},
+				FollowedBy: UserIDs{UserID(1)},
 			},
 			{
 				ID:         2,
-				RAId:       "222",
+				RAID:       "222",
 				RASlug:     "sinamin",
 				Name:       "Sinamin",
-				FollowedBy: UserIds{UserId(1), UserId(2)},
+				FollowedBy: UserIDs{UserID(1), UserID(2)},
 			},
 			{
 				ID:         3,
-				RAId:       "111",
+				RAID:       "111",
 				RASlug:     "daftpunk",
 				Name:       "Daft Punk",
-				FollowedBy: UserIds{UserId(3)},
+				FollowedBy: UserIDs{UserID(3)},
 			},
 		}
 
-		got := artists.FilterByUserId(UserId(1))
+		got := artists.FilterByUserId(UserID(1))
 		want := Artists{artists[0], artists[1]}
 
 		expect.DeepEqual(t, got, want)
@@ -123,14 +123,14 @@ func TestArtist(t *testing.T) {
 		artists := Artists{
 			{
 				ID:         1,
-				RAId:       "943",
+				RAID:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
-				FollowedBy: UserIds{UserId(1)},
+				FollowedBy: UserIDs{UserID(1)},
 			},
 		}
 
-		got := len(artists.FilterByUserId(UserId(2)))
+		got := len(artists.FilterByUserId(UserID(2)))
 
 		expect.Equal(t, got, 0)
 	})

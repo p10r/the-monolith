@@ -45,7 +45,7 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 
 func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
 	return func(c tele.Context) error {
-		artists, err := r.ArtistsFor(domain.UserId(c.Sender().ID))
+		artists, err := r.ArtistsFor(domain.UserID(c.Sender().ID))
 		eventsFor, err := r.AllEventsForArtist(artists[0])
 		if err != nil {
 			log.Print(err)
@@ -58,7 +58,7 @@ func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
 
 func listArtists(r *domain.ArtistRegistry) func(c tele.Context) error {
 	return func(c tele.Context) error {
-		artists, err := r.ArtistsFor(domain.UserId(c.Sender().ID))
+		artists, err := r.ArtistsFor(domain.UserID(c.Sender().ID))
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
@@ -85,7 +85,7 @@ func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
 			log.Print(err)
 			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")
 		}
-		userId := domain.UserId(c.Sender().ID)
+		userId := domain.UserID(c.Sender().ID)
 
 		log.Printf("%v started following %v", userId, slug)
 		err = r.Follow(slug, userId)

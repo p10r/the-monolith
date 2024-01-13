@@ -23,3 +23,4 @@ area.
 - throw error if artist cant be found
 - indicate if there's a space
 - do vulnerability checks
+- rename Id to ID

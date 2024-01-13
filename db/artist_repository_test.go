@@ -25,15 +25,15 @@ func TestGormArtistRepository(t *testing.T) {
 	//same is being mapped for domain.EventIDs
 	t.Run("map domain IDs to string list", func(t *testing.T) {
 		for _, tc := range []struct {
-			Input d.UserIds
+			Input d.UserIDs
 			Want  commaSeparatedStr
 		}{
 			{
-				Input: d.UserIds{d.UserId(1), d.UserId(2), d.UserId(3), d.UserId(4)},
+				Input: d.UserIDs{d.UserID(1), d.UserID(2), d.UserID(3), d.UserID(4)},
 				Want:  commaSeparatedStr("1,2,3,4"),
 			},
 			{
-				Input: d.UserIds{},
+				Input: d.UserIDs{},
 				Want:  commaSeparatedStr(""),
 			},
 		} {
@@ -46,19 +46,19 @@ func TestGormArtistRepository(t *testing.T) {
 	t.Run("map id string to domain ids", func(t *testing.T) {
 		for _, tc := range []struct {
 			Input commaSeparatedStr
-			Want  d.UserIds
+			Want  d.UserIDs
 		}{
 			{
 				Input: commaSeparatedStr("1,2,3,4"),
-				Want:  d.UserIds{d.UserId(1), d.UserId(2), d.UserId(3), d.UserId(4)},
+				Want:  d.UserIDs{d.UserID(1), d.UserID(2), d.UserID(3), d.UserID(4)},
 			},
 			{
 				Input: commaSeparatedStr(""),
-				Want:  d.UserIds{},
+				Want:  d.UserIDs{},
 			},
 			{
 				Input: commaSeparatedStr("1 , 2 , 3 ,     4     "),
-				Want:  d.UserIds{d.UserId(1), d.UserId(2), d.UserId(3), d.UserId(4)},
+				Want:  d.UserIDs{d.UserID(1), d.UserID(2), d.UserID(3), d.UserID(4)},
 			},
 		} {
 			expect.DeepEqual(t, tc.Input.toUserIds(), tc.Want)

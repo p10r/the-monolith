@@ -7,14 +7,14 @@ import (
 
 type Artist struct {
 	ID            int64
-	RAId          string
+	RAID          string
 	RASlug        ra.Slug
 	Name          string
-	FollowedBy    UserIds
-	TrackedEvents EventIds
+	FollowedBy    UserIDs
+	TrackedEvents EventIDs
 }
 
-func (a Artist) AddFollower(id UserId) Artist {
+func (a Artist) AddFollower(id UserID) Artist {
 	if slices.Contains(a.FollowedBy, id) {
 		return a
 	}
@@ -22,8 +22,8 @@ func (a Artist) AddFollower(id UserId) Artist {
 	return a
 }
 
-func (a Artist) RemoveFollower(id UserId) Artist {
-	a.FollowedBy = slices.DeleteFunc(a.FollowedBy, func(existingId UserId) bool {
+func (a Artist) RemoveFollower(id UserID) Artist {
+	a.FollowedBy = slices.DeleteFunc(a.FollowedBy, func(existingId UserID) bool {
 		return existingId == id
 	})
 	return a
@@ -31,7 +31,7 @@ func (a Artist) RemoveFollower(id UserId) Artist {
 
 type Artists []Artist
 
-func (a Artists) FilterByUserId(id UserId) Artists {
+func (a Artists) FilterByUserId(id UserID) Artists {
 	var found Artists
 	for _, artist := range a {
 		if slices.Contains(artist.FollowedBy, id) {
@@ -49,8 +49,8 @@ func (a Artists) RASlugs() []ra.Slug {
 	return slugs
 }
 
-type UserId int64
-type UserIds []UserId
+type UserID int64
+type UserIDs []UserID
 
-type EventId int64
-type EventIds []EventId
+type EventID int64
+type EventIDs []EventID

@@ -28,7 +28,7 @@ func (r *ArtistRegistry) All() Artists {
 	return all
 }
 
-func (r *ArtistRegistry) Follow(slug ra.Slug, userId UserId) error {
+func (r *ArtistRegistry) Follow(slug ra.Slug, userId UserID) error {
 	all := r.All()
 	i := slices.Index(all.RASlugs(), slug)
 	if i != -1 {
@@ -43,27 +43,27 @@ func (r *ArtistRegistry) Follow(slug ra.Slug, userId UserId) error {
 	}
 
 	artist := Artist{
-		RAId:       res.RAID,
+		RAID:       res.RAID,
 		RASlug:     slug,
 		Name:       res.Name,
-		FollowedBy: UserIds{userId},
+		FollowedBy: UserIDs{userId},
 	}
 	r.Repo.Save(artist)
 
 	return nil
 }
 
-func (r *ArtistRegistry) ArtistsFor(userId UserId) (Artists, error) {
+func (r *ArtistRegistry) ArtistsFor(userId UserID) (Artists, error) {
 	return r.All().FilterByUserId(userId), nil
 }
 
 func (r *ArtistRegistry) AllEventsForArtist(artist Artist) ([]ra.Event, error) {
 	now := time.Now()
 	//TODO wrap error
-	return r.RA.GetEventsByArtistId(artist.RAId, now, now.Add(31*24*time.Hour))
+	return r.RA.GetEventsByArtistId(artist.RAID, now, now.Add(31*24*time.Hour))
 }
 
-func (r *ArtistRegistry) NewEventsForUser(id UserId) ([]ra.Event, error) {
+func (r *ArtistRegistry) NewEventsForUser(id UserID) ([]ra.Event, error) {
 	artists, _ := r.ArtistsFor(id)
 
 	//TODO goroutine

@@ -30,24 +30,24 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		err := registry.Follow("boysnoize", UserId(1))
-		err = registry.Follow("sinamin", UserId(1))
+		err := registry.Follow("boysnoize", UserID(1))
+		err = registry.Follow("sinamin", UserID(1))
 
 		got := registry.All()
 		want := Artists{
 			{
 				ID:         1,
-				RAId:       "943",
+				RAID:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
-				FollowedBy: UserIds{UserId(1)},
+				FollowedBy: UserIDs{UserID(1)},
 			},
 			{
 				ID:         2,
-				RAId:       "222",
+				RAID:       "222",
 				RASlug:     "sinamin",
 				Name:       "Sinamin",
-				FollowedBy: UserIds{UserId(1)},
+				FollowedBy: UserIDs{UserID(1)},
 			},
 		}
 
@@ -65,8 +65,8 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		want := []Artist{{ID: 1, RAId: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIds{UserId(1)}}}
-		err := registry.Follow("daftpunk", UserId(1))
+		want := []Artist{{ID: 1, RAID: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIDs{UserID(1)}}}
+		err := registry.Follow("daftpunk", UserID(1))
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, registry.All(), want)
@@ -83,9 +83,9 @@ func TestArtistRegistry(t *testing.T) {
 		)
 
 		want := Artists{
-			{ID: 1, RAId: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIds{UserId(1)}},
+			{ID: 1, RAID: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIDs{UserID(1)}},
 		}
-		err := registry.Follow("boysnoize", UserId(1))
+		err := registry.Follow("boysnoize", UserID(1))
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, registry.All(), want)
@@ -96,7 +96,7 @@ func TestArtistRegistry(t *testing.T) {
 			map[ra.Slug]ra.ArtistWithEvents{},
 		)
 
-		err := registry.Follow("unknown", UserId(1))
+		err := registry.Follow("unknown", UserID(1))
 
 		expect.Err(t, err)
 		expect.Equal(t, err.Error(), ErrNotFoundOnRA.Error())
@@ -116,17 +116,17 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		err := registry.Follow("boysnoize", UserId(1))
-		err = registry.Follow("sinamin", UserId(2))
+		err := registry.Follow("boysnoize", UserID(1))
+		err = registry.Follow("sinamin", UserID(2))
 
-		got, err := registry.ArtistsFor(UserId(1))
+		got, err := registry.ArtistsFor(UserID(1))
 		want := Artists{
 			Artist{
 				ID:         1,
-				RAId:       "943",
+				RAID:       "943",
 				RASlug:     "boysnoize",
 				Name:       "Boys Noize",
-				FollowedBy: UserIds{UserId(1)},
+				FollowedBy: UserIDs{UserID(1)},
 			},
 		}
 
@@ -147,14 +147,14 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		)
-		err := registry.Follow("boysnoize", UserId(1))
-		err = registry.Follow("boysnoize", UserId(1))
+		err := registry.Follow("boysnoize", UserID(1))
+		err = registry.Follow("boysnoize", UserID(1))
 
-		got, err := registry.ArtistsFor(UserId(1))
+		got, err := registry.ArtistsFor(UserID(1))
 
 		expect.NoErr(t, err)
 		expect.True(t, len(got) == 1)
-		expect.DeepEqual(t, got[0].FollowedBy, UserIds{UserId(1)})
+		expect.DeepEqual(t, got[0].FollowedBy, UserIDs{UserID(1)})
 	})
 
 	t.Run("follows existing artist", func(t *testing.T) {
@@ -170,14 +170,14 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		)
-		err := registry.Follow("boysnoize", UserId(1))
-		err = registry.Follow("boysnoize", UserId(2))
+		err := registry.Follow("boysnoize", UserID(1))
+		err = registry.Follow("boysnoize", UserID(2))
 
-		got, err := registry.ArtistsFor(UserId(2))
+		got, err := registry.ArtistsFor(UserID(2))
 
 		expect.NoErr(t, err)
 		expect.Equal(t, len(got), 1)
-		//expect.DeepEqual(t, got[0].FollowedBy, UserIds{UserId(1), UserId(2)})
+		//expect.DeepEqual(t, got[0].FollowedBy, UserIDs{UserID(1), UserID(2)})
 	})
 
 	t.Run("fetches all events for artist in the next month", func(t *testing.T) {
@@ -211,7 +211,7 @@ func TestArtistRegistry(t *testing.T) {
 
 		events, err := registry.AllEventsForArtist(Artist{
 			ID:         1,
-			RAId:       "222",
+			RAID:       "222",
 			RASlug:     "sinamin",
 			Name:       "Sinamin",
 			FollowedBy: nil,
@@ -258,7 +258,7 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		joe := UserId(1)
+		joe := UserID(1)
 
 		var err error
 		err = registry.Follow("boysnoize", joe)

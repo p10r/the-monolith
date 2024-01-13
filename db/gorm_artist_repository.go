@@ -33,7 +33,7 @@ func NewGormArtistRepository(dsn string) (*GormArtistRepository, error) {
 func (r GormArtistRepository) Save(artist domain.Artist) (domain.Artist, error) {
 	entity := &artistEntity{
 		ID:            artist.ID,
-		RAId:          artist.RAId,
+		RAId:          artist.RAID,
 		RASlug:        string(artist.RASlug),
 		Name:          artist.Name,
 		FollowedBy:    newUserIdString(artist.FollowedBy),
@@ -54,7 +54,7 @@ func (r GormArtistRepository) All() (domain.Artists, error) {
 	for _, e := range entities {
 		a := domain.Artist{
 			ID:            e.ID,
-			RAId:          e.RAId,
+			RAID:          e.RAId,
 			RASlug:        ra.Slug(e.RASlug),
 			Name:          e.Name,
 			FollowedBy:    e.FollowedBy.toUserIds(),
@@ -79,7 +79,7 @@ type artistEntity struct {
 
 type commaSeparatedStr string
 
-func newUserIdString(ids domain.UserIds) commaSeparatedStr {
+func newUserIdString(ids domain.UserIDs) commaSeparatedStr {
 	var strIds []string
 	for _, id := range ids {
 		strIds = append(strIds, strconv.FormatInt(int64(id), 10))
@@ -87,7 +87,7 @@ func newUserIdString(ids domain.UserIds) commaSeparatedStr {
 	return commaSeparatedStr(strings.Join(strIds, ","))
 }
 
-func newEventIDsString(ids domain.EventIds) commaSeparatedStr {
+func newEventIDsString(ids domain.EventIDs) commaSeparatedStr {
 	var strIds []string
 	for _, id := range ids {
 		strIds = append(strIds, strconv.FormatInt(int64(id), 10))
@@ -95,28 +95,28 @@ func newEventIDsString(ids domain.EventIds) commaSeparatedStr {
 	return commaSeparatedStr(strings.Join(strIds, ","))
 }
 
-func (r commaSeparatedStr) toUserIds() domain.UserIds {
+func (r commaSeparatedStr) toUserIds() domain.UserIDs {
 	ids := r.toInt64Slice()
 	if len(ids) == 0 {
-		return domain.UserIds{}
+		return domain.UserIDs{}
 	}
 
-	var userIds domain.UserIds
+	var userIds domain.UserIDs
 	for _, i := range ids {
-		userIds = append(userIds, domain.UserId(i))
+		userIds = append(userIds, domain.UserID(i))
 	}
 	return userIds
 }
 
-func (r commaSeparatedStr) toEventIds() domain.EventIds {
+func (r commaSeparatedStr) toEventIds() domain.EventIDs {
 	ids := r.toInt64Slice()
 	if len(ids) == 0 {
-		return domain.EventIds{}
+		return domain.EventIDs{}
 	}
 
-	var eventIds domain.EventIds
+	var eventIds domain.EventIDs
 	for _, i := range ids {
-		eventIds = append(eventIds, domain.EventId(i))
+		eventIds = append(eventIds, domain.EventID(i))
 	}
 	return eventIds
 }
