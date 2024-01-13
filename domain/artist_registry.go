@@ -69,17 +69,64 @@ func (r *ArtistRegistry) NewEventsForUser(id UserID) ([]ra.Event, error) {
 	//TODO goroutine
 	var eventsPerArtist [][]ra.Event
 	for _, artist := range artists {
-		e, err := r.AllEventsForArtist(artist)
+		events, err := r.AllEventsForArtist(artist)
 		if err != nil {
 			return nil, fmt.Errorf("can't fetch events right now: %v", err)
 		}
-		eventsPerArtist = append(eventsPerArtist, e)
+
+		eventsPerArtist = append(eventsPerArtist, filterAlreadyTrackedEvents(artist, events))
+
+		i, err := r.updateEvents(artist, events)
+		if err != nil {
+			return i, err
+		}
 	}
 
+	return flatten(eventsPerArtist), nil
+}
+
+func flatten(eventsPerArtist [][]ra.Event) []ra.Event {
 	var flattened []ra.Event
 	for _, e := range eventsPerArtist {
 		flattened = append(flattened, e...)
 	}
+	return flattened
+}
 
-	return flattened, nil
+func (r *ArtistRegistry) updateEvents(artist Artist, events []ra.Event) ([]ra.Event, error) {
+	artist.TrackedEvents = eventIDsOf(events)
+	_, err := r.Repo.Save(artist)
+	if err != nil {
+		return nil, fmt.Errorf("can't update events in db: %v", err)
+	}
+	return nil, nil
+}
+
+// TODO map ra.Event to domain type
+func filterAlreadyTrackedEvents(artist Artist, events []ra.Event) []ra.Event {
+	var filtered []ra.Event
+	for _, e := range events {
+		eventID, err := NewEventID(e.Id)
+		if err != nil {
+			log.Printf("failed parsing %v to EventID: %v", eventID, err)
+			continue
+		}
+		if !artist.TrackedEvents.Contains(eventID) {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered
+}
+
+func eventIDsOf(events []ra.Event) EventIDs {
+	var ids EventIDs
+	for _, e := range events {
+		eventID, err := NewEventID(e.Id)
+		if err != nil {
+			log.Printf("failed parsing %v to EventID: %v", eventID, err)
+			continue
+		}
+		ids = append(ids, eventID)
+	}
+	return ids
 }

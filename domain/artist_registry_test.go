@@ -267,10 +267,10 @@ func TestArtistRegistry(t *testing.T) {
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, eventsForUser, events)
-		//
-		//newlyFetched, err := registry.NewEventsForUser(joe)
-		//
-		//expect.NoErr(t, err)
-		//expect.Len(t, newlyFetched, 0)
+
+		newlyFetched, err := registry.NewEventsForUser(joe)
+
+		expect.NoErr(t, err)
+		expect.Len(t, newlyFetched, 0)
 	})
 }
