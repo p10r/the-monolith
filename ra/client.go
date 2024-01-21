@@ -3,6 +3,7 @@ package ra
 import (
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"pedro-go/domain"
 	"time"
@@ -16,7 +17,19 @@ type Client struct {
 }
 
 func NewClient(baseUri string) *Client {
-	return &Client{http: &http.Client{}, baseUri: baseUri}
+	c := &http.Client{
+		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout:   10 * time.Second,
+				KeepAlive: 10 * time.Second,
+			}).DialContext,
+			TLSHandshakeTimeout:   5 * time.Second,
+			ResponseHeaderTimeout: 5 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		},
+	}
+	return &Client{http: c, baseUri: baseUri}
 }
 
 func (c *Client) GetArtistBySlug(slug domain.RASlug) (domain.ArtistInfo, error) {
