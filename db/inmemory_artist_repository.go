@@ -2,6 +2,7 @@ package db
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"pedro-go/domain"
 	"slices"
@@ -19,7 +20,7 @@ func NewInMemoryArtistRepository() *InMemoryArtistRepository {
 	return &InMemoryArtistRepository{id: &id, artists: map[int64]domain.Artist{}}
 }
 
-func (r *InMemoryArtistRepository) Save(artist domain.Artist) (domain.Artist, error) {
+func (r *InMemoryArtistRepository) Save(_ context.Context, artist domain.Artist) (domain.Artist, error) {
 	if artist.ID != 0 {
 		r.artists[artist.ID] = artist
 		return artist, nil
@@ -33,7 +34,7 @@ func (r *InMemoryArtistRepository) Save(artist domain.Artist) (domain.Artist, er
 	return artist, nil
 }
 
-func (r *InMemoryArtistRepository) All() (domain.Artists, error) {
+func (r *InMemoryArtistRepository) All(_ context.Context) (domain.Artists, error) {
 	fmt.Println("InMemoryArtistRepository: Requesting all artists")
 
 	a := make([]domain.Artist, 0, len(r.artists))

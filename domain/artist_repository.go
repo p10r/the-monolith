@@ -1,13 +1,14 @@
 package domain
 
 import (
+	"context"
 	"pedro-go/domain/expect"
 	"testing"
 )
 
 type ArtistRepository interface {
-	Save(artist Artist) (Artist, error)
-	All() (Artists, error)
+	Save(ctx context.Context, artist Artist) (Artist, error)
+	All(ctx context.Context) (Artists, error)
 }
 
 type ArtistRepositoryContract struct {
@@ -15,6 +16,8 @@ type ArtistRepositoryContract struct {
 }
 
 func (c ArtistRepositoryContract) Test(t *testing.T) {
+	ctx := context.Background()
+
 	t.Run("adds artist", func(t *testing.T) {
 		r := c.NewRepository()
 		artist := Artist{
@@ -24,7 +27,7 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			FollowedBy:    UserIDs{UserID(1)},
 			TrackedEvents: EventIDs{EventID(1)},
 		}
-		_, err := r.Save(artist)
+		_, err := r.Save(ctx, artist)
 
 		want := Artists{
 			Artist{
@@ -36,7 +39,7 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 				TrackedEvents: EventIDs{EventID(1)},
 			},
 		}
-		got, err := r.All()
+		got, err := r.All(ctx)
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, got, want)
@@ -52,10 +55,10 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			FollowedBy:    UserIDs{UserID(1)},
 			TrackedEvents: EventIDs{},
 		}
-		first, err := r.Save(artist)
+		first, err := r.Save(ctx, artist)
 
 		first.FollowedBy = UserIDs{UserID(1), UserID(2)}
-		_, err = r.Save(first)
+		_, err = r.Save(ctx, first)
 
 		want := Artists{
 			Artist{
@@ -68,7 +71,7 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			},
 		}
 
-		got, err := r.All()
+		got, err := r.All(ctx)
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, got, want)
@@ -84,10 +87,10 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			FollowedBy:    UserIDs{},
 			TrackedEvents: EventIDs{EventID(1)},
 		}
-		first, err := r.Save(artist)
+		first, err := r.Save(ctx, artist)
 
 		first.TrackedEvents = EventIDs{EventID(1), EventID(2)}
-		_, err = r.Save(first)
+		_, err = r.Save(ctx, first)
 
 		want := Artists{
 			Artist{
@@ -100,7 +103,7 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			},
 		}
 
-		got, err := r.All()
+		got, err := r.All(ctx)
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, got, want)

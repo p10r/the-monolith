@@ -1,6 +1,7 @@
 package domain_test
 
 import (
+	"context"
 	"pedro-go/db"
 	. "pedro-go/domain"
 	"pedro-go/domain/expect"
@@ -16,6 +17,8 @@ func NewInMemoryArtistRegistry(raArtists map[RASlug]ra.ArtistWithEvents) *Artist
 }
 
 func TestArtistRegistry(t *testing.T) {
+	ctx := context.Background()
+
 	t.Run("lists all artists", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
@@ -30,10 +33,10 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		err := registry.Follow("boysnoize", UserID(1))
-		err = registry.Follow("sinamin", UserID(1))
+		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		err = registry.Follow(ctx, "sinamin", UserID(1))
 
-		got := registry.All()
+		got := registry.All(ctx)
 		want := Artists{
 			{
 				ID:         1,
@@ -66,10 +69,10 @@ func TestArtistRegistry(t *testing.T) {
 		)
 
 		want := []Artist{{ID: 1, RAID: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIDs{UserID(1)}}}
-		err := registry.Follow("daftpunk", UserID(1))
+		err := registry.Follow(ctx, "daftpunk", UserID(1))
 
 		expect.NoErr(t, err)
-		expect.DeepEqual(t, registry.All(), want)
+		expect.DeepEqual(t, registry.All(ctx), want)
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
@@ -85,10 +88,10 @@ func TestArtistRegistry(t *testing.T) {
 		want := Artists{
 			{ID: 1, RAID: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIDs{UserID(1)}},
 		}
-		err := registry.Follow("boysnoize", UserID(1))
+		err := registry.Follow(ctx, "boysnoize", UserID(1))
 
 		expect.NoErr(t, err)
-		expect.DeepEqual(t, registry.All(), want)
+		expect.DeepEqual(t, registry.All(ctx), want)
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
@@ -96,7 +99,7 @@ func TestArtistRegistry(t *testing.T) {
 			map[RASlug]ra.ArtistWithEvents{},
 		)
 
-		err := registry.Follow("unknown", UserID(1))
+		err := registry.Follow(ctx, "unknown", UserID(1))
 
 		expect.Err(t, err)
 		expect.Equal(t, err.Error(), ErrNotFoundOnRA.Error())
@@ -116,10 +119,10 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		err := registry.Follow("boysnoize", UserID(1))
-		err = registry.Follow("sinamin", UserID(2))
+		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		err = registry.Follow(ctx, "sinamin", UserID(2))
 
-		got, err := registry.ArtistsFor(UserID(1))
+		got, err := registry.ArtistsFor(ctx, UserID(1))
 		want := Artists{
 			Artist{
 				ID:         1,
@@ -147,10 +150,10 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		)
-		err := registry.Follow("boysnoize", UserID(1))
-		err = registry.Follow("boysnoize", UserID(1))
+		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		err = registry.Follow(ctx, "boysnoize", UserID(1))
 
-		got, err := registry.ArtistsFor(UserID(1))
+		got, err := registry.ArtistsFor(ctx, UserID(1))
 
 		expect.NoErr(t, err)
 		expect.True(t, len(got) == 1)
@@ -170,10 +173,10 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		)
-		err := registry.Follow("boysnoize", UserID(1))
-		err = registry.Follow("boysnoize", UserID(2))
+		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		err = registry.Follow(ctx, "boysnoize", UserID(2))
 
-		got, err := registry.ArtistsFor(UserID(2))
+		got, err := registry.ArtistsFor(ctx, UserID(2))
 
 		expect.NoErr(t, err)
 		expect.Equal(t, len(got), 1)
@@ -209,7 +212,7 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		)
 
-		events, err := registry.AllEventsForArtist(Artist{
+		events, err := registry.AllEventsForArtist(ctx, Artist{
 			ID:         1,
 			RAID:       "222",
 			RASlug:     "sinamin",
@@ -261,9 +264,9 @@ func TestArtistRegistry(t *testing.T) {
 		joe := UserID(1)
 
 		var err error
-		err = registry.Follow("boysnoize", joe)
-		err = registry.Follow("sinamin", joe)
-		eventsForUser, err := registry.NewEventsForUser(joe)
+		err = registry.Follow(ctx, "boysnoize", joe)
+		err = registry.Follow(ctx, "sinamin", joe)
+		eventsForUser, err := registry.NewEventsForUser(ctx, joe)
 
 		expect.NoErr(t, err)
 		expect.DeepEqual(t, eventsForUser, Events{
@@ -291,7 +294,7 @@ func TestArtistRegistry(t *testing.T) {
 		},
 		)
 
-		newlyFetched, err := registry.NewEventsForUser(joe)
+		newlyFetched, err := registry.NewEventsForUser(ctx, joe)
 
 		expect.NoErr(t, err)
 		expect.Len(t, newlyFetched, 0)

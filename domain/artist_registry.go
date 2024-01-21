@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -19,20 +20,20 @@ func NewArtistRegistry(repo ArtistRepository, ra ResidentAdvisor) *ArtistRegistr
 	return &ArtistRegistry{repo, ra}
 }
 
-func (r *ArtistRegistry) All() Artists {
-	all, err := r.Repo.All()
+func (r *ArtistRegistry) All(ctx context.Context) Artists {
+	all, err := r.Repo.All(ctx)
 	if err != nil {
 		log.Fatalf("error when trying to read from the db %v\n", err)
 	}
 	return all
 }
 
-func (r *ArtistRegistry) Follow(slug RASlug, userId UserID) error {
-	all := r.All()
+func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID) error {
+	all := r.All(ctx)
 	i := slices.Index(all.RASlugs(), slug)
 	if i != -1 {
 		existing := all[i-1]
-		r.Repo.Save(existing.AddFollower(userId))
+		r.Repo.Save(ctx, existing.AddFollower(userId))
 		return nil
 	}
 
@@ -47,35 +48,35 @@ func (r *ArtistRegistry) Follow(slug RASlug, userId UserID) error {
 		Name:       res.Name,
 		FollowedBy: UserIDs{userId},
 	}
-	r.Repo.Save(artist)
+	r.Repo.Save(ctx, artist)
 
 	return nil
 }
 
-func (r *ArtistRegistry) ArtistsFor(userId UserID) (Artists, error) {
-	return r.All().FilterByUserId(userId), nil
+func (r *ArtistRegistry) ArtistsFor(ctx context.Context, userId UserID) (Artists, error) {
+	return r.All(ctx).FilterByUserId(userId), nil
 }
 
-func (r *ArtistRegistry) AllEventsForArtist(artist Artist) (Events, error) {
+func (r *ArtistRegistry) AllEventsForArtist(ctx context.Context, artist Artist) (Events, error) {
 	now := time.Now()
 	//TODO wrap error
 	return r.RA.GetEventsByArtistId(artist.RAID, now, now.Add(31*24*time.Hour))
 }
 
-func (r *ArtistRegistry) NewEventsForUser(id UserID) (Events, error) {
-	artists, _ := r.ArtistsFor(id)
+func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, id UserID) (Events, error) {
+	artists, _ := r.ArtistsFor(ctx, id)
 
 	//TODO goroutine
 	var eventsPerArtist []Events
 	for _, artist := range artists {
-		events, err := r.AllEventsForArtist(artist)
+		events, err := r.AllEventsForArtist(ctx, artist)
 		if err != nil {
 			return nil, fmt.Errorf("can't fetch events right now: %v", err)
 		}
 
 		eventsPerArtist = append(eventsPerArtist, filterAlreadyTrackedEvents(artist, events))
 
-		_, err = r.updateEventsInDB(artist, events)
+		_, err = r.updateEventsInDB(ctx, artist, events)
 		if err != nil {
 			return Events{}, err
 		}
@@ -92,9 +93,9 @@ func flatten(eventsPerArtist []Events) Events {
 	return flattened
 }
 
-func (r *ArtistRegistry) updateEventsInDB(artist Artist, events Events) (Events, error) {
+func (r *ArtistRegistry) updateEventsInDB(ctx context.Context, artist Artist, events Events) (Events, error) {
 	artist.TrackedEvents = eventIDsOf(events)
-	_, err := r.Repo.Save(artist)
+	_, err := r.Repo.Save(ctx, artist)
 	if err != nil {
 		return nil, fmt.Errorf("can't update events in db: %v", err)
 	}

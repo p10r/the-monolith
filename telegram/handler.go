@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"fmt"
 	"gopkg.in/telebot.v3/middleware"
 	"log"
@@ -54,8 +55,10 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 
 func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
 	return func(c tele.Context) error {
-		artists, err := r.ArtistsFor(domain.UserID(c.Sender().ID))
-		eventsFor, err := r.AllEventsForArtist(artists[0])
+		ctx := context.Background() //TODO check if telebot can provide context
+
+		artists, err := r.ArtistsFor(ctx, domain.UserID(c.Sender().ID))
+		eventsFor, err := r.AllEventsForArtist(ctx, artists[0])
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
@@ -67,7 +70,9 @@ func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
 
 func listArtists(r *domain.ArtistRegistry) func(c tele.Context) error {
 	return func(c tele.Context) error {
-		artists, err := r.ArtistsFor(domain.UserID(c.Sender().ID))
+		ctx := context.Background() //TODO check if telebot can provide context
+
+		artists, err := r.ArtistsFor(ctx, domain.UserID(c.Sender().ID))
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")
@@ -88,6 +93,8 @@ func listArtists(r *domain.ArtistRegistry) func(c tele.Context) error {
 
 func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
 	return func(c tele.Context) error {
+		ctx := context.Background() //TODO check if telebot can provide context
+
 		tags := c.Args()
 		slug, err := domain.NewSlug(tags[0])
 		if err != nil {
@@ -97,7 +104,7 @@ func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
 		userId := domain.UserID(c.Sender().ID)
 
 		log.Printf("%v started following %v", userId, slug)
-		err = r.Follow(slug, userId)
+		err = r.Follow(ctx, slug, userId)
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")

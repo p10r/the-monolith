@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -29,7 +30,7 @@ func NewGormArtistRepository(dsn string) (*GormArtistRepository, error) {
 	return &GormArtistRepository{db: db}, nil
 }
 
-func (r GormArtistRepository) Save(artist domain.Artist) (domain.Artist, error) {
+func (r GormArtistRepository) Save(ctx context.Context, artist domain.Artist) (domain.Artist, error) {
 	entity := &artistEntity{
 		ID:            artist.ID,
 		RAId:          artist.RAID,
@@ -45,7 +46,7 @@ func (r GormArtistRepository) Save(artist domain.Artist) (domain.Artist, error) 
 	return artist, nil
 }
 
-func (r GormArtistRepository) All() (domain.Artists, error) {
+func (r GormArtistRepository) All(ctx context.Context) (domain.Artists, error) {
 	var entities []artistEntity
 	r.db.Find(&entities)
 
