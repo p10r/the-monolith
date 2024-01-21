@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"pedro-go/domain"
 )
 
 type Artist struct {
@@ -40,4 +41,11 @@ func NewArtist(res *http.Response) (Artist, error) {
 	}
 
 	return body.Data.Artist, err
+}
+
+func (a Artist) ToArtistInfo() domain.ArtistInfo {
+	return domain.ArtistInfo{
+		RAID: a.RAID,
+		Name: a.Name,
+	}
 }

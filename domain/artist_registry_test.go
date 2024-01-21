@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func NewInMemoryArtistRegistry(raArtists map[ra.Slug]ra.ArtistWithEvents) *ArtistRegistry {
+func NewInMemoryArtistRegistry(raArtists map[RASlug]ra.ArtistWithEvents) *ArtistRegistry {
 	repo := db.NewInMemoryArtistRepository()
 	raClient := ra.NewInMemoryClient(raArtists)
 
@@ -18,7 +18,7 @@ func NewInMemoryArtistRegistry(raArtists map[ra.Slug]ra.ArtistWithEvents) *Artis
 func TestArtistRegistry(t *testing.T) {
 	t.Run("lists all artists", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -57,7 +57,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("follows an artist from resident advisor", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"daftpunk": {
 					Artist:     ra.Artist{RAID: "111", Name: "Daft Punk"},
 					EventsData: []ra.Event{},
@@ -74,7 +74,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -93,7 +93,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{},
+			map[RASlug]ra.ArtistWithEvents{},
 		)
 
 		err := registry.Follow("unknown", UserID(1))
@@ -104,7 +104,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("follows new artist as user", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -136,7 +136,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("ignores follow if already following", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -159,7 +159,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("follows existing artist", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -182,7 +182,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("fetches all events for artist in the next month", func(t *testing.T) {
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -222,7 +222,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("reports only new events to user", func(t *testing.T) {
-		events := []ra.Event{
+		events := ra.Events{
 			{
 				Id:         "3",
 				Title:      "Kater Blau Night",
@@ -246,7 +246,7 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		}
 		registry := NewInMemoryArtistRegistry(
-			map[ra.Slug]ra.ArtistWithEvents{
+			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{events[0]},
@@ -266,7 +266,30 @@ func TestArtistRegistry(t *testing.T) {
 		eventsForUser, err := registry.NewEventsForUser(joe)
 
 		expect.NoErr(t, err)
-		expect.DeepEqual(t, eventsForUser, events)
+		expect.DeepEqual(t, eventsForUser, Events{
+			{
+				Id:         "3",
+				Title:      "Kater Blau Night",
+				Date:       "2023-11-04T00:00:00.000",
+				StartTime:  "2023-11-04T13:00:00.000",
+				ContentUrl: "/events/3",
+			},
+			{
+				Id:         "1",
+				Title:      "Klubnacht",
+				Date:       "2023-11-04T00:00:00.000",
+				StartTime:  "2023-11-04T13:00:00.000",
+				ContentUrl: "/events/1789025",
+			},
+			{
+				Id:         "2",
+				Title:      "Klubnacht 2",
+				Date:       "2023-11-04T00:00:00.000",
+				StartTime:  "2023-11-04T13:00:00.000",
+				ContentUrl: "/events/1789025",
+			},
+		},
+		)
 
 		newlyFetched, err := registry.NewEventsForUser(joe)
 

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"pedro-go/ra"
 	"slices"
 	"time"
 )
@@ -28,7 +27,7 @@ func (r *ArtistRegistry) All() Artists {
 	return all
 }
 
-func (r *ArtistRegistry) Follow(slug ra.Slug, userId UserID) error {
+func (r *ArtistRegistry) Follow(slug RASlug, userId UserID) error {
 	all := r.All()
 	i := slices.Index(all.RASlugs(), slug)
 	if i != -1 {
@@ -57,17 +56,17 @@ func (r *ArtistRegistry) ArtistsFor(userId UserID) (Artists, error) {
 	return r.All().FilterByUserId(userId), nil
 }
 
-func (r *ArtistRegistry) AllEventsForArtist(artist Artist) ([]ra.Event, error) {
+func (r *ArtistRegistry) AllEventsForArtist(artist Artist) (Events, error) {
 	now := time.Now()
 	//TODO wrap error
 	return r.RA.GetEventsByArtistId(artist.RAID, now, now.Add(31*24*time.Hour))
 }
 
-func (r *ArtistRegistry) NewEventsForUser(id UserID) ([]ra.Event, error) {
+func (r *ArtistRegistry) NewEventsForUser(id UserID) (Events, error) {
 	artists, _ := r.ArtistsFor(id)
 
 	//TODO goroutine
-	var eventsPerArtist [][]ra.Event
+	var eventsPerArtist []Events
 	for _, artist := range artists {
 		events, err := r.AllEventsForArtist(artist)
 		if err != nil {
@@ -76,24 +75,24 @@ func (r *ArtistRegistry) NewEventsForUser(id UserID) ([]ra.Event, error) {
 
 		eventsPerArtist = append(eventsPerArtist, filterAlreadyTrackedEvents(artist, events))
 
-		i, err := r.updateEvents(artist, events)
+		_, err = r.updateEventsInDB(artist, events)
 		if err != nil {
-			return i, err
+			return Events{}, err
 		}
 	}
 
 	return flatten(eventsPerArtist), nil
 }
 
-func flatten(eventsPerArtist [][]ra.Event) []ra.Event {
-	var flattened []ra.Event
+func flatten(eventsPerArtist []Events) Events {
+	var flattened Events
 	for _, e := range eventsPerArtist {
 		flattened = append(flattened, e...)
 	}
 	return flattened
 }
 
-func (r *ArtistRegistry) updateEvents(artist Artist, events []ra.Event) ([]ra.Event, error) {
+func (r *ArtistRegistry) updateEventsInDB(artist Artist, events Events) (Events, error) {
 	artist.TrackedEvents = eventIDsOf(events)
 	_, err := r.Repo.Save(artist)
 	if err != nil {
@@ -103,8 +102,8 @@ func (r *ArtistRegistry) updateEvents(artist Artist, events []ra.Event) ([]ra.Ev
 }
 
 // TODO map ra.Event to domain type
-func filterAlreadyTrackedEvents(artist Artist, events []ra.Event) []ra.Event {
-	var filtered []ra.Event
+func filterAlreadyTrackedEvents(artist Artist, events Events) Events {
+	var filtered Events
 	for _, e := range events {
 		eventID, err := NewEventID(e.Id)
 		if err != nil {
@@ -118,7 +117,7 @@ func filterAlreadyTrackedEvents(artist Artist, events []ra.Event) []ra.Event {
 	return filtered
 }
 
-func eventIDsOf(events []ra.Event) EventIDs {
+func eventIDsOf(events Events) EventIDs {
 	var ids EventIDs
 	for _, e := range events {
 		eventID, err := NewEventID(e.Id)

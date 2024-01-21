@@ -37,6 +37,15 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 
 	log.Print("Started Pedro")
 
+	n := &Notifier{
+		bot:      bot,
+		registry: r,
+		users:    allowedUserIds,
+	}
+
+	n.NotifyUsers()
+
+	bot.Use(middleware.Logger())
 	bot.Handle("/follow", followArtist(r))
 	bot.Handle("/list", listArtists(r))
 	bot.Handle("/events", listEvents(r))
@@ -80,7 +89,7 @@ func listArtists(r *domain.ArtistRegistry) func(c tele.Context) error {
 func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
 	return func(c tele.Context) error {
 		tags := c.Args()
-		slug, err := ra.NewSlug(tags[0])
+		slug, err := domain.NewSlug(tags[0])
 		if err != nil {
 			log.Print(err)
 			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")

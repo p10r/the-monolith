@@ -11,7 +11,7 @@ func TestRAClient(t *testing.T) {
 	t.Run("verify contract for in-memory fake", func(t *testing.T) {
 		domain.RAContract{NewRA: func() domain.ResidentAdvisor {
 			return ra.NewInMemoryClient(
-				map[ra.Slug]ra.ArtistWithEvents{
+				map[domain.RASlug]ra.ArtistWithEvents{
 					"boysnoize": {
 						Artist: ra.Artist{RAID: "943", Name: "Boys Noize"},
 						EventsData: []ra.Event{
@@ -71,7 +71,7 @@ func TestRAClient(t *testing.T) {
 			t.Skip()
 		}
 
-		want := ra.Artist{RAID: "943", Name: "Boys Noize"}
+		want := domain.ArtistInfo{RAID: "943", Name: "Boys Noize"}
 
 		client := ra.NewClient("https://ra.co")
 		got, err := client.GetArtistBySlug("boysnoize")

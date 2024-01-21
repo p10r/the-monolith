@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"pedro-go/domain"
-	"pedro-go/ra"
 	"strconv"
 	"strings"
 )
@@ -55,7 +54,7 @@ func (r GormArtistRepository) All() (domain.Artists, error) {
 		a := domain.Artist{
 			ID:            e.ID,
 			RAID:          e.RAId,
-			RASlug:        ra.Slug(e.RASlug),
+			RASlug:        domain.RASlug(e.RASlug),
 			Name:          e.Name,
 			FollowedBy:    e.FollowedBy.toUserIds(),
 			TrackedEvents: e.TrackedEvents.toEventIds(),

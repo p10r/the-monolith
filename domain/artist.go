@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"pedro-go/ra"
 	"slices"
 	"strconv"
 	"strings"
@@ -10,7 +9,7 @@ import (
 type Artist struct {
 	ID            int64
 	RAID          string
-	RASlug        ra.Slug
+	RASlug        RASlug
 	Name          string
 	FollowedBy    UserIDs
 	TrackedEvents EventIDs
@@ -43,8 +42,8 @@ func (a Artists) FilterByUserId(id UserID) Artists {
 	return found
 }
 
-func (a Artists) RASlugs() []ra.Slug {
-	slugs := make([]ra.Slug, len(a))
+func (a Artists) RASlugs() []RASlug {
+	slugs := make([]RASlug, len(a))
 	for _, artist := range a {
 		slugs = append(slugs, artist.RASlug)
 	}

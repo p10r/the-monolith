@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"pedro-go/domain"
 	"time"
 )
 
@@ -11,7 +12,7 @@ const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
 	" AppleWebKit/537.36 (KHTML, like Gecko)" +
 	" Chrome/113.0.0.0 Safari/537.36"
 
-func newGetArtistReq(slug Slug, baseUri string) (*http.Request, error) {
+func newGetArtistReq(slug domain.RASlug, baseUri string) (*http.Request, error) {
 	query := fmt.Sprintf(`{"query":"{\n artist(slug:\"%v\"){\n id\n name\n}\n}\n","variables":{}}`, slug)
 	reqBody := []byte(query)
 

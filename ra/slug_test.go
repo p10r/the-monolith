@@ -1,6 +1,7 @@
 package ra
 
 import (
+	"pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
 )
@@ -15,8 +16,8 @@ func TestNewSlug(t *testing.T) {
 		"https://ra.co/dj/crilletamalt/",
 	} {
 		t.Run("deserializes "+url, func(t *testing.T) {
-			got, err := NewSlug(url)
-			want := Slug("crilletamalt")
+			got, err := domain.NewSlug(url)
+			want := domain.RASlug("crilletamalt")
 
 			expect.NoErr(t, err)
 			expect.Equal(t, got, want)
@@ -30,7 +31,7 @@ func TestNewSlug(t *testing.T) {
 			"https://ra.co/whatever/crilletamalt/",
 		} {
 			t.Run("maps"+url+"to user id", func(t *testing.T) {
-				_, err := NewSlug(url)
+				_, err := domain.NewSlug(url)
 
 				expect.Err(t, err)
 			})

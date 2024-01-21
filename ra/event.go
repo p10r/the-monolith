@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"pedro-go/domain"
 )
 
 type Event struct {
@@ -27,8 +28,9 @@ type Event struct {
 	} `json:"venue"`
 }
 
-// TODO write tests
-func NewEvent(res *http.Response, err error) ([]Event, error) {
+type Events []Event
+
+func NewEvent(res *http.Response, err error) (Events, error) {
 	if err != nil {
 		return []Event{}, err
 	}
@@ -61,4 +63,21 @@ func NewEvent(res *http.Response, err error) ([]Event, error) {
 		return []Event{}, err
 	}
 	return events.Data.Listing.EventsData, err
+}
+
+func (events Events) ToDomainEvents() domain.Events {
+	d := domain.Events{}
+	for _, e := range events {
+		transformed := domain.Event{
+			Id:         e.Id,
+			Title:      e.Title,
+			Venue:      e.Venue.Name,
+			Date:       e.Date,
+			StartTime:  e.StartTime,
+			ContentUrl: e.ContentUrl,
+		}
+
+		d = append(d, transformed)
+	}
+	return d
 }
