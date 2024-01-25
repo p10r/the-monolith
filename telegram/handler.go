@@ -15,10 +15,8 @@ import (
 )
 
 func Pedro(botToken, dsn string, allowedUserIds []int64) {
-	repo, err := db.NewGormArtistRepository(dsn)
-	if err != nil {
-		log.Fatalf("Cannot connect to db %v", err)
-	}
+	conn := db.NewDB(dsn)
+	repo := db.NewSqliteArtistRepository(conn)
 
 	r := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co/graphql"))
 

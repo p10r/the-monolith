@@ -28,6 +28,7 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			TrackedEvents: EventIDs{EventID(1)},
 		}
 		_, err := r.Save(ctx, artist)
+		expect.NoErr(t, err)
 
 		want := Artists{
 			Artist{
@@ -59,6 +60,7 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 
 		first.FollowedBy = UserIDs{UserID(1), UserID(2)}
 		_, err = r.Save(ctx, first)
+		expect.NoErr(t, err)
 
 		want := Artists{
 			Artist{
@@ -88,9 +90,11 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			TrackedEvents: EventIDs{EventID(1)},
 		}
 		first, err := r.Save(ctx, artist)
+		expect.NoErr(t, err)
 
 		first.TrackedEvents = EventIDs{EventID(1), EventID(2)}
 		_, err = r.Save(ctx, first)
+		expect.NoErr(t, err)
 
 		want := Artists{
 			Artist{

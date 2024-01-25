@@ -18,9 +18,9 @@ area.
 - golang ci lint
 - parallel tests
 - short/long tests
-- move base package
+
 - handle 404 when requesting events
 - throw error if artist cant be found
 - indicate if there's a space
 - do vulnerability checks
-- rename Id to ID
+- Use JSON functionality of sqlite

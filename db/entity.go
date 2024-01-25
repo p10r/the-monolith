@@ -1,80 +1,30 @@
 package db
 
 import (
-	"context"
-	"fmt"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"log"
 	"pedro-go/domain"
 	"strconv"
 	"strings"
 )
 
-type GormArtistRepository struct {
-	db *gorm.DB
+type artistDBEntity struct {
+	ID            int64
+	RAID          string
+	RASlug        string
+	Name          string
+	FollowedBy    commaSeparatedStr
+	TrackedEvents commaSeparatedStr
 }
 
-func NewGormArtistRepository(dsn string) (*GormArtistRepository, error) {
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return &GormArtistRepository{}, fmt.Errorf("can not connect to database %v", err)
-	}
-
-	// AutoMigrate will create the table if it doesn't exist
-	err = db.AutoMigrate(&artistEntity{})
-	if err != nil {
-		return &GormArtistRepository{}, fmt.Errorf("can not run db migration %v", err)
-	}
-
-	return &GormArtistRepository{db: db}, nil
-}
-
-func (r GormArtistRepository) Save(ctx context.Context, artist domain.Artist) (domain.Artist, error) {
-	entity := &artistEntity{
+func newArtistDBEntity(artist domain.Artist) artistDBEntity {
+	return artistDBEntity{
 		ID:            artist.ID,
-		RAId:          artist.RAID,
+		RAID:          artist.RAID,
 		RASlug:        string(artist.RASlug),
 		Name:          artist.Name,
 		FollowedBy:    newUserIdString(artist.FollowedBy),
 		TrackedEvents: newEventIDsString(artist.TrackedEvents),
 	}
-
-	r.db.Save(entity)
-
-	artist.ID = entity.ID
-	return artist, nil
-}
-
-func (r GormArtistRepository) All(ctx context.Context) (domain.Artists, error) {
-	var entities []artistEntity
-	r.db.Find(&entities)
-
-	var artists []domain.Artist
-	for _, e := range entities {
-		a := domain.Artist{
-			ID:            e.ID,
-			RAID:          e.RAId,
-			RASlug:        domain.RASlug(e.RASlug),
-			Name:          e.Name,
-			FollowedBy:    e.FollowedBy.toUserIds(),
-			TrackedEvents: e.TrackedEvents.toEventIds(),
-		}
-		artists = append(artists, a)
-	}
-
-	return artists, nil
-}
-
-// TODO move
-type artistEntity struct {
-	gorm.Model
-	ID            int64
-	RAId          string
-	RASlug        string
-	Name          string
-	FollowedBy    commaSeparatedStr
-	TrackedEvents commaSeparatedStr
 }
 
 type commaSeparatedStr string

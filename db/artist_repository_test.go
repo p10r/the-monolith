@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log"
 	d "pedro-go/domain"
 	"pedro-go/domain/expect"
 	"testing"
@@ -14,10 +15,10 @@ func TestInMemoryArtistRepository(t *testing.T) {
 	})
 }
 
-func TestGormArtistRepository(t *testing.T) {
+func TestSqliteArtistRepository(t *testing.T) {
 	t.Run("verify contract for sqlite db", func(t *testing.T) {
 		d.ArtistRepositoryContract{NewRepository: func() d.ArtistRepository {
-			repo, _ := NewGormArtistRepository("file::memory:")
+			repo := NewSqliteArtistRepository(MustOpenDB(t))
 			return repo
 		}}.Test(t)
 	})
@@ -64,4 +65,26 @@ func TestGormArtistRepository(t *testing.T) {
 			expect.DeepEqual(t, tc.Input.toUserIds(), tc.Want)
 		}
 	})
+}
+
+// MustOpenDB returns a new, open DB. Fatal on error.
+func MustOpenDB(tb testing.TB) *DB {
+	tb.Helper()
+
+	// Write to an in-memory database by default.
+	// If the -dump flag is set, generate a temp file for the database.
+	dsn := ":memory:"
+	db := NewDB(dsn)
+	if err := db.Open(); err != nil {
+		log.Fatal(err)
+	}
+	return db
+}
+
+// MustCloseDB closes the DB. Fatal on error.
+func MustCloseDB(tb testing.TB, db *DB) {
+	tb.Helper()
+	if err := db.Close(); err != nil {
+		tb.Fatal(err)
+	}
 }
