@@ -21,7 +21,6 @@ func (r SqliteArtistRepository) Save(ctx context.Context, artist domain.Artist) 
 	}
 	defer tx.Rollback()
 
-	// Create dial and attach associated owner user.
 	e := newArtistDBEntity(artist)
 	if e.ID == 0 {
 		e, err = insertNewArtist(ctx, tx, e)
