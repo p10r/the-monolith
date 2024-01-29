@@ -21,8 +21,6 @@ type EventID int64
 
 type EventIDs []EventID
 
-// NewEventID should be replaced with this:
-// https://stackoverflow.com/questions/51923863/how-to-construct-json-so-i-can-receive-int64-and-string-using-golang
 func NewEventID(id string) (EventID, error) {
 	i, err := strconv.ParseInt(strings.TrimSpace(id), 10, 64)
 	if err != nil {

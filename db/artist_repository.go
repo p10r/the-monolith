@@ -14,7 +14,10 @@ func NewSqliteArtistRepository(db *DB) *SqliteArtistRepository {
 	return &SqliteArtistRepository{db: db}
 }
 
-func (r SqliteArtistRepository) Save(ctx context.Context, artist domain.Artist) (domain.Artist, error) {
+func (r SqliteArtistRepository) Save(
+	ctx context.Context,
+	artist domain.Artist,
+) (domain.Artist, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return domain.Artist{}, err

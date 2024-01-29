@@ -18,7 +18,12 @@ type ArtistRegistry struct {
 	Now     func() time.Time
 }
 
-func NewArtistRegistry(repo ArtistRepository, ra ResidentAdvisor, monitor EventMonitor, now func() time.Time) *ArtistRegistry {
+func NewArtistRegistry(
+	repo ArtistRepository,
+	ra ResidentAdvisor,
+	monitor EventMonitor,
+	now func() time.Time,
+) *ArtistRegistry {
 	return &ArtistRegistry{repo, ra, monitor, now}
 }
 
@@ -115,7 +120,11 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Eve
 	return events, nil
 }
 
-func (r *ArtistRegistry) updateEventsInDB(ctx context.Context, artist Artist, events Events) (Events, error) {
+func (r *ArtistRegistry) updateEventsInDB(
+	ctx context.Context,
+	artist Artist,
+	events Events,
+) (Events, error) {
 	artist.TrackedEvents = eventIDsOf(events)
 	_, err := r.Repo.Save(ctx, artist)
 	if err != nil {

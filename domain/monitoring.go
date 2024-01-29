@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// EventMonitor tracks application events. Doesn't return errors if they're happening, but logs them.
+// EventMonitor tracks application events. Doesn't return errors , but logs them.
 type EventMonitor interface {
 	Monitor(ctx context.Context, e MonitoringEvent)
 	All(ctx context.Context) (MonitoringEvents, error)
@@ -49,7 +49,12 @@ type NewEventForArtist struct {
 	CreatedAt time.Time
 }
 
-func NewNewEventForArtist(event Event, artist Artist, id UserID, now func() time.Time) NewEventForArtist {
+func NewNewEventForArtist(
+	event Event,
+	artist Artist,
+	id UserID,
+	now func() time.Time,
+) NewEventForArtist {
 	return NewEventForArtist{event.Id, string(artist.RASlug), id, now()}
 }
 

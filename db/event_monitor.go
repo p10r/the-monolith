@@ -64,7 +64,11 @@ func (m SqliteEventMonitor) saveEvent(ctx context.Context, e domain.MonitoringEv
 	return nil
 }
 
-func insertNewMonitoringEvent(ctx context.Context, tx *Tx, e monitoringEvent) (monitoringEvent, error) {
+func insertNewMonitoringEvent(
+	ctx context.Context,
+	tx *Tx,
+	e monitoringEvent,
+) (monitoringEvent, error) {
 	result, err := tx.ExecContext(ctx, `
 		INSERT INTO monitoring_events (event_type,data) VALUES (?,?)`,
 		e.EventType, e.Data)
@@ -114,6 +118,7 @@ func (m SqliteEventMonitor) All(ctx context.Context) (domain.MonitoringEvents, e
 			artists = append(artists, deserialized)
 		}
 		if err != nil {
+			//nolint:lll
 			return domain.MonitoringEvents{}, fmt.Errorf("cannot deserialize monitoring event from db with ID %v", e.ID)
 		}
 	}

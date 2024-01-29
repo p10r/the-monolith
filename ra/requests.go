@@ -30,6 +30,7 @@ func newGetEventsReq(raId string, start, end time.Time, uri string) (*http.Reque
 	fmtStart := start.Format("2006-01-02T03:04:05.000Z")
 	fmtEnd := end.Format("2006-01-02T03:04:05.000Z")
 
+	//nolint:lll
 	query := fmt.Sprintf(`{
     "operationName": "GET_DEFAULT_EVENTS_LISTING",
     "variables": {

@@ -10,3 +10,5 @@ linters:
   enable:
     - lll
     - gofmt
+    - gosec
+    - nolintlint

@@ -21,6 +21,7 @@ func NewArtist(res *http.Response) (Artist, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
+		//nolint:lll
 		return Artist{}, fmt.Errorf("request failed with status code: %v, body: %v", res.StatusCode, string(data))
 	}
 

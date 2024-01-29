@@ -20,7 +20,10 @@ func NewInMemoryArtistRepository() *InMemoryArtistRepository {
 	return &InMemoryArtistRepository{id: &id, artists: map[int64]domain.Artist{}}
 }
 
-func (r *InMemoryArtistRepository) Save(_ context.Context, artist domain.Artist) (domain.Artist, error) {
+func (r *InMemoryArtistRepository) Save(
+	_ context.Context,
+	artist domain.Artist,
+) (domain.Artist, error) {
 	if artist.ID != 0 {
 		r.artists[artist.ID] = artist
 		return artist, nil
