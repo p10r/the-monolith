@@ -24,3 +24,4 @@ area.
 - indicate if there's a space
 - do vulnerability checks
 - Use JSON functionality of sqlite
+- Give user info if they don't follow anyone yet

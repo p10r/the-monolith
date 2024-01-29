@@ -15,6 +15,12 @@ type Artist struct {
 	TrackedEvents EventIDs
 }
 
+// ArtistInfo is the ra.co representation of an artist when searching by slug
+type ArtistInfo struct {
+	RAID string
+	Name string
+}
+
 func (a Artist) AddFollower(id UserID) Artist {
 	if slices.Contains(a.FollowedBy, id) {
 		return a
@@ -51,9 +57,10 @@ func (a Artists) RASlugs() []RASlug {
 }
 
 type UserID int64
-type UserIDs []UserID
 
+type UserIDs []UserID
 type EventID int64
+
 type EventIDs []EventID
 
 // NewEventID should be replaced with this:
