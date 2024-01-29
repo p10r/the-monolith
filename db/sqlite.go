@@ -16,7 +16,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// taken from https://github.com/benbjohnson/wtf/blob/030fcb0d5ff21b56fba09564fbba7e691ae50886/sqlite/sqlite.go
+// taken from https://github.com/benbjohnson/wtf/sqlite/sqlite.go
 
 //go:embed migration/*.sql
 var migrationFS embed.FS
@@ -95,7 +95,8 @@ func (db *DB) Open() (err error) {
 // migrations.
 func (db *DB) migrate() error {
 	// Ensure the 'migrations' table exists so we don't duplicate migrations.
-	if _, err := db.db.Exec(`CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY);`); err != nil {
+	_, err := db.db.Exec(`CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY);`)
+	if err != nil {
 		return fmt.Errorf("cannot create migrations table: %w", err)
 	}
 
@@ -132,7 +133,8 @@ func (db *DB) migrateFile(name string) error {
 
 	// Ensure migration has not already been run.
 	var n int
-	if err := tx.QueryRow(`SELECT COUNT(*) FROM migrations WHERE name = ?`, name).Scan(&n); err != nil {
+	err = tx.QueryRow(`SELECT COUNT(*) FROM migrations WHERE name = ?`, name).Scan(&n)
+	if err != nil {
 		return err
 	} else if n != 0 {
 		return nil // already run migration, skip
@@ -215,6 +217,8 @@ func (n *NullTime) Value() (driver.Value, error) {
 
 // FormatLimitOffset returns a SQL string for a given limit & offset.
 // Clauses are only added if limit and/or offset are greater than zero.
+//
+//goland:noinspection GoUnusedExportedFunction
 func FormatLimitOffset(limit, offset int) string {
 	if limit > 0 && offset > 0 {
 		return fmt.Sprintf(`LIMIT %d OFFSET %d`, limit, offset)

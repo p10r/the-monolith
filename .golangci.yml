@@ -8,5 +8,5 @@ linters-settings:
     simplify: true
 linters:
   enable:
-#    - lll
+    - lll
     - gofmt
