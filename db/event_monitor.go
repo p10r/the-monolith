@@ -89,13 +89,13 @@ func (m SqliteEventMonitor) All(ctx context.Context) (domain.MonitoringEvents, e
 		var err error
 		switch e.EventType {
 
-		case domain.ArtistFollowedEvent{}.Name():
-			var deserialized domain.ArtistFollowedEvent
+		case domain.ArtistFollowed{}.Name():
+			var deserialized domain.ArtistFollowed
 			err = json.Unmarshal([]byte(e.Data), &deserialized)
 			artists = append(artists, deserialized)
 
-		case domain.NewEventForArtistEvent{}.Name():
-			var deserialized domain.NewEventForArtistEvent
+		case domain.NewEventForArtist{}.Name():
+			var deserialized domain.NewEventForArtist
 			err = json.Unmarshal([]byte(e.Data), &deserialized)
 			artists = append(artists, deserialized)
 		}

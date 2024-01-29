@@ -12,12 +12,14 @@ import (
 var ErrNotFoundOnRA = errors.New("artist not found on ra.com")
 
 type ArtistRegistry struct {
-	Repo ArtistRepository
-	RA   ResidentAdvisor
+	Repo    ArtistRepository
+	RA      ResidentAdvisor
+	Monitor EventMonitor
+	Now     func() time.Time
 }
 
-func NewArtistRegistry(repo ArtistRepository, ra ResidentAdvisor) *ArtistRegistry {
-	return &ArtistRegistry{repo, ra}
+func NewArtistRegistry(repo ArtistRepository, ra ResidentAdvisor, monitor EventMonitor, now func() time.Time) *ArtistRegistry {
+	return &ArtistRegistry{repo, ra, monitor, now}
 }
 
 func (r *ArtistRegistry) All(ctx context.Context) Artists {
@@ -30,6 +32,7 @@ func (r *ArtistRegistry) All(ctx context.Context) Artists {
 
 func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID) error {
 	all := r.All(ctx)
+
 	i := slices.Index(all.RASlugs(), slug)
 	if i != -1 {
 		existing := all[i-1]
@@ -48,7 +51,13 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 		Name:       res.Name,
 		FollowedBy: UserIDs{userId},
 	}
-	r.Repo.Save(ctx, artist)
+
+	artist, err = r.Repo.Save(ctx, artist)
+	if err != nil {
+		return err
+	}
+
+	r.Monitor.Monitor(ctx, NewArtistFollowedEvent(slug, userId, r.Now))
 
 	return nil
 }
@@ -57,14 +66,14 @@ func (r *ArtistRegistry) ArtistsFor(ctx context.Context, userId UserID) (Artists
 	return r.All(ctx).FilterByUserId(userId), nil
 }
 
-func (r *ArtistRegistry) AllEventsForArtist(ctx context.Context, artist Artist) (Events, error) {
+func (r *ArtistRegistry) AllEventsForArtist(_ context.Context, artist Artist) (Events, error) {
 	now := time.Now()
 	//TODO wrap error
 	return r.RA.GetEventsByArtistId(artist.RAID, now, now.Add(31*24*time.Hour))
 }
 
-func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, id UserID) (Events, error) {
-	artists, _ := r.ArtistsFor(ctx, id)
+func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Events, error) {
+	artists, _ := r.ArtistsFor(ctx, user)
 
 	//TODO goroutine
 	var eventsPerArtist []Events
@@ -72,6 +81,10 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, id UserID) (Event
 		events, err := r.AllEventsForArtist(ctx, artist)
 		if err != nil {
 			return nil, fmt.Errorf("can't fetch events right now: %v", err)
+		}
+
+		for _, event := range events {
+			r.Monitor.Monitor(ctx, NewNewEventForArtist(event, artist, user, r.Now))
 		}
 
 		eventsPerArtist = append(eventsPerArtist, filterAlreadyTrackedEvents(artist, events))
@@ -82,7 +95,9 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, id UserID) (Event
 		}
 	}
 
-	return flatten(eventsPerArtist), nil
+	events := flatten(eventsPerArtist)
+
+	return events, nil
 }
 
 func flatten(eventsPerArtist []Events) Events {

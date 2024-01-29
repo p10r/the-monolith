@@ -7,20 +7,25 @@ import (
 	"pedro-go/domain/expect"
 	"pedro-go/ra"
 	"testing"
+	"time"
 )
 
-func NewInMemoryArtistRegistry(raArtists map[RASlug]ra.ArtistWithEvents) *ArtistRegistry {
+func NewInMemoryArtistRegistry(raArtists map[RASlug]ra.ArtistWithEvents, now func() time.Time) (*ArtistRegistry, EventMonitor) {
 	repo := db.NewInMemoryArtistRepository()
+	m := db.NewInMemoryEventMonitor()
 	raClient := ra.NewInMemoryClient(raArtists)
 
-	return NewArtistRegistry(repo, raClient)
+	return NewArtistRegistry(repo, raClient, m, now), m
 }
 
 func TestArtistRegistry(t *testing.T) {
 	ctx := context.Background()
+	now := func() time.Time {
+		return time.Now()
+	}
 
 	t.Run("lists all artists", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -31,6 +36,7 @@ func TestArtistRegistry(t *testing.T) {
 					EventsData: []ra.Event{},
 				},
 			},
+			now,
 		)
 
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
@@ -59,13 +65,14 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows an artist from resident advisor", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"daftpunk": {
 					Artist:     ra.Artist{RAID: "111", Name: "Daft Punk"},
 					EventsData: []ra.Event{},
 				},
 			},
+			now,
 		)
 
 		want := []Artist{{ID: 1, RAID: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIDs{UserID(1)}}}
@@ -76,13 +83,14 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
 				},
 			},
+			now,
 		)
 
 		want := Artists{
@@ -95,8 +103,9 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{},
+			now,
 		)
 
 		err := registry.Follow(ctx, "unknown", UserID(1))
@@ -106,7 +115,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows new artist as user", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -117,6 +126,7 @@ func TestArtistRegistry(t *testing.T) {
 					EventsData: []ra.Event{},
 				},
 			},
+			now,
 		)
 
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
@@ -138,7 +148,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("ignores follow if already following", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -149,6 +159,7 @@ func TestArtistRegistry(t *testing.T) {
 					EventsData: []ra.Event{},
 				},
 			},
+			now,
 		)
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
 		err = registry.Follow(ctx, "boysnoize", UserID(1))
@@ -161,7 +172,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows existing artist", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -172,6 +183,7 @@ func TestArtistRegistry(t *testing.T) {
 					EventsData: []ra.Event{},
 				},
 			},
+			now,
 		)
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
 		err = registry.Follow(ctx, "boysnoize", UserID(2))
@@ -184,7 +196,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("fetches all events for artist in the next month", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -210,6 +222,7 @@ func TestArtistRegistry(t *testing.T) {
 					},
 				},
 			},
+			now,
 		)
 
 		events, err := registry.AllEventsForArtist(ctx, Artist{
@@ -248,7 +261,7 @@ func TestArtistRegistry(t *testing.T) {
 				ContentUrl: "/events/1789025",
 			},
 		}
-		registry := NewInMemoryArtistRegistry(
+		registry, _ := NewInMemoryArtistRegistry(
 			map[RASlug]ra.ArtistWithEvents{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -259,6 +272,7 @@ func TestArtistRegistry(t *testing.T) {
 					EventsData: []ra.Event{events[1], events[2]},
 				},
 			},
+			now,
 		)
 
 		joe := UserID(1)

@@ -15,12 +15,12 @@ func TestEvents(t *testing.T) {
 		monitor := NewEventMonitor(sqlite)
 
 		want := []d.MonitoringEvent{
-			d.ArtistFollowedEvent{ArtistSlug: "sinamin", UserId: 666},
-			d.NewEventForArtistEvent{EventId: "123", Slug: "sinamin", Users: []d.UserID{1, 3}},
+			d.ArtistFollowed{ArtistSlug: "sinamin", UserId: 666},
+			d.NewEventForArtist{EventId: "123", Slug: "sinamin", User: 1},
 		}
 
-		monitor.Monitor(ctx, d.ArtistFollowedEvent{ArtistSlug: "sinamin", UserId: 666})
-		monitor.Monitor(ctx, d.NewEventForArtistEvent{EventId: "123", Slug: "sinamin", Users: []d.UserID{1, 3}})
+		monitor.Monitor(ctx, d.ArtistFollowed{ArtistSlug: "sinamin", UserId: 666})
+		monitor.Monitor(ctx, d.NewEventForArtist{EventId: "123", Slug: "sinamin", User: 1})
 
 		got, err := monitor.All(ctx)
 
