@@ -13,7 +13,10 @@ const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
 	" Chrome/113.0.0.0 Safari/537.36"
 
 func newGetArtistReq(slug domain.RASlug, baseUri string) (*http.Request, error) {
-	query := fmt.Sprintf(`{"query":"{\n artist(slug:\"%v\"){\n id\n name\n}\n}\n","variables":{}}`, slug)
+	query := fmt.Sprintf(`{
+		"query":"{\n artist(slug:\"%v\"){\n id\n name\n}\n}\n",
+		"variables":{}
+	}`, slug)
 	reqBody := []byte(query)
 
 	req, err := http.NewRequest("POST", baseUri+"/graphql", bytes.NewBuffer(reqBody))
@@ -23,7 +26,7 @@ func newGetArtistReq(slug domain.RASlug, baseUri string) (*http.Request, error) 
 	return req, err
 }
 
-func newGetEventsReq(raId string, start, end time.Time, baseUri string) (*http.Request, error) {
+func newGetEventsReq(raId string, start, end time.Time, uri string) (*http.Request, error) {
 	fmtStart := start.Format("2006-01-02T03:04:05.000Z")
 	fmtEnd := end.Format("2006-01-02T03:04:05.000Z")
 
@@ -72,7 +75,7 @@ func newGetEventsReq(raId string, start, end time.Time, baseUri string) (*http.R
 
 	reqBody := []byte(query)
 
-	req, err := http.NewRequest("POST", baseUri+"/graphql", bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest("POST", uri+"/graphql", bytes.NewBuffer(reqBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", userAgent)
 

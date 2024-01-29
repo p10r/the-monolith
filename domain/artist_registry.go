@@ -52,6 +52,7 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 
 	res, err := r.RA.GetArtistBySlug(slug)
 	if err != nil {
+		log.Printf("err when calling ra.co: %v", err)
 		return ErrNotFoundOnRA
 	}
 

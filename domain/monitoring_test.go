@@ -23,8 +23,17 @@ func TestMonitoring(t *testing.T) {
 		joe := d.UserID(444)
 		eventId := "222"
 		want := []d.MonitoringEvent{
-			d.ArtistFollowed{ArtistSlug: "boysnoize", UserId: joe, CreatedAt: time.UnixMilli(0000)},
-			d.NewEventForArtist{EventId: "222", Slug: "boysnoize", User: joe, CreatedAt: time.UnixMilli(1000)},
+			d.ArtistFollowed{
+				ArtistSlug: "boysnoize",
+				UserId:     joe,
+				CreatedAt:  time.UnixMilli(0000),
+			},
+			d.NewEventForArtist{
+				EventId:   "222",
+				Slug:      "boysnoize",
+				User:      joe,
+				CreatedAt: time.UnixMilli(1000),
+			},
 		}
 
 		registry, monitor := NewInMemoryArtistRegistry(

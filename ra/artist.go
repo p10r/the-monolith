@@ -15,14 +15,13 @@ type Artist struct {
 
 func NewArtist(res *http.Response) (Artist, error) {
 	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return Artist{}, fmt.Errorf("request failed with status code: %v", res.StatusCode)
-	}
-
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		return Artist{}, fmt.Errorf("cannot parse response body")
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return Artist{}, fmt.Errorf("request failed with status code: %v, body: %v", res.StatusCode, string(data))
 	}
 
 	var body struct {

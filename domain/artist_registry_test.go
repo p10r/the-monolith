@@ -10,7 +10,10 @@ import (
 	"time"
 )
 
-func NewInMemoryArtistRegistry(raArtists map[RASlug]ra.ArtistWithEvents, now func() time.Time) (*ArtistRegistry, EventMonitor) {
+func NewInMemoryArtistRegistry(
+	raArtists ra.ArtistStore,
+	now func() time.Time,
+) (*ArtistRegistry, EventMonitor) {
 	repo := db.NewInMemoryArtistRepository()
 	m := db.NewInMemoryEventMonitor()
 	raClient := ra.NewInMemoryClient(raArtists)
@@ -26,7 +29,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("lists all artists", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -70,7 +73,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("follows an artist from resident advisor", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"daftpunk": {
 					Artist:     ra.Artist{RAID: "111", Name: "Daft Punk"},
 					EventsData: []ra.Event{},
@@ -79,7 +82,14 @@ func TestArtistRegistry(t *testing.T) {
 			now,
 		)
 
-		want := []Artist{{ID: 1, RAID: "111", RASlug: "daftpunk", Name: "Daft Punk", FollowedBy: UserIDs{UserID(1)}}}
+		want := []Artist{
+			{
+				ID:         1,
+				RAID:       "111",
+				RASlug:     "daftpunk",
+				Name:       "Daft Punk",
+				FollowedBy: UserIDs{UserID(1)},
+			}}
 		err := registry.Follow(ctx, "daftpunk", UserID(1))
 
 		expect.NoErr(t, err)
@@ -90,7 +100,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -100,7 +110,13 @@ func TestArtistRegistry(t *testing.T) {
 		)
 
 		want := Artists{
-			{ID: 1, RAID: "943", RASlug: "boysnoize", Name: "Boys Noize", FollowedBy: UserIDs{UserID(1)}},
+			{
+				ID:         1,
+				RAID:       "943",
+				RASlug:     "boysnoize",
+				Name:       "Boys Noize",
+				FollowedBy: UserIDs{UserID(1)},
+			},
 		}
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
 
@@ -112,7 +128,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{},
+			ra.ArtistStore{},
 			now,
 		)
 
@@ -124,7 +140,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("follows new artist as user", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -160,7 +176,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("ignores follow if already following", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -187,7 +203,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("follows existing artist", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -214,7 +230,7 @@ func TestArtistRegistry(t *testing.T) {
 
 	t.Run("fetches all events for artist in the next month", func(t *testing.T) {
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{},
@@ -279,7 +295,7 @@ func TestArtistRegistry(t *testing.T) {
 			},
 		}
 		registry, _ := NewInMemoryArtistRegistry(
-			map[RASlug]ra.ArtistWithEvents{
+			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: []ra.Event{events[0]},

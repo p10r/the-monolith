@@ -11,8 +11,10 @@ type ArtistWithEvents struct {
 	EventsData Events
 }
 
+type ArtistStore map[domain.RASlug]ArtistWithEvents
+
 type InMemoryClient struct {
-	artists map[domain.RASlug]ArtistWithEvents
+	artists ArtistStore
 }
 
 func NewInMemoryClient(artists map[domain.RASlug]ArtistWithEvents) *InMemoryClient {

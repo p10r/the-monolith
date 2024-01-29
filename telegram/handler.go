@@ -106,14 +106,15 @@ func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
 		tags := c.Args()
+		msg := "Could not parse input, make sure to send it as follows https://ra.co/dj/dj123"
 		if len(tags) == 0 {
-			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")
+			return c.Send(msg)
 		}
 
 		slug, err := domain.NewSlug(tags[0])
 		if err != nil {
 			log.Print(err)
-			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")
+			return c.Send(msg)
 		}
 		userId := domain.UserID(c.Sender().ID)
 
