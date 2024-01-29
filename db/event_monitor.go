@@ -23,6 +23,8 @@ func NewEventMonitor(db *DB) SqliteEventMonitor {
 }
 
 func (m SqliteEventMonitor) Monitor(ctx context.Context, e domain.MonitoringEvent) {
+	log.Printf("%v: %v", e.Name(), e)
+
 	err := m.saveEvent(ctx, e)
 	if err != nil {
 		log.Printf("Could not save monitoring event %e to db. Reason: %v", e, err)

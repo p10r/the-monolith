@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"gopkg.in/telebot.v3"
-	"log"
 	"pedro-go/domain"
 )
 
@@ -21,10 +20,10 @@ func (n Notifier) NotifyUsers() {
 	//
 	//	log.Printf("Sending %v\n", events)
 
-	_, err := n.bot.Send(user("530586914"), "Test <a href='https://www.google.com/'>Google</a>")
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	//_, err := n.bot.Send(user("530586914"), "Test <a href='https://www.google.com/'>Google</a>")
+	//if err != nil {
+	//	log.Fatalf("%v", err)
+	//}
 	//}
 }
 

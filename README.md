@@ -10,7 +10,7 @@ area.
 - in there, set all the variables listed in `cmd/main.go`
 - run `direnv allow .`
 - run `go run cmd/main.go`
-- a new `local.db` will be created in the project root
+- a new `local.db` will be created in `local/`
 
 ## TODOs:
 

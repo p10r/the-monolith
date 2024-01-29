@@ -22,4 +22,4 @@ go.work
 
 .idea/
 .envrc
-local.db
+local/

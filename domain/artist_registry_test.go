@@ -135,7 +135,10 @@ func TestArtistRegistry(t *testing.T) {
 		)
 
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		expect.NoErr(t, err)
+
 		err = registry.Follow(ctx, "sinamin", UserID(2))
+		expect.NoErr(t, err)
 
 		got, err := registry.ArtistsFor(ctx, UserID(1))
 		want := Artists{
@@ -167,7 +170,10 @@ func TestArtistRegistry(t *testing.T) {
 			now,
 		)
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		expect.NoErr(t, err)
+
 		err = registry.Follow(ctx, "boysnoize", UserID(1))
+		expect.NoErr(t, err)
 
 		got, err := registry.ArtistsFor(ctx, UserID(1))
 

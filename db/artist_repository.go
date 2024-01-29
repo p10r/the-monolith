@@ -60,7 +60,7 @@ func insertNewArtist(ctx context.Context, tx *Tx, e artistDBEntity) (artistDBEnt
 	}
 
 	e.ID = id
-	log.Printf("DB: Inserting %v\n", e)
+	log.Printf("db: Inserting new artist %v\n", e)
 	return e, nil
 }
 
@@ -80,7 +80,7 @@ func updateArtist(ctx context.Context, tx *Tx, e artistDBEntity) (artistDBEntity
 		return artistDBEntity{}, err
 	}
 
-	log.Printf("Inserting %v into row id %v\n", e, id)
+	log.Printf("updating artist %v for row id %v\n", e, id)
 
 	e.ID = id
 	return e, nil

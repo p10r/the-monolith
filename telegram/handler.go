@@ -16,6 +16,11 @@ import (
 
 func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	conn := db.NewDB(dsn)
+	err := conn.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	repo := db.NewSqliteArtistRepository(conn)
 	m := db.NewEventMonitor(conn)
 	now := func() time.Time { return time.Now() }
@@ -46,7 +51,7 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 
 	n.NotifyUsers()
 
-	bot.Use(middleware.Logger())
+	//bot.Use(middleware.Logger())
 	bot.Handle("/follow", followArtist(r))
 	bot.Handle("/list", listArtists(r))
 	bot.Handle("/events", listEvents(r))
@@ -96,6 +101,10 @@ func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
 		tags := c.Args()
+		if len(tags) == 0 {
+			return c.Send("Could not parse artist, make sure to send it as follows https://ra.co/dj/yourartist")
+		}
+
 		slug, err := domain.NewSlug(tags[0])
 		if err != nil {
 			log.Print(err)
@@ -103,7 +112,6 @@ func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
 		}
 		userId := domain.UserID(c.Sender().ID)
 
-		log.Printf("%v started following %v", userId, slug)
 		err = r.Follow(ctx, slug, userId)
 		if err != nil {
 			log.Print(err)
