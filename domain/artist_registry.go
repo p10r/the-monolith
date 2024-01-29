@@ -22,21 +22,31 @@ func NewArtistRegistry(repo ArtistRepository, ra ResidentAdvisor, monitor EventM
 	return &ArtistRegistry{repo, ra, monitor, now}
 }
 
-func (r *ArtistRegistry) All(ctx context.Context) Artists {
+func NewDBError(err error) error {
+	return fmt.Errorf("err when saving to db: %v", err)
+}
+
+func (r *ArtistRegistry) All(ctx context.Context) (Artists, error) {
 	all, err := r.Repo.All(ctx)
 	if err != nil {
-		log.Fatalf("error when trying to read from the db %v\n", err)
+		return nil, NewDBError(err)
 	}
-	return all
+	return all, nil
 }
 
 func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID) error {
-	all := r.All(ctx)
+	all, err := r.All(ctx)
+	if err != nil {
+		return err
+	}
 
 	i := slices.Index(all.RASlugs(), slug)
 	if i != -1 {
 		existing := all[i-1]
-		r.Repo.Save(ctx, existing.AddFollower(userId))
+		_, err := r.Repo.Save(ctx, existing.AddFollower(userId))
+		if err != nil {
+			return NewDBError(err)
+		}
 		return nil
 	}
 
@@ -54,7 +64,7 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 
 	artist, err = r.Repo.Save(ctx, artist)
 	if err != nil {
-		return err
+		return NewDBError(err)
 	}
 
 	r.Monitor.Monitor(ctx, NewArtistFollowedEvent(slug, userId, r.Now))
@@ -63,7 +73,11 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 }
 
 func (r *ArtistRegistry) ArtistsFor(ctx context.Context, userId UserID) (Artists, error) {
-	return r.All(ctx).FilterByUserId(userId), nil
+	all, err := r.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return all.FilterByUserId(userId), nil
 }
 
 func (r *ArtistRegistry) AllEventsForArtist(_ context.Context, artist Artist) (Events, error) {
@@ -83,15 +97,15 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Eve
 			return nil, fmt.Errorf("can't fetch events right now: %v", err)
 		}
 
-		for _, event := range events {
-			r.Monitor.Monitor(ctx, NewNewEventForArtist(event, artist, user, r.Now))
-		}
-
 		eventsPerArtist = append(eventsPerArtist, filterAlreadyTrackedEvents(artist, events))
 
 		_, err = r.updateEventsInDB(ctx, artist, events)
 		if err != nil {
-			return Events{}, err
+			return Events{}, NewDBError(err)
+		}
+
+		for _, event := range events {
+			r.Monitor.Monitor(ctx, NewNewEventForArtist(event, artist, user, r.Now))
 		}
 	}
 
@@ -100,24 +114,15 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Eve
 	return events, nil
 }
 
-func flatten(eventsPerArtist []Events) Events {
-	var flattened Events
-	for _, e := range eventsPerArtist {
-		flattened = append(flattened, e...)
-	}
-	return flattened
-}
-
 func (r *ArtistRegistry) updateEventsInDB(ctx context.Context, artist Artist, events Events) (Events, error) {
 	artist.TrackedEvents = eventIDsOf(events)
 	_, err := r.Repo.Save(ctx, artist)
 	if err != nil {
-		return nil, fmt.Errorf("can't update events in db: %v", err)
+		return nil, NewDBError(err)
 	}
 	return nil, nil
 }
 
-// TODO map ra.Event to domain type
 func filterAlreadyTrackedEvents(artist Artist, events Events) Events {
 	var filtered Events
 	for _, e := range events {
@@ -144,4 +149,12 @@ func eventIDsOf(events Events) EventIDs {
 		ids = append(ids, eventID)
 	}
 	return ids
+}
+
+func flatten(eventsPerArtist []Events) Events {
+	var flattened Events
+	for _, e := range eventsPerArtist {
+		flattened = append(flattened, e...)
+	}
+	return flattened
 }

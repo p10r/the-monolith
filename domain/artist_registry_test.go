@@ -42,7 +42,8 @@ func TestArtistRegistry(t *testing.T) {
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
 		err = registry.Follow(ctx, "sinamin", UserID(1))
 
-		got := registry.All(ctx)
+		got, err := registry.All(ctx)
+		expect.NoErr(t, err)
 		want := Artists{
 			{
 				ID:         1,
@@ -79,7 +80,9 @@ func TestArtistRegistry(t *testing.T) {
 		err := registry.Follow(ctx, "daftpunk", UserID(1))
 
 		expect.NoErr(t, err)
-		expect.DeepEqual(t, registry.All(ctx), want)
+		all, err := registry.All(ctx)
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, all, want)
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
@@ -99,7 +102,9 @@ func TestArtistRegistry(t *testing.T) {
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
 
 		expect.NoErr(t, err)
-		expect.DeepEqual(t, registry.All(ctx), want)
+		all, err := registry.All(ctx)
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, all, want)
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
