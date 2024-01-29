@@ -57,6 +57,7 @@ func (c ArtistRepositoryContract) Test(t *testing.T) {
 			TrackedEvents: EventIDs{},
 		}
 		first, err := r.Save(ctx, artist)
+		expect.NoErr(t, err)
 
 		first.FollowedBy = UserIDs{UserID(1), UserID(2)}
 		_, err = r.Save(ctx, first)

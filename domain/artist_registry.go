@@ -62,7 +62,7 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 		FollowedBy: UserIDs{userId},
 	}
 
-	artist, err = r.Repo.Save(ctx, artist)
+	_, err = r.Repo.Save(ctx, artist)
 	if err != nil {
 		return NewDBError(err)
 	}

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -36,7 +37,11 @@ func (m SqliteEventMonitor) saveEvent(ctx context.Context, e domain.MonitoringEv
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func(tx *Tx) {
+		if err := tx.Rollback(); err != nil {
+			log.Printf("Could not rollback tx: %v", err)
+		}
+	}(tx)
 
 	data, err := e.ToJSON()
 	if err != nil {
@@ -48,7 +53,10 @@ func (m SqliteEventMonitor) saveEvent(ctx context.Context, e domain.MonitoringEv
 		EventType: e.Name(),
 		Data:      string(data),
 	}
-	entity, err = insertNewMonitoringEvent(ctx, tx, entity)
+	_, err = insertNewMonitoringEvent(ctx, tx, entity)
+	if err != nil {
+		return err
+	}
 
 	//TODO debug log here that event was saved
 
@@ -79,7 +87,11 @@ func (m SqliteEventMonitor) All(ctx context.Context) (domain.MonitoringEvents, e
 	if err != nil {
 		return domain.MonitoringEvents{}, err
 	}
-	defer tx.Rollback()
+	defer func(tx *Tx) {
+		if err := tx.Rollback(); err != nil {
+			log.Printf("Could not rollback tx: %v", err)
+		}
+	}(tx)
 
 	entities, err := findMonitoringEvents(ctx, tx)
 	if err != nil {
@@ -117,7 +129,11 @@ func findMonitoringEvents(ctx context.Context, tx *Tx) ([]*monitoringEvent, erro
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		if err := rows.Close(); err != nil {
+			log.Printf("Could not rollback tx: %v", err)
+		}
+	}(rows)
 
 	entities := make([]*monitoringEvent, 0)
 	for rows.Next() {

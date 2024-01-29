@@ -27,13 +27,13 @@ func (n Notifier) NotifyUsers() {
 	//}
 }
 
-type user string
-
-func (u user) Recipient() string {
-	return string(u)
-}
-
-type EventsMsg string
+//type user string
+//
+//func (u user) Recipient() string {
+//	return string(u)
+//}
+//
+//type EventsMsg string
 
 //func NewEventsMessage() {
 //

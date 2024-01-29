@@ -7,6 +7,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -122,7 +123,12 @@ func (db *DB) migrateFile(name string) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			log.Printf("Could not rollback tx: %v", err)
+		}
+	}(tx)
 
 	// Ensure migration has not already been run.
 	var n int
@@ -222,7 +228,7 @@ func FormatLimitOffset(limit, offset int) string {
 
 // logstr is a helper function for printing and returning a string.
 // It can be useful for printing out query text.
-func logstr(s string) string {
-	println(s)
-	return s
-}
+//func logstr(s string) string {
+//	println(s)
+//	return s
+//}

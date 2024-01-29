@@ -40,7 +40,10 @@ func TestArtistRegistry(t *testing.T) {
 		)
 
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		expect.NoErr(t, err)
+
 		err = registry.Follow(ctx, "sinamin", UserID(1))
+		expect.NoErr(t, err)
 
 		got, err := registry.All(ctx)
 		expect.NoErr(t, err)
@@ -197,7 +200,10 @@ func TestArtistRegistry(t *testing.T) {
 			now,
 		)
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
+		expect.NoErr(t, err)
+
 		err = registry.Follow(ctx, "boysnoize", UserID(2))
+		expect.NoErr(t, err)
 
 		got, err := registry.ArtistsFor(ctx, UserID(2))
 
@@ -288,9 +294,12 @@ func TestArtistRegistry(t *testing.T) {
 
 		joe := UserID(1)
 
-		var err error
-		err = registry.Follow(ctx, "boysnoize", joe)
+		err := registry.Follow(ctx, "boysnoize", joe)
+		expect.NoErr(t, err)
+
 		err = registry.Follow(ctx, "sinamin", joe)
+		expect.NoErr(t, err)
+
 		eventsForUser, err := registry.NewEventsForUser(ctx, joe)
 
 		expect.NoErr(t, err)
