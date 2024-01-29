@@ -17,7 +17,7 @@ import (
 func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	conn := db.NewDB(dsn)
 	repo := db.NewSqliteArtistRepository(conn)
-	m := db.NewInMemoryEventMonitor()
+	m := db.NewEventMonitor(conn)
 	now := func() time.Time { return time.Now() }
 
 	r := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co/graphql"), m, now)
