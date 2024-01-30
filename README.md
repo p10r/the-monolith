@@ -5,9 +5,10 @@ area.
 
 ## Local Development
 
-- user [.direnv](https://github.com/direnv/direnv)
-- create an `.envrc` file in the project root
-- in there, set all the variables listed in `cmd/main.go`
+- install [.direnv](https://github.com/direnv/direnv)
+- install [Lefthook](https://github.com/evilmartians/lefthook)
+- run `lefthook install` to set up pre-commit hooks
+- copy `.envrc-example` to `.envrc`, adjusting the values
 - run `direnv allow .`
 - run `go run cmd/main.go`
 - a new `local.db` will be created in `local/`
