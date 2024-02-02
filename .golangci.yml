@@ -12,3 +12,4 @@ linters:
     - gofmt
     - gosec
     - nolintlint
+    - gosimple
