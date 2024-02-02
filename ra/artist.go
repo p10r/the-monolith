@@ -14,6 +14,10 @@ type Artist struct {
 }
 
 func NewArtist(res *http.Response) (Artist, error) {
+	if res == nil {
+		return Artist{}, fmt.Errorf("artist response was null")
+	}
+
 	defer res.Body.Close()
 	data, err := io.ReadAll(res.Body)
 	if err != nil {

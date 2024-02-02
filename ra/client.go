@@ -62,5 +62,8 @@ func (c *Client) GetEventsByArtistId(
 
 	res, err := c.http.Do(req)
 	e, err := NewEvent(res, err)
+	if err != nil {
+		return domain.Events{}, fmt.Errorf("could not get response: %v", err)
+	}
 	return e.ToDomainEvents(), err
 }

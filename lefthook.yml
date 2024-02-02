@@ -1,4 +1,7 @@
 pre-commit:
+  parallel: true
   commands:
     golangci-lint:
       run: golangci-lint run
+    nil-away:
+      run: nilaway ./...

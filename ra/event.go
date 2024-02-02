@@ -31,6 +31,10 @@ type Event struct {
 type Events []Event
 
 func NewEvent(res *http.Response, err error) (Events, error) {
+	if res == nil {
+		return Events{}, fmt.Errorf("ra events response is nil")
+	}
+
 	if err != nil {
 		return []Event{}, err
 	}

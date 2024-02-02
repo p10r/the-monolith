@@ -7,6 +7,7 @@ area.
 
 - install [.direnv](https://github.com/direnv/direnv)
 - install [Lefthook](https://github.com/evilmartians/lefthook)
+- install [nilaway](https://github.com/uber-go/nilaway?tab=readme-ov-file#standalone-checker)
 - run `lefthook install` to set up pre-commit hooks
 - copy `.envrc-example` to `.envrc`, adjusting the values
 - run `direnv allow .`

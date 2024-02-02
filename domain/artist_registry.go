@@ -141,7 +141,7 @@ func filterAlreadyTrackedEvents(artist Artist, events Events) Events {
 			log.Printf("failed parsing %v to EventID: %v", eventID, err)
 			continue
 		}
-		if !artist.TrackedEvents.Contains(eventID) {
+		if artist.TrackedEvents != nil && !artist.TrackedEvents.Contains(eventID) {
 			filtered = append(filtered, e)
 		}
 	}
@@ -149,7 +149,7 @@ func filterAlreadyTrackedEvents(artist Artist, events Events) Events {
 }
 
 func eventIDsOf(events Events) EventIDs {
-	var ids EventIDs
+	ids := EventIDs{}
 	for _, e := range events {
 		eventID, err := NewEventID(e.Id)
 		if err != nil {

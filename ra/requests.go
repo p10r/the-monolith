@@ -20,6 +20,11 @@ func newGetArtistReq(slug domain.RASlug, baseUri string) (*http.Request, error) 
 	reqBody := []byte(query)
 
 	req, err := http.NewRequest("POST", baseUri+"/graphql", bytes.NewBuffer(reqBody))
+	if err != nil {
+		//TODO create specific inbound and outbound response errors for ResidentAdvisor
+		return nil, fmt.Errorf("ra: could not create GET artists request: %v", err)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", userAgent)
 
@@ -77,6 +82,12 @@ func newGetEventsReq(raId string, start, end time.Time, uri string) (*http.Reque
 	reqBody := []byte(query)
 
 	req, err := http.NewRequest("POST", uri+"/graphql", bytes.NewBuffer(reqBody))
+
+	if err != nil {
+		//TODO create specific inbound and outbound response errors for ResidentAdvisor
+		return nil, fmt.Errorf("ra: could not create GET events request: %v", err)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", userAgent)
 
