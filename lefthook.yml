@@ -1,6 +1,8 @@
 pre-commit:
   parallel: true
   commands:
+    test:
+      run: go test ./...
     golangci-lint:
       run: golangci-lint run
     nil-away:
