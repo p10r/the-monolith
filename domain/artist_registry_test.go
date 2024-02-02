@@ -52,18 +52,20 @@ func TestArtistRegistry(t *testing.T) {
 		expect.NoErr(t, err)
 		want := Artists{
 			{
-				ID:         1,
-				RAID:       "943",
-				RASlug:     "boysnoize",
-				Name:       "Boys Noize",
-				FollowedBy: UserIDs{UserID(1)},
+				ID:            1,
+				RAID:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    UserIDs{UserID(1)},
+				TrackedEvents: EventIDs{},
 			},
 			{
-				ID:         2,
-				RAID:       "222",
-				RASlug:     "sinamin",
-				Name:       "Sinamin",
-				FollowedBy: UserIDs{UserID(1)},
+				ID:            2,
+				RAID:          "222",
+				RASlug:        "sinamin",
+				Name:          "Sinamin",
+				FollowedBy:    UserIDs{UserID(1)},
+				TrackedEvents: EventIDs{},
 			},
 		}
 
@@ -84,11 +86,12 @@ func TestArtistRegistry(t *testing.T) {
 
 		want := []Artist{
 			{
-				ID:         1,
-				RAID:       "111",
-				RASlug:     "daftpunk",
-				Name:       "Daft Punk",
-				FollowedBy: UserIDs{UserID(1)},
+				ID:            1,
+				RAID:          "111",
+				RASlug:        "daftpunk",
+				Name:          "Daft Punk",
+				FollowedBy:    UserIDs{UserID(1)},
+				TrackedEvents: EventIDs{},
 			}}
 		err := registry.Follow(ctx, "daftpunk", UserID(1))
 
@@ -111,11 +114,12 @@ func TestArtistRegistry(t *testing.T) {
 
 		want := Artists{
 			{
-				ID:         1,
-				RAID:       "943",
-				RASlug:     "boysnoize",
-				Name:       "Boys Noize",
-				FollowedBy: UserIDs{UserID(1)},
+				ID:            1,
+				RAID:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    UserIDs{UserID(1)},
+				TrackedEvents: EventIDs{},
 			},
 		}
 		err := registry.Follow(ctx, "boysnoize", UserID(1))
@@ -162,11 +166,12 @@ func TestArtistRegistry(t *testing.T) {
 		got, err := registry.ArtistsFor(ctx, UserID(1))
 		want := Artists{
 			Artist{
-				ID:         1,
-				RAID:       "943",
-				RASlug:     "boysnoize",
-				Name:       "Boys Noize",
-				FollowedBy: UserIDs{UserID(1)},
+				ID:            1,
+				RAID:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    UserIDs{UserID(1)},
+				TrackedEvents: EventIDs{},
 			},
 		}
 
@@ -317,8 +322,8 @@ func TestArtistRegistry(t *testing.T) {
 		expect.NoErr(t, err)
 
 		eventsForUser, err := registry.NewEventsForUser(ctx, joe)
-
 		expect.NoErr(t, err)
+
 		expect.DeepEqual(t, eventsForUser, Events{
 			{
 				Id:         "3",

@@ -62,10 +62,11 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 	}
 
 	artist := Artist{
-		RAID:       res.RAID,
-		RASlug:     slug,
-		Name:       res.Name,
-		FollowedBy: UserIDs{userId},
+		RAID:          res.RAID,
+		RASlug:        slug,
+		Name:          res.Name,
+		FollowedBy:    UserIDs{userId},
+		TrackedEvents: EventIDs{},
 	}
 
 	_, err = r.Repo.Save(ctx, artist)

@@ -45,9 +45,9 @@ func (c *Client) GetArtistBySlug(slug domain.RASlug) (domain.ArtistInfo, error) 
 
 	a, err := NewArtist(res)
 	if err != nil {
-		return domain.ArtistInfo{}, fmt.Errorf("could map response: %w", err)
+		return domain.ArtistInfo{}, err
 	}
-	return a.ToArtistInfo(), err
+	return a.ToArtistInfo(), nil
 }
 
 func (c *Client) GetEventsByArtistId(
