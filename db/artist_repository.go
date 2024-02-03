@@ -22,12 +22,8 @@ func (r SqliteArtistRepository) Save(
 	if err != nil {
 		return domain.Artist{}, err
 	}
-	defer func(tx *Tx) {
-		err := tx.Rollback()
-		if err != nil {
-			log.Printf("Could not rollback tx: %v", err)
-		}
-	}(tx)
+	//nolint:errcheck
+	defer tx.Rollback()
 
 	e := newArtistDBEntity(artist)
 	if e.ID == 0 {
@@ -99,11 +95,8 @@ func (r SqliteArtistRepository) All(ctx context.Context) (domain.Artists, error)
 	if err != nil {
 		return domain.Artists{}, err
 	}
-	defer func(tx *Tx) {
-		if err := tx.Rollback(); err != nil {
-			log.Printf("Could not rollback tx: %v", err)
-		}
-	}(tx)
+	//nolint:errcheck
+	defer tx.Rollback()
 
 	entities, err := findArtists(ctx, tx)
 	if err != nil {
