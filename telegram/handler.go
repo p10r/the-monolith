@@ -68,7 +68,7 @@ func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
 			return c.Send("There was an error %v", err)
 		}
 
-		eventsFor, err := r.AllEventsForArtist(ctx, artists[0])
+		eventsFor, err := r.EventsForArtist(ctx, artists[0])
 		if err != nil {
 			log.Print(err)
 			return c.Send("There was an error!")

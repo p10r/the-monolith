@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"time"
 )
 
@@ -55,7 +56,12 @@ func NewNewEventForArtist(
 	id UserID,
 	now func() time.Time,
 ) NewEventForArtist {
-	return NewEventForArtist{event.Id, string(artist.RASlug), id, now()}
+	return NewEventForArtist{
+		EventId:   strconv.FormatInt(int64(event.Id), 10),
+		Slug:      string(artist.RASlug),
+		User:      id,
+		CreatedAt: now(),
+	}
 }
 
 func (e NewEventForArtist) Name() string {
