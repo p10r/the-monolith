@@ -87,10 +87,10 @@ func (r *ArtistRegistry) ArtistsFor(ctx context.Context, userId UserID) (Artists
 	return all.FilterByUserId(userId), nil
 }
 
-func (r *ArtistRegistry) AllEventsForArtist(_ context.Context, artist Artist) (Events, error) {
+func (r *ArtistRegistry) EventsForArtist(_ context.Context, artist Artist) (Events, error) {
 	now := time.Now()
 	//TODO wrap error
-	return r.RA.GetEventsByArtistId(artist.RAID, now, now.Add(31*24*time.Hour))
+	return r.RA.GetEventsByArtistId(artist, now, now.Add(31*24*time.Hour))
 }
 
 func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Events, error) {
@@ -99,19 +99,20 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Eve
 	//TODO goroutine
 	var eventsPerArtist []Events
 	for _, artist := range artists {
-		events, err := r.AllEventsForArtist(ctx, artist)
+		events, err := r.EventsForArtist(ctx, artist)
 		if err != nil {
 			return nil, fmt.Errorf("can't fetch events right now: %v", err)
 		}
 
-		eventsPerArtist = append(eventsPerArtist, filterAlreadyTrackedEvents(artist, events))
+		newEvents := events.FindNewEvents(artist)
+		eventsPerArtist = append(eventsPerArtist, newEvents)
 
 		_, err = r.updateEventsInDB(ctx, artist, events)
 		if err != nil {
 			return Events{}, NewDBError(err)
 		}
 
-		for _, event := range events {
+		for _, event := range newEvents {
 			r.Monitor.Monitor(ctx, NewNewEventForArtist(event, artist, user, r.Now))
 		}
 	}
@@ -126,40 +127,12 @@ func (r *ArtistRegistry) updateEventsInDB(
 	artist Artist,
 	events Events,
 ) (Events, error) {
-	artist.TrackedEvents = eventIDsOf(events)
+	artist.TrackedEvents = events.IDs()
 	_, err := r.Repo.Save(ctx, artist)
 	if err != nil {
 		return nil, NewDBError(err)
 	}
 	return nil, nil
-}
-
-func filterAlreadyTrackedEvents(artist Artist, events Events) Events {
-	var filtered Events
-	for _, e := range events {
-		eventID, err := NewEventID(e.Id)
-		if err != nil {
-			log.Printf("failed parsing %v to EventID: %v", eventID, err)
-			continue
-		}
-		if artist.TrackedEvents != nil && !artist.TrackedEvents.Contains(eventID) {
-			filtered = append(filtered, e)
-		}
-	}
-	return filtered
-}
-
-func eventIDsOf(events Events) EventIDs {
-	ids := EventIDs{}
-	for _, e := range events {
-		eventID, err := NewEventID(e.Id)
-		if err != nil {
-			log.Printf("failed parsing %v to EventID: %v", eventID, err)
-			continue
-		}
-		ids = append(ids, eventID)
-	}
-	return ids
 }
 
 func flatten(eventsPerArtist []Events) Events {

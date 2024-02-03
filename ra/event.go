@@ -69,12 +69,19 @@ func NewEvent(res *http.Response, err error) (Events, error) {
 	return events.Data.Listing.EventsData, err
 }
 
-func (events Events) ToDomainEvents() domain.Events {
+func (events Events) ToDomainEvents(artistName string) domain.Events {
 	d := domain.Events{}
 	for _, e := range events {
+		id, err := domain.NewEventID(e.Id)
+		if err != nil {
+			log.Printf("failed parsing %v to EventID: %v", e.Id, err)
+			continue
+		}
+
 		transformed := domain.Event{
-			Id:         e.Id,
+			Id:         id,
 			Title:      e.Title,
+			Artist:     artistName,
 			Venue:      e.Venue.Name,
 			Date:       e.Date,
 			StartTime:  e.StartTime,

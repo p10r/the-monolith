@@ -32,10 +32,11 @@ func (c *InMemoryClient) GetArtistBySlug(slug domain.RASlug) (domain.ArtistInfo,
 }
 
 func (c *InMemoryClient) GetEventsByArtistId(
-	raId string,
+	a domain.Artist,
 	_ time.Time, //TODO filter for time
 	_ time.Time,
 ) (domain.Events, error) {
+	raId := a.RAID
 	var fil []ArtistWithEvents
 	for _, a := range c.artists {
 		if a.Artist.RAID == raId {
@@ -52,5 +53,5 @@ func (c *InMemoryClient) GetEventsByArtistId(
 	}
 
 	first := fil[0]
-	return first.EventsData.ToDomainEvents(), nil
+	return first.EventsData.ToDomainEvents(a.Name), nil
 }

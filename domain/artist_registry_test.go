@@ -263,7 +263,7 @@ func TestArtistRegistry(t *testing.T) {
 			now,
 		)
 
-		events, err := registry.AllEventsForArtist(ctx, Artist{
+		events, err := registry.EventsForArtist(ctx, Artist{
 			ID:         1,
 			RAID:       "222",
 			RASlug:     "sinamin",
@@ -326,22 +326,25 @@ func TestArtistRegistry(t *testing.T) {
 
 		expect.DeepEqual(t, eventsForUser, Events{
 			{
-				Id:         "3",
+				Id:         EventID(3),
 				Title:      "Kater Blau Night",
+				Artist:     "Boys Noize",
 				Date:       "2023-11-04T00:00:00.000",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/3",
 			},
 			{
-				Id:         "1",
+				Id:         EventID(1),
 				Title:      "Klubnacht",
+				Artist:     "Sinamin",
 				Date:       "2023-11-04T00:00:00.000",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/1789025",
 			},
 			{
-				Id:         "2",
+				Id:         EventID(2),
 				Title:      "Klubnacht 2",
+				Artist:     "Sinamin",
 				Date:       "2023-11-04T00:00:00.000",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/1789025",

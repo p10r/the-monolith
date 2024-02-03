@@ -1,14 +1,16 @@
 package domain
 
 import (
+	"log"
 	"slices"
 	"strconv"
 	"strings"
 )
 
 type Event struct {
-	Id         string
+	Id         EventID
 	Title      string
+	Artist     string
 	Venue      string
 	Date       string
 	StartTime  string
@@ -29,11 +31,37 @@ func NewEventID(id string) (EventID, error) {
 	return EventID(i), nil
 }
 
-func (eventId EventIDs) Contains(id EventID) bool {
+func (ids EventIDs) Contains(id EventID) bool {
 	var ints []int64
-	for _, eventID := range eventId {
+	for _, eventID := range ids {
 		ints = append(ints, int64(eventID))
 	}
 
 	return slices.Contains(ints, int64(id))
+}
+
+func (events Events) IDs() EventIDs {
+	ids := EventIDs{}
+	for _, e := range events {
+		ids = append(ids, e.Id)
+	}
+	return ids
+}
+
+func (events Events) FindNewEvents(a Artist) Events {
+	// TODO there are artists being created without empty list - maybe in DB?
+	if a.TrackedEvents == nil {
+		a.TrackedEvents = EventIDs{}
+	}
+
+	newEvents := Events{}
+	for _, e := range events {
+		log.Printf("id is %v\n", e.Id)
+
+		if a.TrackedEvents.Contains(e.Id) {
+			continue
+		}
+		newEvents = append(newEvents, e)
+	}
+	return newEvents
 }

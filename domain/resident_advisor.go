@@ -9,7 +9,7 @@ import (
 
 type ResidentAdvisor interface {
 	GetArtistBySlug(slug RASlug) (ArtistInfo, error)
-	GetEventsByArtistId(raId string, start time.Time, end time.Time) (Events, error)
+	GetEventsByArtistId(a Artist, start time.Time, end time.Time) (Events, error)
 }
 
 type RAContract struct {
@@ -37,7 +37,8 @@ func (c RAContract) Test(t *testing.T) {
 		juneFirst23 := time.Date(2023, 11, 1, 0, 0, 0, 0, time.UTC)
 		julyFirst23 := time.Date(2023, 11, 15, 0, 0, 0, 0, time.UTC)
 
-		events, err := client.GetEventsByArtistId("106972", juneFirst23, julyFirst23)
+		a := Artist{RAID: "106972"}
+		events, err := client.GetEventsByArtistId(a, juneFirst23, julyFirst23)
 
 		expect.NoErr(t, err)
 		expect.Equal(t, len(events), 2)
