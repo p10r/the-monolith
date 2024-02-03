@@ -16,14 +16,11 @@ area.
 
 ## TODOs:
 
-- use lefthook for pre-commit hooks, e.g. running tests
-- golang ci lint
 - parallel tests
 - short/long tests
-
 - handle 404 when requesting events
 - throw error if artist cant be found
 - indicate if there's a space
-- do vulnerability checks
 - Use JSON functionality of sqlite
 - Give user info if they don't follow anyone yet
+- Create RAError and TelegramError to improve logs

@@ -7,7 +7,6 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -124,12 +123,8 @@ func (db *DB) migrateFile(name string) error {
 	if err != nil {
 		return err
 	}
-	defer func(tx *sql.Tx) {
-		err := tx.Rollback()
-		if err != nil {
-			log.Printf("Could not rollback tx: %v", err)
-		}
-	}(tx)
+	//nolint:errcheck
+	defer tx.Rollback()
 
 	// Ensure migration has not already been run.
 	var n int

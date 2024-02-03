@@ -51,11 +51,11 @@ func (c *Client) GetArtistBySlug(slug domain.RASlug) (domain.ArtistInfo, error) 
 }
 
 func (c *Client) GetEventsByArtistId(
-	raId string,
+	a domain.Artist,
 	start time.Time,
 	end time.Time,
 ) (domain.Events, error) {
-	req, err := newGetEventsReq(raId, start, end, c.baseUri)
+	req, err := newGetEventsReq(a.RAID, start, end, c.baseUri)
 	if err != nil {
 		return domain.Events{}, fmt.Errorf("could not create request: %w", err)
 	}
@@ -65,5 +65,5 @@ func (c *Client) GetEventsByArtistId(
 	if err != nil {
 		return domain.Events{}, fmt.Errorf("could not get response: %v", err)
 	}
-	return e.ToDomainEvents(), err
+	return e.ToDomainEvents(a.Name), err
 }
