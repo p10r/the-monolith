@@ -14,6 +14,21 @@ area.
 - run `go run cmd/main.go`
 - a new `local.db` will be created in `local/`
 
+## Deployment
+
+```
+docker build -t pedro .
+# to inspect:
+docker run -it pedro
+
+docker run pedro
+
+fly launch
+fly volume create pedrovolume -r ams -n 1
+fly deploy
+fly logs
+```
+
 ## TODOs:
 
 - parallel tests

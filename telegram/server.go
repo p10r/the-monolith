@@ -11,7 +11,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func Server(botToken, dsn string, allowedUserIds []int64) {
+func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	now := func() time.Time { return time.Now() }
 
 	conn := db.NewDB(dsn)
@@ -50,7 +50,7 @@ func Server(botToken, dsn string, allowedUserIds []int64) {
 
 	//bot.Use(middleware.Logger())
 	bot.Handle("/follow", followArtist(r))
-	bot.Handle("/list", listArtists(r))
+	bot.Handle("/artists", listArtists(r))
 	bot.Handle("/events", listEvents(r))
 	bot.Start()
 }

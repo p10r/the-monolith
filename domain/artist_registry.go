@@ -47,7 +47,7 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 
 	i := slices.Index(all.RASlugs(), slug)
 	if i != -1 {
-		existing := all[i-1]
+		existing := all[i]
 		_, err := r.Repo.Save(ctx, existing.AddFollower(userId))
 		if err != nil {
 			return NewDBError(err)

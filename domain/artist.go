@@ -47,7 +47,7 @@ func (a Artists) FilterByUserId(id UserID) Artists {
 }
 
 func (a Artists) RASlugs() []RASlug {
-	slugs := make([]RASlug, len(a))
+	var slugs []RASlug
 	for _, artist := range a {
 		slugs = append(slugs, artist.RASlug)
 	}

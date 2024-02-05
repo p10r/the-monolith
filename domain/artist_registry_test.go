@@ -230,7 +230,7 @@ func TestArtistRegistry(t *testing.T) {
 
 		expect.NoErr(t, err)
 		expect.Equal(t, len(got), 1)
-		//expect.DeepEqual(t, got[0].FollowedBy, UserIDs{UserID(1), UserID(2)})
+		expect.DeepEqual(t, got[0].FollowedBy, UserIDs{UserID(1), UserID(2)})
 	})
 
 	t.Run("fetches all events for artist in the next month", func(t *testing.T) {

@@ -19,7 +19,7 @@ func (n Notifier) StartEventNotifier() {
 	if ctx == nil {
 		log.Fatal("Event lookup: ctx setup failed")
 	}
-	duration := 2 * time.Minute
+	duration := 12 * time.Hour
 	ticker := time.NewTicker(duration)
 	defer ticker.Stop()
 
@@ -48,7 +48,6 @@ func (n Notifier) eventLookup() error {
 		}
 
 		if len(events) == 0 {
-			log.Printf("Event lookup: No new events")
 			continue
 		}
 

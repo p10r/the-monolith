@@ -42,6 +42,6 @@ func listArtists(r *domain.ArtistRegistry) func(c telebot.Context) error {
 			return c.Send(err.Error())
 		}
 
-		return c.Send(msg, err)
+		return c.Send(msg)
 	}
 }
