@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"pedro-go/domain"
+	"time"
 )
 
 type Event struct {
@@ -78,13 +79,19 @@ func (events Events) ToDomainEvents(artistName string) domain.Events {
 			continue
 		}
 
+		layout := "2006-01-02T15:04:05.000"
+		date, err := time.Parse(layout, e.StartTime)
+		if err != nil {
+			log.Printf("failed parsing %v to time: %v", e.Date, err)
+			continue
+		}
+
 		transformed := domain.Event{
 			Id:         id,
 			Title:      e.Title,
 			Artist:     artistName,
 			Venue:      e.Venue.Name,
-			Date:       e.Date,
-			StartTime:  e.StartTime,
+			StartTime:  date,
 			ContentUrl: e.ContentUrl,
 		}
 

@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Event struct {
@@ -12,33 +13,13 @@ type Event struct {
 	Title      string
 	Artist     string
 	Venue      string
-	Date       string
-	StartTime  string
+	StartTime  time.Time
 	ContentUrl string
 }
 
 type Events []Event
 
 type EventID int64
-
-type EventIDs []EventID
-
-func NewEventID(id string) (EventID, error) {
-	i, err := strconv.ParseInt(strings.TrimSpace(id), 10, 64)
-	if err != nil {
-		return EventID(0), err
-	}
-	return EventID(i), nil
-}
-
-func (ids EventIDs) Contains(id EventID) bool {
-	var ints []int64
-	for _, eventID := range ids {
-		ints = append(ints, int64(eventID))
-	}
-
-	return slices.Contains(ints, int64(id))
-}
 
 func (events Events) IDs() EventIDs {
 	ids := EventIDs{}
@@ -64,4 +45,23 @@ func (events Events) FindNewEvents(a Artist) Events {
 		newEvents = append(newEvents, e)
 	}
 	return newEvents
+}
+
+type EventIDs []EventID
+
+func NewEventID(id string) (EventID, error) {
+	i, err := strconv.ParseInt(strings.TrimSpace(id), 10, 64)
+	if err != nil {
+		return EventID(0), err
+	}
+	return EventID(i), nil
+}
+
+func (ids EventIDs) Contains(id EventID) bool {
+	var ints []int64
+	for _, eventID := range ids {
+		ints = append(ints, int64(eventID))
+	}
+
+	return slices.Contains(ints, int64(id))
 }

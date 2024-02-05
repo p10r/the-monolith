@@ -246,14 +246,12 @@ func TestArtistRegistry(t *testing.T) {
 						{
 							Id:         "1",
 							Title:      "Klubnacht",
-							Date:       "2023-11-04T00:00:00.000",
 							StartTime:  "2023-11-04T13:00:00.000",
 							ContentUrl: "/events/1789025",
 						},
 						{
 							Id:         "2",
 							Title:      "Klubnacht 2",
-							Date:       "2023-11-04T00:00:00.000",
 							StartTime:  "2023-11-04T13:00:00.000",
 							ContentUrl: "/events/1789025",
 						},
@@ -280,21 +278,18 @@ func TestArtistRegistry(t *testing.T) {
 			{
 				Id:         "3",
 				Title:      "Kater Blau Night",
-				Date:       "2023-11-04T00:00:00.000",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/3",
 			},
 			{
 				Id:         "1",
 				Title:      "Klubnacht",
-				Date:       "2023-11-04T00:00:00.000",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/1789025",
 			},
 			{
 				Id:         "2",
 				Title:      "Klubnacht 2",
-				Date:       "2023-11-04T00:00:00.000",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/1789025",
 			},
@@ -324,29 +319,27 @@ func TestArtistRegistry(t *testing.T) {
 		eventsForUser, err := registry.NewEventsForUser(ctx, joe)
 		expect.NoErr(t, err)
 
+		nov4th1pm := time.Date(2023, 11, 4, 13, 0, 0, 0, time.UTC)
 		expect.DeepEqual(t, eventsForUser, Events{
 			{
 				Id:         EventID(3),
 				Title:      "Kater Blau Night",
 				Artist:     "Boys Noize",
-				Date:       "2023-11-04T00:00:00.000",
-				StartTime:  "2023-11-04T13:00:00.000",
+				StartTime:  nov4th1pm,
 				ContentUrl: "/events/3",
 			},
 			{
 				Id:         EventID(1),
 				Title:      "Klubnacht",
 				Artist:     "Sinamin",
-				Date:       "2023-11-04T00:00:00.000",
-				StartTime:  "2023-11-04T13:00:00.000",
+				StartTime:  nov4th1pm,
 				ContentUrl: "/events/1789025",
 			},
 			{
 				Id:         EventID(2),
 				Title:      "Klubnacht 2",
 				Artist:     "Sinamin",
-				Date:       "2023-11-04T00:00:00.000",
-				StartTime:  "2023-11-04T13:00:00.000",
+				StartTime:  nov4th1pm,
 				ContentUrl: "/events/1789025",
 			},
 		},

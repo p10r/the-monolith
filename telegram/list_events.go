@@ -9,10 +9,11 @@ import (
 	"strings"
 )
 
-func newEventsMessage(events domain.Events) string {
+func eventsMessage(events domain.Events) string {
 	var lines []string
 	for _, e := range events {
-		line := fmt.Sprintf("%v - %v@%v", e.Date, e.Artist, e.Venue)
+		layout := "02.01 15:04"
+		line := fmt.Sprintf("%v - %v@%v", e.StartTime.Format(layout), e.Artist, e.Venue)
 		lines = append(lines, line)
 	}
 
@@ -37,6 +38,6 @@ func listEvents(r *domain.ArtistRegistry) func(c telebot.Context) error {
 			return c.Send(noUpcomingEventsMsg(events))
 		}
 
-		return c.Send(newEventsMessage(events))
+		return c.Send(eventsMessage(events))
 	}
 }
