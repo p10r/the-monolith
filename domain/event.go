@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"log"
 	"slices"
 	"strconv"
 	"strings"
@@ -38,8 +37,6 @@ func (events Events) FindNewEvents(a Artist) Events {
 
 	newEvents := Events{}
 	for _, e := range events {
-		log.Printf("id is %v\n", e.Id)
-
 		if strings.ToLower(e.City) != "berlin" {
 			continue
 		}

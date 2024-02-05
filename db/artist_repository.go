@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"log"
 	"pedro-go/domain"
 )
 
@@ -64,7 +63,7 @@ func insertNewArtist(ctx context.Context, tx *Tx, e artistDBEntity) (artistDBEnt
 	}
 
 	e.ID = id
-	log.Printf("db: Inserting new artist %v\n", e)
+
 	return e, nil
 }
 
@@ -83,8 +82,6 @@ func updateArtist(ctx context.Context, tx *Tx, e artistDBEntity) (artistDBEntity
 	if err != nil {
 		return artistDBEntity{}, err
 	}
-
-	log.Printf("updating artist %v for row id %v\n", e, id)
 
 	e.ID = id
 	return e, nil

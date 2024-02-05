@@ -21,5 +21,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	telegram.Pedro(cfg.TelegramToken, cfg.DSN, cfg.AllowedUserIds)
+	telegram.Server(cfg.TelegramToken, cfg.DSN, cfg.AllowedUserIds)
 }

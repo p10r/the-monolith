@@ -11,7 +11,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func Pedro(botToken, dsn string, allowedUserIds []int64) {
+func Server(botToken, dsn string, allowedUserIds []int64) {
 	now := func() time.Time { return time.Now() }
 
 	conn := db.NewDB(dsn)
@@ -46,7 +46,7 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 		users:    allowedUserIds,
 	}
 
-	n.NotifyUsers()
+	go n.StartEventNotifier()
 
 	//bot.Use(middleware.Logger())
 	bot.Handle("/follow", followArtist(r))
