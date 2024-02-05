@@ -1,39 +1,36 @@
 package telegram
 
 import (
-	"context"
-	"fmt"
 	"gopkg.in/telebot.v3/middleware"
 	"log"
 	"pedro-go/db"
 	"pedro-go/domain"
 	"pedro-go/ra"
-	"strings"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
 )
 
 func Pedro(botToken, dsn string, allowedUserIds []int64) {
+	now := func() time.Time { return time.Now() }
+
 	conn := db.NewDB(dsn)
 	err := conn.Open()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	repo := db.NewSqliteArtistRepository(conn)
-	m := db.NewEventMonitor(conn)
-	now := func() time.Time { return time.Now() }
 
+	m := db.NewEventMonitor(conn)
 	r := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co/graphql"), m, now)
 
-	pref := tele.Settings{
-		Token:   botToken,
-		Poller:  &tele.LongPoller{Timeout: 10 * time.Second},
-		Verbose: false,
-	}
-
-	bot, err := tele.NewBot(pref)
+	bot, err := tele.NewBot(
+		tele.Settings{
+			Token:   botToken,
+			Poller:  &tele.LongPoller{Timeout: 10 * time.Second},
+			Verbose: false,
+		},
+	)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -56,74 +53,4 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	bot.Handle("/list", listArtists(r))
 	bot.Handle("/events", listEvents(r))
 	bot.Start()
-}
-
-func listEvents(r *domain.ArtistRegistry) func(c tele.Context) error {
-	return func(c tele.Context) error {
-		ctx := context.Background() //TODO check if telebot can provide context
-
-		artists, err := r.ArtistsFor(ctx, domain.UserID(c.Sender().ID))
-		if err != nil {
-			log.Print(err)
-			return c.Send("There was an error %v", err)
-		}
-
-		eventsFor, err := r.EventsForArtist(ctx, artists[0])
-		if err != nil {
-			log.Print(err)
-			return c.Send("There was an error!")
-		}
-
-		return c.Send(fmt.Sprintf("Event:\n%v", eventsFor))
-	}
-}
-
-func listArtists(r *domain.ArtistRegistry) func(c tele.Context) error {
-	return func(c tele.Context) error {
-		ctx := context.Background() //TODO check if telebot can provide context
-
-		artists, err := r.ArtistsFor(ctx, domain.UserID(c.Sender().ID))
-		if err != nil {
-			log.Print(err)
-			return c.Send("There was an error!")
-		}
-
-		var res []string
-		for _, artist := range artists {
-			res = append(res, "- "+artist.Name)
-		}
-
-		if len(res) == 0 {
-			return c.Send("You're not following anyone yet.")
-		}
-
-		return c.Send(fmt.Sprintf("You're following:\n%v", strings.Join(res, "\n")))
-	}
-}
-
-func followArtist(r *domain.ArtistRegistry) func(c tele.Context) error {
-	return func(c tele.Context) error {
-		ctx := context.Background() //TODO check if telebot can provide context
-
-		tags := c.Args()
-		msg := "Could not parse input, make sure to send it as follows https://ra.co/dj/dj123"
-		if len(tags) == 0 {
-			return c.Send(msg)
-		}
-
-		slug, err := domain.NewSlug(tags[0])
-		if err != nil {
-			log.Print(err)
-			return c.Send(msg)
-		}
-		userId := domain.UserID(c.Sender().ID)
-
-		err = r.Follow(ctx, slug, userId)
-		if err != nil {
-			log.Print(err)
-			return c.Send("There was an error!")
-		}
-
-		return c.Send("Done!")
-	}
 }
