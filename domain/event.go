@@ -13,6 +13,7 @@ type Event struct {
 	Title      string
 	Artist     string
 	Venue      string
+	City       string
 	StartTime  time.Time
 	ContentUrl string
 }
@@ -38,6 +39,10 @@ func (events Events) FindNewEvents(a Artist) Events {
 	newEvents := Events{}
 	for _, e := range events {
 		log.Printf("id is %v\n", e.Id)
+
+		if strings.ToLower(e.City) != "berlin" {
+			continue
+		}
 
 		if a.TrackedEvents.Contains(e.Id) {
 			continue

@@ -21,6 +21,12 @@ func TestRAClient(t *testing.T) {
 								Date:       "2023-11-04T00:00:00.000",
 								StartTime:  "2023-11-04T13:00:00.000",
 								ContentUrl: "/events/1789025",
+								Venue: ra.Venue{
+									Area: ra.Area{
+										Name: "Berlin",
+									},
+									Name: "RSO",
+								},
 							},
 							{
 								Id:         "2",
@@ -28,6 +34,12 @@ func TestRAClient(t *testing.T) {
 								Date:       "2023-11-04T00:00:00.000",
 								StartTime:  "2023-11-04T13:00:00.000",
 								ContentUrl: "/events/1789025",
+								Venue: ra.Venue{
+									Area: ra.Area{
+										Name: "Berlin",
+									},
+									Name: "RSO",
+								},
 							},
 						},
 					},

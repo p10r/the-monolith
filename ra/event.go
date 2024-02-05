@@ -18,15 +18,16 @@ type Event struct {
 	Images     []struct {
 		Filename string `json:"filename"`
 	} `json:"images"`
-	Venue struct {
-		Id         string `json:"id"`
-		Name       string `json:"name"`
-		ContentUrl string `json:"contentUrl"`
-		Area       struct {
-			Id   string `json:"id"`
-			Name string `json:"name"`
-		} `json:"area"`
-	} `json:"venue"`
+	Venue Venue `json:"venue"`
+}
+
+type Venue struct {
+	Name string `json:"name"`
+	Area Area   `json:"area"`
+}
+
+type Area struct {
+	Name string `json:"name"`
 }
 
 type Events []Event
@@ -81,6 +82,7 @@ func (events Events) ToDomainEvents(artistName string) domain.Events {
 
 		layout := "2006-01-02T15:04:05.000"
 		date, err := time.Parse(layout, e.StartTime)
+
 		if err != nil {
 			log.Printf("failed parsing %v to time: %v", e.Date, err)
 			continue
@@ -91,6 +93,7 @@ func (events Events) ToDomainEvents(artistName string) domain.Events {
 			Title:      e.Title,
 			Artist:     artistName,
 			Venue:      e.Venue.Name,
+			City:       e.Venue.Area.Name,
 			StartTime:  date,
 			ContentUrl: e.ContentUrl,
 		}

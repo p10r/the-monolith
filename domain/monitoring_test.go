@@ -42,10 +42,16 @@ func TestMonitoring(t *testing.T) {
 					Artist: ra.Artist{RAID: "943", Name: "Boys Noize"},
 					EventsData: ra.Events{
 						{
-							Id:         eventId,
-							Title:      "Klubnacht 2",
-							Date:       "2023-11-04T00:00:00.000",
-							StartTime:  "2023-11-04T13:00:00.000",
+							Id:        eventId,
+							Title:     "Klubnacht 2",
+							Date:      "2023-11-04T00:00:00.000",
+							StartTime: "2023-11-04T13:00:00.000",
+							Venue: ra.Venue{
+								Name: "RSO",
+								Area: ra.Area{
+									Name: "Berlin",
+								},
+							},
 							ContentUrl: "/events/1789025",
 						},
 					},

@@ -280,18 +280,30 @@ func TestArtistRegistry(t *testing.T) {
 				Title:      "Kater Blau Night",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/3",
+				Venue: ra.Venue{
+					Area: ra.Area{Name: "Berlin"},
+					Name: "RSO",
+				},
 			},
 			{
 				Id:         "1",
 				Title:      "Klubnacht",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/1789025",
+				Venue: ra.Venue{
+					Area: ra.Area{Name: "Berlin"},
+					Name: "RSO",
+				},
 			},
 			{
 				Id:         "2",
 				Title:      "Klubnacht 2",
 				StartTime:  "2023-11-04T13:00:00.000",
 				ContentUrl: "/events/1789025",
+				Venue: ra.Venue{
+					Area: ra.Area{Name: "Berlin"},
+					Name: "RSO",
+				},
 			},
 		}
 		registry, _ := NewInMemoryArtistRegistry(
@@ -325,6 +337,8 @@ func TestArtistRegistry(t *testing.T) {
 				Id:         EventID(3),
 				Title:      "Kater Blau Night",
 				Artist:     "Boys Noize",
+				Venue:      "RSO",
+				City:       "Berlin",
 				StartTime:  nov4th1pm,
 				ContentUrl: "/events/3",
 			},
@@ -332,6 +346,8 @@ func TestArtistRegistry(t *testing.T) {
 				Id:         EventID(1),
 				Title:      "Klubnacht",
 				Artist:     "Sinamin",
+				Venue:      "RSO",
+				City:       "Berlin",
 				StartTime:  nov4th1pm,
 				ContentUrl: "/events/1789025",
 			},
@@ -339,6 +355,8 @@ func TestArtistRegistry(t *testing.T) {
 				Id:         EventID(2),
 				Title:      "Klubnacht 2",
 				Artist:     "Sinamin",
+				Venue:      "RSO",
+				City:       "Berlin",
 				StartTime:  nov4th1pm,
 				ContentUrl: "/events/1789025",
 			},
