@@ -19,6 +19,8 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("DSN is set to %v", dsn)
+
 	repo := db.NewSqliteArtistRepository(conn)
 
 	m := db.NewEventMonitor(conn)

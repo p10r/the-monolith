@@ -21,6 +21,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("DSN is set to %v", cfg.DSN)
 	telegram.Pedro(cfg.TelegramToken, cfg.DSN, cfg.AllowedUserIds)
 }

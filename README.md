@@ -29,6 +29,21 @@ fly deploy
 fly logs
 ```
 
+## Connecting to Prod DB
+
+Since sqlite is file based, we can simply download the db.
+For that to work, follow this
+thread: [fly.io forum](https://community.fly.io/t/scp-a-file-into-a-persistent-volume/2729)
+[Here's](https://www.richardneililagan.com/posts/copying-files-to-fly-io-volume/) another
+article.
+
+```
+cd prod/
+scp root@<app name in fly.toml>.internal:/data/pedro.db .
+scp root@<app name in fly.toml>.internal:/data/pedro.db-shm .
+scp root@<app name in fly.toml>.internal:/data/pedro.db-wal .
+```
+
 ## TODOs:
 
 - parallel tests
