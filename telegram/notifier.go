@@ -5,6 +5,7 @@ import (
 	"gopkg.in/telebot.v3"
 	"log"
 	"pedro-go/domain"
+	"strconv"
 	"time"
 )
 
@@ -52,7 +53,7 @@ func (n Notifier) eventLookup() error {
 		}
 
 		log.Printf("Event lookup: Sending %v\n", events)
-		_, err = n.bot.Send(user("530586914"), eventsMessage(events))
+		_, err = n.bot.Send(user(id), eventsMessage(events))
 		if err != nil {
 			return err
 		}
@@ -60,8 +61,8 @@ func (n Notifier) eventLookup() error {
 	return nil
 }
 
-type user string
+type user int64
 
 func (u user) Recipient() string {
-	return string(u)
+	return strconv.FormatInt(int64(u), 10)
 }

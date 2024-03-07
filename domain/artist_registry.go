@@ -89,8 +89,12 @@ func (r *ArtistRegistry) ArtistsFor(ctx context.Context, userId UserID) (Artists
 
 func (r *ArtistRegistry) EventsForArtist(_ context.Context, artist Artist) (Events, error) {
 	now := time.Now()
-	//TODO wrap error
-	return r.RA.GetEventsByArtistId(artist, now, now.Add(31*24*time.Hour))
+
+	events, err := r.RA.GetEventsByArtistId(artist, now, now.Add(31*24*time.Hour))
+	if err != nil {
+		return Events{}, fmt.Errorf("artistRegistry: %v", err)
+	}
+	return events, nil
 }
 
 func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Events, error) {

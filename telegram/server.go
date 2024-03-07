@@ -24,7 +24,7 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	repo := db.NewSqliteArtistRepository(conn)
 
 	m := db.NewEventMonitor(conn)
-	r := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co/graphql"), m, now)
+	r := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co"), m, now)
 
 	bot, err := tele.NewBot(
 		tele.Settings{
