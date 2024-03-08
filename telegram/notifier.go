@@ -17,9 +17,12 @@ type Notifier struct {
 
 func (n Notifier) StartEventNotifier() {
 	ctx := context.Background()
-	if ctx == nil {
-		log.Fatal("Event lookup: ctx setup failed")
+
+	err := n.eventLookup()
+	if err != nil {
+		log.Printf("Event lookup: Error when sending events to users. err: %v", err)
 	}
+
 	duration := 12 * time.Hour
 	ticker := time.NewTicker(duration)
 	defer ticker.Stop()
