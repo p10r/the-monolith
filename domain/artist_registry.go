@@ -97,7 +97,7 @@ func (r *ArtistRegistry) EventsForArtist(_ context.Context, artist Artist) (Even
 	return events, nil
 }
 
-func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Events, error) {
+func (r *ArtistRegistry) AllEventsForUser(ctx context.Context, user UserID) (Events, error) {
 	artists, _ := r.ArtistsFor(ctx, user)
 
 	//TODO goroutine
@@ -108,7 +108,30 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Eve
 			return nil, fmt.Errorf("can't fetch events right now: %v", err)
 		}
 
-		newEvents := events.FindNewEvents(artist)
+		localEvents := events.FindEventsInBerlin(artist)
+		eventsPerArtist = append(eventsPerArtist, localEvents)
+
+		for _, event := range localEvents {
+			r.Monitor.Monitor(ctx, NewNewEventForArtist(event, artist, user, r.Now))
+		}
+	}
+
+	return flatten(eventsPerArtist), nil
+}
+
+func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Events, error) {
+	artists, _ := r.ArtistsFor(ctx, user)
+
+	//TODO merge with AllEventsForUser
+	//TODO goroutine
+	var eventsPerArtist []Events
+	for _, artist := range artists {
+		events, err := r.EventsForArtist(ctx, artist)
+		if err != nil {
+			return nil, fmt.Errorf("can't fetch events right now: %v", err)
+		}
+
+		newEvents := events.FindNewEvents(artist).FindEventsInBerlin(artist)
 		eventsPerArtist = append(eventsPerArtist, newEvents)
 
 		_, err = r.updateEventsInDB(ctx, artist, events)

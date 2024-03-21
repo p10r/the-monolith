@@ -83,9 +83,9 @@ func TestEvents(t *testing.T) {
 		events := Events{Event{Id: EventID(id), City: input.City}}
 		t.Run(testcase, func(t *testing.T) {
 			if input.Matches {
-				expect.Len(t, events.FindNewEvents(Artist{}), 1)
+				expect.Len(t, events.FindEventsInBerlin(Artist{}), 1)
 			} else {
-				expect.Len(t, events.FindNewEvents(Artist{}), 0)
+				expect.Len(t, events.FindEventsInBerlin(Artist{}), 0)
 			}
 		})
 	}

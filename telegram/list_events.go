@@ -28,7 +28,7 @@ func listEvents(r *domain.ArtistRegistry) func(c telebot.Context) error {
 	return func(c telebot.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
-		events, err := r.NewEventsForUser(ctx, domain.UserID(c.Sender().ID))
+		events, err := r.AllEventsForUser(ctx, domain.UserID(c.Sender().ID))
 		if err != nil {
 			log.Print(err)
 			return c.Send(genericErrMsg("/events", err))

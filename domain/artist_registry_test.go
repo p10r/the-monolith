@@ -368,4 +368,41 @@ func TestArtistRegistry(t *testing.T) {
 		expect.NoErr(t, err)
 		expect.Len(t, newlyFetched, 0)
 	})
+
+	t.Run("allEvents always fetches all events for user", func(t *testing.T) {
+		events := ra.Events{
+			{
+				Id:         "3",
+				Title:      "Kater Blau Night",
+				StartTime:  "2023-11-04T13:00:00.000",
+				ContentUrl: "/events/3",
+				Venue: ra.Venue{
+					Area: ra.Area{Name: "Berlin"},
+					Name: "RSO",
+				},
+			},
+		}
+		registry, _ := NewInMemoryArtistRegistry(
+			ra.ArtistStore{
+				"boysnoize": {
+					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
+					EventsData: []ra.Event{events[0]},
+				},
+			},
+			now,
+		)
+
+		joe := UserID(1)
+
+		err := registry.Follow(ctx, "boysnoize", joe)
+		expect.NoErr(t, err)
+
+		_, err = registry.AllEventsForUser(ctx, joe)
+		expect.NoErr(t, err)
+
+		got, err := registry.AllEventsForUser(ctx, joe)
+		expect.NoErr(t, err)
+
+		expect.DeepEqual(t, got, events.ToDomainEvents("Boys Noize"))
+	})
 }

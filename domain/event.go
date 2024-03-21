@@ -29,7 +29,8 @@ func (events Events) IDs() EventIDs {
 	return ids
 }
 
-func (events Events) FindNewEvents(a Artist) Events {
+// TODO merge with FindNewEvents
+func (events Events) FindEventsInBerlin(a Artist) Events {
 	// TODO there are artists being created without empty list - maybe in DB?
 	if a.TrackedEvents == nil {
 		a.TrackedEvents = EventIDs{}
@@ -41,11 +42,25 @@ func (events Events) FindNewEvents(a Artist) Events {
 			continue
 		}
 
+		newEvents = append(newEvents, e)
+	}
+	return newEvents
+}
+
+func (events Events) FindNewEvents(a Artist) Events {
+	// TODO there are artists being created without empty list - maybe in DB?
+	if a.TrackedEvents == nil {
+		a.TrackedEvents = EventIDs{}
+	}
+
+	newEvents := Events{}
+	for _, e := range events {
 		if a.TrackedEvents.Contains(e.Id) {
 			continue
 		}
 		newEvents = append(newEvents, e)
 	}
+
 	return newEvents
 }
 
