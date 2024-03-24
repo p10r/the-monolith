@@ -24,16 +24,16 @@ func eventsMessage(events domain.Events) string {
 	return strings.Join(lines, "\n")
 }
 
-func listEvents(r *domain.ArtistRegistry) func(c telebot.Context) error {
+func listEvents(r *domain.ArtistRegistry, s Sender) func(c telebot.Context) error {
 	return func(c telebot.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
 		events, err := r.AllEventsForUser(ctx, domain.UserID(c.Sender().ID))
 		if err != nil {
 			log.Print(err)
-			return c.Send(genericErrMsg("/events", err))
+			return s.Send(c, genericErrMsg("/events", err))
 		}
 
-		return c.Send(eventsMessage(events))
+		return s.Send(c, eventsMessage(events))
 	}
 }

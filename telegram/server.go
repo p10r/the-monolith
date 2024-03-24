@@ -1,14 +1,13 @@
 package telegram
 
 import (
+	"gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/middleware"
 	"log"
 	"pedro-go/db"
 	"pedro-go/domain"
 	"pedro-go/ra"
 	"time"
-
-	tele "gopkg.in/telebot.v3"
 )
 
 func Pedro(botToken, dsn string, allowedUserIds []int64) {
@@ -24,12 +23,12 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	repo := db.NewSqliteArtistRepository(conn)
 
 	m := db.NewEventMonitor(conn)
-	r := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co"), m, now)
+	artistRegistry := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co"), m, now)
 
-	bot, err := tele.NewBot(
-		tele.Settings{
+	bot, err := telebot.NewBot(
+		telebot.Settings{
 			Token:   botToken,
-			Poller:  &tele.LongPoller{Timeout: 10 * time.Second},
+			Poller:  &telebot.LongPoller{Timeout: 10 * time.Second},
 			Verbose: false,
 		},
 	)
@@ -44,15 +43,17 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 
 	n := &Notifier{
 		bot:      bot,
-		registry: r,
+		registry: artistRegistry,
 		users:    allowedUserIds,
 	}
 
 	go n.StartEventNotifier()
 
+	sender := TelebotSender{}
+
 	//bot.Use(middleware.Logger())
-	bot.Handle("/follow", followArtist(r))
-	bot.Handle("/artists", listArtists(r))
-	bot.Handle("/events", listEvents(r))
+	bot.Handle("/follow", followArtist(artistRegistry, sender))
+	bot.Handle("/artists", listArtists(artistRegistry, sender))
+	bot.Handle("/events", listEvents(artistRegistry, sender))
 	bot.Start()
 }

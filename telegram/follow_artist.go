@@ -15,28 +15,28 @@ func artistFollowedMsg(artist string) string {
 	return fmt.Sprintf("You're now following %s", artist)
 }
 
-func followArtist(r *domain.ArtistRegistry) func(c telebot.Context) error {
+func followArtist(r *domain.ArtistRegistry, s Sender) func(c telebot.Context) error {
 	return func(c telebot.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
 		tags := c.Args()
 		if len(tags) == 0 {
-			return c.Send(invalidArtistMsg)
+			return s.Send(c, invalidArtistMsg)
 		}
 
 		slug, err := domain.NewSlug(tags[0])
 		if err != nil {
 			log.Print(err)
-			return c.Send(invalidArtistMsg)
+			return s.Send(c, invalidArtistMsg)
 		}
 		userId := domain.UserID(c.Sender().ID)
 
 		err = r.Follow(ctx, slug, userId)
 		if err != nil {
 			log.Print(err)
-			return c.Send(genericErrMsg("/follow", err))
+			return s.Send(c, genericErrMsg("/follow", err))
 		}
 
-		return c.Send(artistFollowedMsg(string(slug)))
+		return s.Send(c, artistFollowedMsg(string(slug)))
 	}
 }

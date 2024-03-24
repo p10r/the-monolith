@@ -27,7 +27,7 @@ func listArtistsMsg(artists domain.Artists) (string, error) {
 	return fmt.Sprintf("You're following:\n%v", strings.Join(res, "\n")), nil
 }
 
-func listArtists(r *domain.ArtistRegistry) func(c telebot.Context) error {
+func listArtists(r *domain.ArtistRegistry, s Sender) func(c telebot.Context) error {
 	return func(c telebot.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
@@ -42,6 +42,6 @@ func listArtists(r *domain.ArtistRegistry) func(c telebot.Context) error {
 			return c.Send(err.Error())
 		}
 
-		return c.Send(msg)
+		return s.Send(c, msg)
 	}
 }
