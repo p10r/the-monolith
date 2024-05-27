@@ -14,3 +14,11 @@ CREATE TABLE IF NOT EXISTS monitoring_events
     event_type TEXT                              NOT NULL,
     data       TEXT                              NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS users
+(
+    id             INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    is_admin       INTEGER                           NOT NULL,
+    telegram_id    INTEGER                           NOT NULL,
+    tracked_events TEXT
+);

@@ -46,6 +46,11 @@ scp root@<app name in fly.toml>.internal:/data/pedro.db-wal .
 
 ## TODOs:
 
+Product:
+- Sort events by artist
+- Filter out duplicate events (e.g. to promoters added the same event) 
+
+Tech:
 - parallel tests
 - short/long tests
 - handle 404 when requesting events

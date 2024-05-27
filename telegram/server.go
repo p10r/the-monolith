@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func Pedro(botToken, dsn string, allowedUserIds []int64) {
+func Pedro(botToken, dsn string, allowedUserIds []int64) *telebot.Bot {
 	now := func() time.Time { return time.Now() }
 
 	conn := db.NewDB(dsn)
@@ -34,7 +34,6 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	)
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 
 	bot.Use(middleware.Whitelist(allowedUserIds...))
@@ -55,5 +54,6 @@ func Pedro(botToken, dsn string, allowedUserIds []int64) {
 	bot.Handle("/follow", followArtist(artistRegistry, sender))
 	bot.Handle("/artists", listArtists(artistRegistry, sender))
 	bot.Handle("/events", listEvents(artistRegistry, sender))
-	bot.Start()
+
+	return bot
 }
