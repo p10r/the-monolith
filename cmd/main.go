@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/sethvargo/go-envconfig"
 	"log"
-	"pedro-go/telegram"
+	"pedro-go/pedro/telegram"
 )
 
-type PedroConfig struct {
+type Config struct {
 	TelegramToken  string  `env:"TELEGRAM_TOKEN"`
 	DSN            string  `env:"DSN"`
 	AllowedUserIds []int64 `env:"ALLOWED_USER_IDS"`
@@ -16,7 +16,7 @@ type PedroConfig struct {
 func main() {
 	ctx := context.Background()
 
-	var cfg PedroConfig
+	var cfg Config
 	if err := envconfig.Process(ctx, &cfg); err != nil {
 		log.Fatal(err)
 	}
