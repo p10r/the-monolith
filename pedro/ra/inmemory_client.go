@@ -1,8 +1,8 @@
 package ra
 
 import (
+	"github.com/p10r/pedro/pedro/domain"
 	"log"
-	"pedro-go/pedro/domain"
 	"time"
 )
 

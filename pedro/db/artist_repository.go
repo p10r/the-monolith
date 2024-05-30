@@ -2,15 +2,15 @@ package db
 
 import (
 	"context"
-	"pedro-go/pedro/domain"
-	"pedro-go/pkg/db"
+	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pkg/sqlite"
 )
 
 type SqliteArtistRepository struct {
-	db *db.DB
+	db *sqlite.DB
 }
 
-func NewSqliteArtistRepository(db *db.DB) *SqliteArtistRepository {
+func NewSqliteArtistRepository(db *sqlite.DB) *SqliteArtistRepository {
 	return &SqliteArtistRepository{db: db}
 }
 
@@ -45,7 +45,7 @@ func (r SqliteArtistRepository) Save(
 
 func insertNewArtist(
 	ctx context.Context,
-	tx *db.Tx,
+	tx *sqlite.Tx,
 	e artistDBEntity,
 ) (artistDBEntity, error) {
 	result, err := tx.ExecContext(ctx, `
@@ -72,7 +72,11 @@ func insertNewArtist(
 	return e, nil
 }
 
-func updateArtist(ctx context.Context, tx *db.Tx, e artistDBEntity) (artistDBEntity, error) {
+func updateArtist(
+	ctx context.Context,
+	tx *sqlite.Tx,
+	e artistDBEntity,
+) (artistDBEntity, error) {
 	result, err := tx.ExecContext(ctx, `
 		UPDATE artists
 		SET ra_id =?,ra_slug = ?,name = ?,followers = ?,tracked_events = ?
@@ -121,7 +125,7 @@ func (r SqliteArtistRepository) All(ctx context.Context) (domain.Artists, error)
 	return artists, err
 }
 
-func findArtists(ctx context.Context, tx *db.Tx) ([]*artistDBEntity, error) {
+func findArtists(ctx context.Context, tx *sqlite.Tx) ([]*artistDBEntity, error) {
 	rows, err := tx.QueryContext(ctx, `
 		SELECT 
 			id,

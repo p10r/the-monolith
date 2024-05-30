@@ -2,9 +2,9 @@ package telegram
 
 import (
 	"context"
+	"github.com/p10r/pedro/pedro/domain"
 	"gopkg.in/telebot.v3"
 	"log"
-	"pedro-go/pedro/domain"
 	"strconv"
 	"time"
 )

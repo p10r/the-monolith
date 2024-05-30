@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	d "pedro-go/pedro/domain"
-	"pedro-go/pedro/domain/expect"
+	d "github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pedro/domain/expect"
 	"testing"
 )
 

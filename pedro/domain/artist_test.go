@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"pedro-go/pedro/domain/expect"
+	"github.com/p10r/pedro/pedro/domain/expect"
 	"testing"
 )
 

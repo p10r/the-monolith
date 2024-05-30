@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"pedro-go/pedro/domain"
+	"github.com/p10r/pedro/pedro/domain"
 	"testing"
 	"time"
 )

@@ -2,9 +2,9 @@ package domain_test
 
 import (
 	"context"
-	d "pedro-go/pedro/domain"
-	"pedro-go/pedro/domain/expect"
-	"pedro-go/pedro/ra"
+	d "github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pedro/domain/expect"
+	"github.com/p10r/pedro/pedro/ra"
 	"sync/atomic"
 	"testing"
 	"time"

@@ -3,9 +3,9 @@ package telegram
 import (
 	"context"
 	"fmt"
+	"github.com/p10r/pedro/pedro/domain"
 	"gopkg.in/telebot.v3"
 	"log"
-	"pedro-go/pedro/domain"
 )
 
 //nolint:lll

@@ -3,9 +3,9 @@ package ra
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/p10r/pedro/pedro/domain"
 	"io"
 	"net/http"
-	"pedro-go/pedro/domain"
 )
 
 type Artist struct {

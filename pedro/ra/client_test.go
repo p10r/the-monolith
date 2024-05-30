@@ -1,9 +1,9 @@
 package ra_test
 
 import (
-	"pedro-go/pedro/domain"
-	"pedro-go/pedro/domain/expect"
-	"pedro-go/pedro/ra"
+	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pedro/domain/expect"
+	"github.com/p10r/pedro/pedro/ra"
 	"testing"
 )
 

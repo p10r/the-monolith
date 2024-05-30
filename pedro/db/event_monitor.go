@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pkg/sqlite"
 	"log"
-	"pedro-go/pedro/domain"
-	"pedro-go/pkg/db"
 )
 
 type SqliteEventMonitor struct {
-	db *db.DB
+	db *sqlite.DB
 }
 
 type monitoringEvent struct {
@@ -19,7 +19,7 @@ type monitoringEvent struct {
 	Data      string
 }
 
-func NewEventMonitor(db *db.DB) SqliteEventMonitor {
+func NewEventMonitor(db *sqlite.DB) SqliteEventMonitor {
 	return SqliteEventMonitor{db: db}
 }
 
@@ -63,7 +63,7 @@ func (m SqliteEventMonitor) saveEvent(ctx context.Context, e domain.MonitoringEv
 
 func insertNewMonitoringEvent(
 	ctx context.Context,
-	tx *db.Tx,
+	tx *sqlite.Tx,
 	e monitoringEvent,
 ) (monitoringEvent, error) {
 	result, err := tx.ExecContext(ctx, `
@@ -120,7 +120,7 @@ func (m SqliteEventMonitor) All(ctx context.Context) (domain.MonitoringEvents, e
 	return artists, err
 }
 
-func findMonitoringEvents(ctx context.Context, tx *db.Tx) ([]*monitoringEvent, error) {
+func findMonitoringEvents(ctx context.Context, tx *sqlite.Tx) ([]*monitoringEvent, error) {
 	rows, err := tx.QueryContext(ctx, `
 		SELECT id, event_type, data
 		FROM monitoring_events 

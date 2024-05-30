@@ -1,10 +1,10 @@
 package db
 
 import (
+	d "github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pedro/domain/expect"
+	"github.com/p10r/pedro/pkg/sqlite"
 	"log"
-	d "pedro-go/pedro/domain"
-	"pedro-go/pedro/domain/expect"
-	"pedro-go/pkg/db"
 	"testing"
 )
 
@@ -69,13 +69,13 @@ func TestSqliteArtistRepository(t *testing.T) {
 }
 
 // MustOpenDB returns a new, open DB. Fatal on error.
-func MustOpenDB(tb testing.TB) *db.DB {
+func MustOpenDB(tb testing.TB) *sqlite.DB {
 	tb.Helper()
 
 	// Write to an in-memory database by default.
 	// If the -dump flag is set, generate a temp file for the database.
 	dsn := ":memory:"
-	db := db.NewDB(dsn)
+	db := sqlite.NewDB(dsn)
 	if err := db.Open(); err != nil {
 		log.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func MustOpenDB(tb testing.TB) *db.DB {
 }
 
 // MustCloseDB closes the DB. Fatal on error.
-func MustCloseDB(tb testing.TB, db *db.DB) {
+func MustCloseDB(tb testing.TB, db *sqlite.DB) {
 	tb.Helper()
 	if err := db.Close(); err != nil {
 		tb.Fatal(err)

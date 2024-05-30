@@ -1,29 +1,28 @@
 package telegram
 
 import (
+	"github.com/p10r/pedro/pedro/db"
+	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pedro/ra"
+	"github.com/p10r/pedro/pkg/sqlite"
 	"gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/middleware"
 	"log"
-	db2 "pedro-go/pedro/db"
-	"pedro-go/pedro/domain"
-	"pedro-go/pedro/ra"
-	"pedro-go/pkg/db"
 	"time"
 )
 
-func Pedro(botToken, dsn string, allowedUserIds []int64) *telebot.Bot {
+// NewPedro wires Pedro App together.
+// Expects an already opened connection.
+func NewPedro(
+	conn *sqlite.DB,
+	botToken string,
+	allowedUserIds []int64,
+) *telebot.Bot {
 	now := func() time.Time { return time.Now() }
 
-	conn := db.NewDB(dsn)
-	err := conn.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("DSN is set to %v", dsn)
+	repo := db.NewSqliteArtistRepository(conn)
 
-	repo := db2.NewSqliteArtistRepository(conn)
-
-	m := db2.NewEventMonitor(conn)
+	m := db.NewEventMonitor(conn)
 	artistRegistry := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co"), m, now)
 
 	bot, err := telebot.NewBot(

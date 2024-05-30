@@ -2,9 +2,9 @@ package ra_test
 
 import (
 	"errors"
+	"github.com/p10r/pedro/pedro/domain/expect"
+	"github.com/p10r/pedro/pedro/ra"
 	"net/http/httptest"
-	"pedro-go/pedro/domain/expect"
-	"pedro-go/pedro/ra"
 	"testing"
 )
 

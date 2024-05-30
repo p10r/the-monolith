@@ -2,10 +2,10 @@ package domain_test
 
 import (
 	"context"
-	"pedro-go/pedro/db"
-	"pedro-go/pedro/domain"
-	"pedro-go/pedro/domain/expect"
-	"pedro-go/pedro/ra"
+	"github.com/p10r/pedro/pedro/db"
+	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pedro/domain/expect"
+	"github.com/p10r/pedro/pedro/ra"
 	"testing"
 	"time"
 )
