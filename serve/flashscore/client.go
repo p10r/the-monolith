@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
@@ -14,9 +15,10 @@ type Client struct {
 	http    *http.Client
 	baseUri string
 	apiKey  string
+	log     *slog.Logger
 }
 
-func NewClient(baseUri, apiKey string) *Client {
+func NewClient(baseUri, apiKey string, log *slog.Logger) *Client {
 	c := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
@@ -29,15 +31,15 @@ func NewClient(baseUri, apiKey string) *Client {
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
-
-	return &Client{c, baseUri, apiKey}
+	l := log.With(slog.String("adapter", "flashscore"))
+	return &Client{c, baseUri, apiKey, l}
 }
 
 func (c Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 	url := c.baseUri + "/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=0"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Println("Error creating request:", err)
+		c.log.Info("Error creating request:", err)
 		return domain.UntrackedMatches{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
@@ -46,11 +48,11 @@ func (c Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 
 	res, err := c.http.Do(req)
 	if res.StatusCode == http.StatusForbidden {
-		log.Println("Forbidden - wrong API key?")
+		c.log.Info("Forbidden - wrong API key?")
 		return domain.UntrackedMatches{}, err
 	}
 	if err != nil {
-		log.Println("Error executing GET request", err)
+		c.log.Info("Error executing GET request", err)
 		return domain.UntrackedMatches{}, err
 	}
 

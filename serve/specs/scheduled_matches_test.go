@@ -11,6 +11,7 @@ import (
 	"github.com/p10r/pedro/serve/expect"
 	"github.com/p10r/pedro/serve/flashscore"
 	"github.com/p10r/pedro/serve/testutil"
+	"log/slog"
 	"net/http/httptest"
 	"os"
 	"sort"
@@ -34,11 +35,14 @@ type fixture struct {
 }
 
 func newFixture(t *testing.T, favLeagues []string, runAgainstDiscord bool) fixture {
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil)).
+		With(slog.String("app", "serve"))
+
 	apiKey := "random_api_key"
 	flashscoreServer := testutil.NewFlashscoreServer(t, apiKey)
-	fsClient := flashscore.NewClient(flashscoreServer.URL, apiKey)
+	fsClient := flashscore.NewClient(flashscoreServer.URL, apiKey, log)
 
-	discordServer := testutil.NewDiscordServer(t)
+	discordServer := testutil.NewDiscordServer(t, log)
 
 	var discordClient *discord.Client
 	if runAgainstDiscord {
@@ -46,9 +50,9 @@ func newFixture(t *testing.T, favLeagues []string, runAgainstDiscord bool) fixtu
 		if uri == "" {
 			t.Fatalf("No DISCORD_URI set. Run direnv allow .")
 		}
-		discordClient = discord.NewClient(uri)
+		discordClient = discord.NewClient(uri, log)
 	} else {
-		discordClient = discord.NewClient(discordServer.URL)
+		discordClient = discord.NewClient(discordServer.URL, log)
 	}
 
 	may28th := func() time.Time {
@@ -56,7 +60,14 @@ func newFixture(t *testing.T, favLeagues []string, runAgainstDiscord bool) fixtu
 	}
 
 	matchStore := db.NewMatchStore(testutil.MustOpenDB(t))
-	importer := domain.NewMatchImporter(matchStore, fsClient, discordClient, favLeagues, may28th)
+	importer := domain.NewMatchImporter(
+		matchStore,
+		fsClient,
+		discordClient,
+		favLeagues,
+		may28th,
+		log,
+	)
 	return fixture{
 		flashscoreServer,
 		discordServer,

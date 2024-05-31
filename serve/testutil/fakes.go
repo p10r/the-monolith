@@ -3,7 +3,7 @@ package testutil
 import (
 	"encoding/json"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,18 +14,19 @@ type DiscordServer struct {
 	Requests *[][]byte
 }
 
-func NewDiscordServer(t *testing.T) *DiscordServer {
+func NewDiscordServer(t *testing.T, logger *slog.Logger) *DiscordServer {
 	t.Helper()
+	log := logger.With(slog.String("adapter", "discord_fake"))
 
 	var reqs [][]byte
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
-			log.Println("DiscordServer: Received invalid request")
+			log.Info("DiscordServer: Received invalid request")
 			w.WriteHeader(400)
 			return
 		}
 
-		log.Println("DiscordServer: Received request")
+		log.Info("DiscordServer: Received request")
 
 		body, err := io.ReadAll(r.Body)
 		if err != nil {

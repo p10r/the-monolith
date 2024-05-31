@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
@@ -15,9 +16,10 @@ import (
 type Client struct {
 	http    *http.Client
 	fullUrl string
+	log     *slog.Logger
 }
 
-func NewClient(fullUrl string) *Client {
+func NewClient(fullUrl string, log *slog.Logger) *Client {
 	c := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
@@ -31,7 +33,8 @@ func NewClient(fullUrl string) *Client {
 		},
 	}
 
-	return &Client{c, fullUrl}
+	l := log.With(slog.String("adapter", "discord"))
+	return &Client{c, fullUrl, l}
 }
 
 func (c Client) SendMessage(_ context.Context, matches domain.Matches, now time.Time) error {

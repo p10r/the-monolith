@@ -7,39 +7,41 @@ import (
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/flashscore"
-	"log"
+	"log/slog"
 	"time"
 )
 
 type Serve struct {
 	Importer *domain.MatchImporter
+	log      *slog.Logger
 }
 
-// NewServe wires Serve App together.
+// NewServeApp wires Serve App together.
 // Expects an already opened connection.
-func NewServe(
+func NewServeApp(
 	conn *sqlite.DB,
 	flashscoreUri, flashscoreApiKey, discordUri string,
 	favouriteLeagues []string,
+	logHandler slog.Handler, //TODO pass in JSONHandler in prod, TextHandler in tests
 ) Serve {
+	//log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	log := slog.New(logHandler).With(slog.String("app", "serve"))
+
+	log.Info("Starting Serve App")
+
 	if flashscoreUri == "" {
-		log.Fatal("flashscoreUri has not been set")
+		log.Error("flashscoreUri has not been set")
 	}
 	if flashscoreApiKey == "" {
-		log.Fatal("flashscoreApiKey has not been set")
+		log.Error("flashscoreApiKey has not been set")
 	}
 	if discordUri == "" {
-		log.Fatal("DISCORD_URI has not been set")
-	}
-
-	err := conn.Open()
-	if err != nil {
-		log.Fatal(err)
+		log.Error("DISCORD_URI has not been set")
 	}
 
 	store := db.NewMatchStore(conn)
-	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey)
-	discordClient := discord.NewClient(discordUri)
+	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey, log)
+	discordClient := discord.NewClient(discordUri, log)
 
 	now := func() time.Time { return time.Now() }
 
@@ -49,11 +51,18 @@ func NewServe(
 		discordClient,
 		favouriteLeagues,
 		now,
+		log,
 	)
 
-	return Serve{importer}
+	return Serve{importer, log}
 }
 
-func (s Serve) Start(_ context.Context) {
-	// TODO
+func (s Serve) Start(ctx context.Context) (domain.Matches, error) {
+	matches, err := s.Importer.ImportScheduledMatches(ctx)
+	if err != nil {
+		s.log.Error("serve run failed", slog.Any("error", err))
+		return nil, err
+	}
+
+	return matches, nil
 }

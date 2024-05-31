@@ -5,12 +5,11 @@ import (
 	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve"
 	"log"
+	"log/slog"
 	"os"
 )
 
 func main() {
-	log.Println("Starting serve")
-
 	conn := sqlite.NewDB(os.Getenv("DSN"))
 	err := conn.Open()
 	if err != nil {
@@ -18,7 +17,7 @@ func main() {
 	}
 	log.Printf("DSN is set to %v", os.Getenv("DSN"))
 
-	app := serve.NewServe(
+	app := serve.NewServeApp(
 		conn,
 		"https://flashscore.p.rapidapi.com",
 		os.Getenv("FLASHSCORE_API_KEY"),
@@ -29,6 +28,7 @@ func main() {
 			"World: Nations League",
 			"World: Nations League - Play Offs",
 		},
+		slog.NewJSONHandler(os.Stdout, nil),
 	)
 
 	_, err = app.Importer.ImportScheduledMatches(context.TODO())

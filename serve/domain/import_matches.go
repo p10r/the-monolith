@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 )
 
@@ -22,6 +22,7 @@ type MatchImporter struct {
 	discord    Discord
 	favLeagues []string
 	clock      func() time.Time
+	log        *slog.Logger
 }
 
 func NewMatchImporter(
@@ -30,8 +31,16 @@ func NewMatchImporter(
 	discord Discord,
 	favLeagues []string,
 	clock func() time.Time,
+	log *slog.Logger,
 ) *MatchImporter {
-	return &MatchImporter{store, flashscore, discord, favLeagues, clock}
+	return &MatchImporter{
+		store,
+		flashscore,
+		discord,
+		favLeagues,
+		clock,
+		log,
+	}
 }
 
 // ImportScheduledMatches writes matches from flashscore into the db for the current day.
@@ -40,25 +49,28 @@ func NewMatchImporter(
 func (importer MatchImporter) ImportScheduledMatches(ctx context.Context) (Matches, error) {
 	untrackedMatches, err := importer.fetchAllMatches()
 	if err != nil {
+		importer.log.Error("cannot fetch matches", slog.Any("error", err))
 		return nil, err
 	}
 
-	log.Printf("MatchImporter: %v matches coming up today", len(untrackedMatches))
+	importer.log.Info(fmt.Sprintf("%v matches coming up today", len(untrackedMatches)))
 
 	//TODO remove error, return empty slice
 	upcoming, err := untrackedMatches.FilterScheduled(importer.favLeagues)
 	if err != nil {
-		log.Printf("%v", err)
+		importer.log.Info(fmt.Sprintf("%v", err))
 		return Matches{}, nil
 	}
 
 	trackedMatches, err := importer.storeUntrackedMatches(ctx, upcoming)
 	if err != nil {
+		importer.log.Error("error when writing to db", slog.Any("error", err))
 		return nil, err
 	}
 
 	err = importer.discord.SendMessage(ctx, trackedMatches, importer.clock())
 	if err != nil {
+		importer.log.Error("send to discord error", slog.Any("error", err))
 		return nil, err
 	}
 
@@ -86,7 +98,7 @@ func (importer MatchImporter) storeUntrackedMatches(
 			dbErrs = append(dbErrs, dbErr)
 		}
 
-		log.Println("Stored in DB: ", trackedMatch)
+		importer.log.Info(fmt.Sprintf("Stored in DB: %v", trackedMatch))
 
 		trackedMatches = append(trackedMatches, trackedMatch)
 	}

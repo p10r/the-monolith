@@ -7,8 +7,10 @@ import (
 	"github.com/p10r/pedro/serve/flashscore"
 	"github.com/p10r/pedro/serve/testutil"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
@@ -34,6 +36,8 @@ func NewFakeServer(t *testing.T, apiKey string) *httptest.Server {
 }
 
 func TestFlashscore(t *testing.T) {
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	t.Run("deserializes flashscore response", func(t *testing.T) {
 		json := testutil.RawFlashscoreRes(t)
 
@@ -48,7 +52,7 @@ func TestFlashscore(t *testing.T) {
 		flashscoreServer := NewFakeServer(t, apiKey)
 		defer flashscoreServer.Close()
 
-		client := flashscore.NewClient(flashscoreServer.URL, apiKey)
+		client := flashscore.NewClient(flashscoreServer.URL, apiKey, log)
 
 		_, err := client.GetUpcomingMatches()
 		expect.NoErr(t, err)
@@ -61,7 +65,7 @@ func TestFlashscore(t *testing.T) {
 			}))
 		defer flashscoreServer.Close()
 
-		client := flashscore.NewClient(flashscoreServer.URL, "apiKey")
+		client := flashscore.NewClient(flashscoreServer.URL, "apiKey", log)
 
 		_, err := client.GetUpcomingMatches()
 		expect.Err(t, err)

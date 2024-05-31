@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/p10r/pedro/pedro/telegram"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve"
 	"github.com/sethvargo/go-envconfig"
-	"log"
+	"log/slog"
+	"os"
 )
 
 type Config struct {
@@ -63,20 +65,30 @@ var favouriteLeagues = []string{
 }
 
 func main() {
+	json := slog.NewJSONHandler(os.Stdout, nil)
+	log := slog.New(json)
 	ctx := context.Background()
 
 	var cfg Config
 	if err := envconfig.Process(ctx, &cfg); err != nil {
-		log.Fatal(err)
+		log.Error("error", slog.Any("error", err))
 	}
 
 	conn := sqlite.NewDB(cfg.DSN)
 	err := conn.Open()
 	if err != nil {
-		log.Fatal(err)
+		log.Error("cannot open sqlite connection", err)
+		panic(err)
 	}
-	log.Printf("DSN is set to %v", cfg.DSN)
+	log.Info(fmt.Sprintf("DSN is set to %v", cfg.DSN))
 
 	go telegram.NewPedro(conn, cfg.TelegramToken, cfg.AllowedUserIds).Start()
-	serve.NewServe(conn, flashscoreUri, cfg.FlashscoreApiKey, cfg.DiscordUri, favouriteLeagues)
+	serve.NewServeApp(
+		conn,
+		flashscoreUri,
+		cfg.FlashscoreApiKey,
+		cfg.DiscordUri,
+		favouriteLeagues,
+		json,
+	)
 }
