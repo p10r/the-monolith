@@ -82,8 +82,13 @@ func main() {
 	}
 	log.Info(fmt.Sprintf("DSN is set to %v", cfg.DSN))
 
-	go telegram.NewPedro(conn, cfg.TelegramToken, cfg.AllowedUserIds).Start()
-	serve.NewServeApp(
+	pedroApp := telegram.NewPedro(
+		conn,
+		cfg.TelegramToken,
+		cfg.AllowedUserIds,
+	)
+
+	serveApp := serve.NewServeApp(
 		conn,
 		flashscoreUri,
 		cfg.FlashscoreApiKey,
@@ -91,4 +96,7 @@ func main() {
 		favouriteLeagues,
 		json,
 	)
+
+	go pedroApp.Start()
+	serveApp.Start(ctx)
 }

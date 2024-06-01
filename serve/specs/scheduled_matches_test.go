@@ -139,6 +139,7 @@ func TestImportMatches(t *testing.T) {
 		_, _ = newFixture(t, favs, true).importer.ImportScheduledMatches(ctx)
 	})
 
+	//TODO sends to discord even if db is not available
 }
 
 // we order the leagues to make sure the output json has always the same structure

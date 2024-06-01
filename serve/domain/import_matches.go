@@ -46,7 +46,7 @@ func NewMatchImporter(
 // ImportScheduledMatches writes matches from flashscore into the db for the current day.
 // Doesn't validate if the match is already present,
 // as it's expected to be triggered only once per day for now.
-func (importer MatchImporter) ImportScheduledMatches(ctx context.Context) (Matches, error) {
+func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matches, error) {
 	untrackedMatches, err := importer.fetchAllMatches()
 	if err != nil {
 		importer.log.Error("cannot fetch matches", slog.Any("error", err))
@@ -77,7 +77,7 @@ func (importer MatchImporter) ImportScheduledMatches(ctx context.Context) (Match
 	return trackedMatches, nil
 }
 
-func (importer MatchImporter) fetchAllMatches() (UntrackedMatches, error) {
+func (importer *MatchImporter) fetchAllMatches() (UntrackedMatches, error) {
 	untrackedMatches, err := importer.flashscore.GetUpcomingMatches()
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch matches from flashscore: %v", err)
@@ -85,7 +85,7 @@ func (importer MatchImporter) fetchAllMatches() (UntrackedMatches, error) {
 	return untrackedMatches, err
 }
 
-func (importer MatchImporter) storeUntrackedMatches(
+func (importer *MatchImporter) storeUntrackedMatches(
 	ctx context.Context,
 	matches UntrackedMatches,
 ) (Matches, error) {
@@ -94,7 +94,8 @@ func (importer MatchImporter) storeUntrackedMatches(
 	for _, untrackedMatch := range matches {
 		trackedMatch, err := importer.store.Add(ctx, untrackedMatch)
 		if err != nil {
-			dbErr := fmt.Errorf("could not persist match %v, aborting: %v", untrackedMatch, err)
+			//nolint
+			dbErr := fmt.Errorf("could not persist match %v, aborting: %v", untrackedMatch.HomeName, err)
 			dbErrs = append(dbErrs, dbErr)
 		}
 

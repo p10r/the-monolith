@@ -7,6 +7,7 @@ import (
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/flashscore"
+	"github.com/robfig/cron/v3"
 	"log/slog"
 	"time"
 )
@@ -22,9 +23,8 @@ func NewServeApp(
 	conn *sqlite.DB,
 	flashscoreUri, flashscoreApiKey, discordUri string,
 	favouriteLeagues []string,
-	logHandler slog.Handler, //TODO pass in JSONHandler in prod, TextHandler in tests
-) Serve {
-	//log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logHandler slog.Handler,
+) *Serve {
 	log := slog.New(logHandler).With(slog.String("app", "serve"))
 
 	log.Info("Starting Serve App")
@@ -42,7 +42,6 @@ func NewServeApp(
 	store := db.NewMatchStore(conn)
 	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey, log)
 	discordClient := discord.NewClient(discordUri, log)
-
 	now := func() time.Time { return time.Now() }
 
 	importer := domain.NewMatchImporter(
@@ -54,15 +53,27 @@ func NewServeApp(
 		log,
 	)
 
-	return Serve{importer, log}
+	return &Serve{importer, log}
 }
 
-func (s Serve) Start(ctx context.Context) (domain.Matches, error) {
-	matches, err := s.Importer.ImportScheduledMatches(ctx)
+func (s *Serve) Start(ctx context.Context) {
+	c := cron.New()
+	_, err := c.AddFunc("* * * * *", func() {
+		_, err := s.Importer.ImportScheduledMatches(ctx)
+		if err != nil {
+			s.log.Error("serve run failed", slog.Any("error", err))
+		}
+	})
 	if err != nil {
 		s.log.Error("serve run failed", slog.Any("error", err))
-		return nil, err
 	}
 
-	return matches, nil
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			c.Start()
+		}
+	}
 }
