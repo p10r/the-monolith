@@ -2,7 +2,7 @@ package serve
 
 import (
 	"context"
-	"github.com/p10r/pedro/pkg/logging"
+	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve/db"
 	"github.com/p10r/pedro/serve/discord"
@@ -28,7 +28,7 @@ func NewServeApp(
 	logHandler slog.Handler,
 	importSchedule string,
 ) *Serve {
-	log := logging.NewAppLogger(logHandler, "serve")
+	log := l.NewAppLogger(logHandler, "serve")
 
 	log.Info("Starting Serve App")
 
@@ -64,11 +64,11 @@ func (s *Serve) Start(ctx context.Context) {
 	_, err := c.AddFunc(s.importSchedule, func() {
 		_, err := s.importer.ImportScheduledMatches(ctx)
 		if err != nil {
-			s.log.Error("serve run failed", slog.Any("error", err))
+			s.log.Error(l.Error("serve run failed", err))
 		}
 	})
 	if err != nil {
-		s.log.Error("serve run failed", slog.Any("error", err))
+		s.log.Error(l.Error("serve run failed", err))
 	}
 
 	for {

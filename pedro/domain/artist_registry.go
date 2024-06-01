@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/p10r/pedro/pkg/l"
 	"log/slog"
 	"slices"
 	"time"
@@ -57,7 +58,7 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 
 	res, err := r.RA.GetArtistBySlug(slug)
 	if err != nil {
-		r.log.Error("err when calling ra.co", slog.Any("error", err))
+		r.log.Error(l.Error("err when calling ra.co", err))
 		return ErrNotFoundOnRA
 	}
 

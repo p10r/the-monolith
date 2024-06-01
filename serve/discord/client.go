@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/serve/domain"
 	"log/slog"
 	"net"
@@ -47,7 +48,7 @@ func (c *Client) SendMessage(
 
 	payload, err := json.Marshal(msg)
 	if err != nil {
-		c.log.Error("cannot marshal discord message", slog.Any("error", err))
+		c.log.Error(l.Error("cannot marshal discord message", err))
 		return err
 	}
 
@@ -55,7 +56,7 @@ func (c *Client) SendMessage(
 	for c.retries > 0 {
 		res, err = http.Post(c.fullUrl, "application/json", bytes.NewBuffer(payload))
 		if err != nil {
-			c.log.Error("cannot send discord message", slog.Any("error", err))
+			c.log.Error(l.Error("cannot send discord message", err))
 			c.retries -= 1
 		} else {
 			break
@@ -67,12 +68,12 @@ func (c *Client) SendMessage(
 	}
 
 	if res == nil {
-		c.log.Error("discord res was nil", slog.Any("error", err))
+		c.log.Error(l.Error("discord res was nil", err))
 		return fmt.Errorf("discord res was nil")
 	}
 
 	if res.StatusCode != http.StatusNoContent {
-		c.log.Error("req failed with status code", slog.Any("error", err))
+		c.log.Error(l.Error("req failed with status code", err))
 		return fmt.Errorf("request failed with status code: %v", res.StatusCode)
 	}
 

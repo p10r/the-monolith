@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	approvals "github.com/approvals/go-approval-tests"
 	"github.com/approvals/go-approval-tests/reporters"
-	"github.com/p10r/pedro/pkg/logging"
+	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/serve/db"
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
@@ -36,7 +36,7 @@ type fixture struct {
 }
 
 func newFixture(t *testing.T, favLeagues []string, runAgainstDiscord bool) fixture {
-	log := logging.NewTextLogger().With(slog.String("app", "serve"))
+	log := l.NewTextLogger().With(slog.String("app", "serve"))
 
 	apiKey := "random_api_key"
 	flashscoreServer := testutil.NewFlashscoreServer(t, apiKey)

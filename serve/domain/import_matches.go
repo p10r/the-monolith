@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/p10r/pedro/pkg/l"
 	"log/slog"
 	"time"
 )
@@ -49,7 +50,7 @@ func NewMatchImporter(
 func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matches, error) {
 	untrackedMatches, err := importer.fetchAllMatches()
 	if err != nil {
-		importer.log.Error("cannot fetch matches", slog.Any("error", err))
+		importer.log.Error(l.Error("cannot fetch matches", err))
 		return nil, err
 	}
 
@@ -64,13 +65,13 @@ func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matc
 
 	trackedMatches, err := importer.storeUntrackedMatches(ctx, upcoming)
 	if err != nil {
-		importer.log.Error("error when writing to db", slog.Any("error", err))
+		importer.log.Error(l.Error("error when writing to db", err))
 		return nil, err
 	}
 
 	err = importer.discord.SendMessage(ctx, trackedMatches, importer.clock())
 	if err != nil {
-		importer.log.Error("send to discord error", slog.Any("error", err))
+		importer.log.Error(l.Error("send to discord error", err))
 		return nil, err
 	}
 

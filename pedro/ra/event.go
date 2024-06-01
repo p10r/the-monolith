@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pkg/l"
 	"log/slog"
 	"net/http"
 	"time"
@@ -65,7 +66,7 @@ func NewEvent(res *http.Response, err error, log *slog.Logger) (Events, error) {
 	}
 
 	if err = json.NewDecoder(res.Body).Decode(&events); err != nil {
-		log.Error("Can not deserialize res to events res", slog.Any("error", err))
+		log.Error(l.Error("Can not deserialize res to events res", err))
 		return []Event{}, err
 	}
 	return events.Data.Listing.EventsData, err
@@ -76,7 +77,7 @@ func (events Events) ToDomainEvents(artistName string, log *slog.Logger) domain.
 	for _, e := range events {
 		id, err := domain.NewEventID(e.Id)
 		if err != nil {
-			log.Error(fmt.Sprintf("failed parsing %v to EventID", e.Id), slog.Any("error", err))
+			log.Error(l.Error(fmt.Sprintf("failed parsing %v to EventID", e.Id), err))
 			continue
 		}
 
@@ -84,7 +85,7 @@ func (events Events) ToDomainEvents(artistName string, log *slog.Logger) domain.
 		date, err := time.Parse(layout, e.StartTime)
 
 		if err != nil {
-			log.Error(fmt.Sprintf("failed parsing %v to time", e.Date), slog.Any("error", err))
+			log.Error(l.Error(fmt.Sprintf("failed parsing %v to time", e.Date), err))
 			continue
 		}
 

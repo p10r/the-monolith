@@ -6,7 +6,7 @@ import (
 	"github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pedro/ra"
-	"github.com/p10r/pedro/pkg/logging"
+	"github.com/p10r/pedro/pkg/l"
 	"testing"
 	"time"
 )
@@ -18,7 +18,7 @@ func NewInMemoryArtistRegistry(
 ) *domain.ArtistRegistry {
 	repo := db.NewInMemoryArtistRepository()
 	raClient := ra.NewInMemoryClient(t, raArtists)
-	log := logging.NewTextLogger()
+	log := l.NewTextLogger()
 	return domain.NewArtistRegistry(repo, raClient, now, log)
 }
 
@@ -404,7 +404,7 @@ func TestArtistRegistry(t *testing.T) {
 		got, err := registry.AllEventsForUser(ctx, joe)
 		expect.NoErr(t, err)
 
-		log := logging.NewTextLogger()
+		log := l.NewTextLogger()
 		expect.DeepEqual(t, got, events.ToDomainEvents("Boys Noize", log))
 	})
 }

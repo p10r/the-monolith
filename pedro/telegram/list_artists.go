@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pkg/l"
 	"gopkg.in/telebot.v3"
 	"log/slog"
 	"strings"
@@ -38,13 +39,13 @@ func listArtists(
 		id := c.Sender().ID
 		artists, err := r.ArtistsFor(ctx, domain.UserID(id))
 		if err != nil {
-			log.Error(fmt.Sprintf("%v has no artists", id), slog.Any("error", err))
+			log.Error(l.Error(fmt.Sprintf("%v has no artists", id), err))
 			return c.Send(genericErrMsg("/artists", err))
 		}
 
 		msg, err := listArtistsMsg(artists)
 		if err != nil {
-			log.Error(fmt.Sprintf("%v has no artists", id), slog.Any("error", err))
+			log.Error(l.Error(fmt.Sprintf("%v has no artists", id), err))
 			return c.Send(err.Error())
 		}
 

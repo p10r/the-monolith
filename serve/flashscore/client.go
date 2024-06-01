@@ -3,6 +3,7 @@ package flashscore
 import (
 	"errors"
 	"fmt"
+	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/serve/domain"
 	"log/slog"
 	"net"
@@ -31,9 +32,9 @@ func NewClient(baseUri, apiKey string, log *slog.Logger) *Client {
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
-	l := log.With(slog.String("adapter", "flashscore"))
+	fsl := log.With(slog.String("adapter", "flashscore"))
 	r := 5
-	return &Client{c, baseUri, apiKey, l, r}
+	return &Client{c, baseUri, apiKey, fsl, r}
 }
 
 func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
@@ -51,7 +52,7 @@ func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 	for c.retries > 0 {
 		res, err = c.http.Do(req)
 		if err != nil {
-			c.log.Error("Error executing GET request", slog.Any("error", err))
+			c.log.Error(l.Error("Error executing GET request", err))
 			c.retries -= 1
 		} else {
 			break
@@ -59,7 +60,7 @@ func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 	}
 
 	if res == nil {
-		c.log.Error("res was nil", slog.Any("error", err))
+		c.log.Error(l.Error("res was nil", err))
 		return domain.UntrackedMatches{}, fmt.Errorf("res was nil")
 	}
 

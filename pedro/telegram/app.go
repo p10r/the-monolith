@@ -4,7 +4,7 @@ import (
 	"github.com/p10r/pedro/pedro/db"
 	"github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/ra"
-	"github.com/p10r/pedro/pkg/logging"
+	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/middleware"
@@ -20,7 +20,7 @@ func NewPedro(
 	allowedUserIds []int64,
 	logHandler slog.Handler,
 ) *telebot.Bot {
-	log := logging.NewAppLogger(logHandler, "pedro")
+	log := l.NewAppLogger(logHandler, "pedro")
 
 	artistRegistry := domain.NewArtistRegistry(
 		db.NewSqliteArtistRepository(conn),
@@ -37,7 +37,7 @@ func NewPedro(
 		},
 	)
 	if err != nil {
-		log.Error("cannot create telegram bot", slog.Any("error", err))
+		log.Error(l.Error("cannot create telegram bot", err))
 	}
 
 	bot.Use(middleware.Whitelist(allowedUserIds...))

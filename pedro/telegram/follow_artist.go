@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pkg/l"
 	"gopkg.in/telebot.v3"
 	"log/slog"
 )
@@ -30,14 +31,14 @@ func followArtist(
 
 		slug, err := domain.NewSlug(tags[0])
 		if err != nil {
-			log.Error("invalid artist", slog.Any("error", err))
+			log.Error(l.Error("invalid artist", err))
 			return s.Send(c, invalidArtistMsg)
 		}
 		userId := domain.UserID(c.Sender().ID)
 
 		err = r.Follow(ctx, slug, userId)
 		if err != nil {
-			log.Error("cannot follow artist", slog.Any("error", err))
+			log.Error(l.Error("cannot follow artist", err))
 			return s.Send(c, genericErrMsg("/follow", err))
 		}
 

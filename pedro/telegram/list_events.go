@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pkg/l"
 	"gopkg.in/telebot.v3"
 	"log/slog"
 	"strings"
@@ -35,10 +36,7 @@ func listEvents(
 		id := c.Sender().ID
 		events, err := r.AllEventsForUser(ctx, domain.UserID(id))
 		if err != nil {
-			log.Error(
-				fmt.Sprintf("%v has no upcoming events", id),
-				slog.Any("error", err),
-			)
+			log.Error(l.Error(fmt.Sprintf("%v has no upcoming events", id), err))
 			return s.Send(c, genericErrMsg("/events", err))
 		}
 

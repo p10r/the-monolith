@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/p10r/pedro/pedro/telegram"
+	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve"
 	"github.com/sethvargo/go-envconfig"
@@ -72,13 +73,13 @@ func main() {
 
 	var cfg Config
 	if err := envconfig.Process(ctx, &cfg); err != nil {
-		log.Error("error", slog.Any("error", err))
+		log.Error(l.Error("error loading config", err))
 	}
 
 	conn := sqlite.NewDB(cfg.DSN)
 	err := conn.Open()
 	if err != nil {
-		log.Error("cannot open sqlite connection", err)
+		log.Error(l.Error("cannot open sqlite connection", err))
 		panic(err)
 	}
 	log.Info(fmt.Sprintf("DSN is set to %v", cfg.DSN))

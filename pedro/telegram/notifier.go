@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/pedro/pkg/l"
 	"gopkg.in/telebot.v3"
 	"log/slog"
 	"strconv"
@@ -38,7 +39,7 @@ func (n Notifier) StartEventNotifier() {
 
 	err := n.eventLookup()
 	if err != nil {
-		n.log.Error("error when sending events to users", slog.Any("error", err))
+		n.log.Error(l.Error("error when sending events to users", err))
 	}
 
 	duration := 12 * time.Hour
@@ -54,9 +55,9 @@ func (n Notifier) StartEventNotifier() {
 		case <-ticker.C:
 		}
 
-		err := n.eventLookup()
-		if err != nil {
-			n.log.Error("err when sending events", slog.Any("error", err))
+		lookupErr := n.eventLookup()
+		if lookupErr != nil {
+			n.log.Error(l.Error("err when sending events", lookupErr))
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package logging
+package l
 
 import (
 	"log/slog"
@@ -11,4 +11,8 @@ func NewTextLogger() (log *slog.Logger) {
 
 func NewAppLogger(h slog.Handler, app string) (log *slog.Logger) {
 	return slog.New(h).With(slog.String("app", app))
+}
+
+func Error(msg string, err error) (string, slog.Attr) {
+	return msg, slog.Any("error", err)
 }
