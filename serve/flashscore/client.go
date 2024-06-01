@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
-	"log"
 	"log/slog"
 	"net"
 	"net/http"
@@ -16,6 +15,7 @@ type Client struct {
 	baseUri string
 	apiKey  string
 	log     *slog.Logger
+	retries int
 }
 
 func NewClient(baseUri, apiKey string, log *slog.Logger) *Client {
@@ -32,10 +32,11 @@ func NewClient(baseUri, apiKey string, log *slog.Logger) *Client {
 		},
 	}
 	l := log.With(slog.String("adapter", "flashscore"))
-	return &Client{c, baseUri, apiKey, l}
+	r := 5
+	return &Client{c, baseUri, apiKey, l, r}
 }
 
-func (c Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
+func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 	url := c.baseUri + "/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=0"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -46,18 +47,30 @@ func (c Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 	req.Header.Add("X-RapidAPI-Host", "flashscore.p.rapidapi.com")
 	req.Header.Add("X-RapidAPI-Key", c.apiKey)
 
-	res, err := c.http.Do(req)
-	if res.StatusCode == http.StatusForbidden {
-		c.log.Info("Forbidden - wrong API key?")
-		return domain.UntrackedMatches{}, err
+	var res *http.Response
+	for c.retries > 0 {
+		res, err = c.http.Do(req)
+		if err != nil {
+			c.log.Error("Error executing GET request", slog.Any("error", err))
+			c.retries -= 1
+		} else {
+			break
+		}
 	}
-	if err != nil {
-		c.log.Info("Error executing GET request", err)
+
+	if res == nil {
+		c.log.Error("res was nil", slog.Any("error", err))
+		return domain.UntrackedMatches{}, fmt.Errorf("res was nil")
+	}
+
+	if res.StatusCode == http.StatusForbidden {
+		c.log.Error("Forbidden - wrong API key?")
 		return domain.UntrackedMatches{}, err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		log.Printf("req failed: %v, req: %v\n", res.StatusCode, req)
+		//Todo have Adapter logger that has "data" field
+		c.log.Error(fmt.Sprintf("Request failed: %v, req: %v", res.StatusCode, req))
 		err := fmt.Errorf("req failed: %v, body: %v", res.StatusCode, res.Body)
 		return domain.UntrackedMatches{}, err
 	}
