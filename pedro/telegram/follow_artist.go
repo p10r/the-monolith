@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
 	"gopkg.in/telebot.v3"
-	"log"
+	"log/slog"
 )
 
 //nolint:lll
@@ -15,7 +15,11 @@ func artistFollowedMsg(artist string) string {
 	return fmt.Sprintf("You're now following %s", artist)
 }
 
-func followArtist(r *domain.ArtistRegistry, s Sender) func(c telebot.Context) error {
+func followArtist(
+	r *domain.ArtistRegistry,
+	s Sender,
+	log *slog.Logger,
+) func(c telebot.Context) error {
 	return func(c telebot.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
@@ -26,14 +30,14 @@ func followArtist(r *domain.ArtistRegistry, s Sender) func(c telebot.Context) er
 
 		slug, err := domain.NewSlug(tags[0])
 		if err != nil {
-			log.Print(err)
+			log.Error("invalid artist", slog.Any("error", err))
 			return s.Send(c, invalidArtistMsg)
 		}
 		userId := domain.UserID(c.Sender().ID)
 
 		err = r.Follow(ctx, slug, userId)
 		if err != nil {
-			log.Print(err)
+			log.Error("cannot follow artist", slog.Any("error", err))
 			return s.Send(c, genericErrMsg("/follow", err))
 		}
 

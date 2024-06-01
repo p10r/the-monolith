@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
 	"gopkg.in/telebot.v3"
-	"log"
+	"log/slog"
 	"strings"
 )
 
@@ -27,18 +27,24 @@ func listArtistsMsg(artists domain.Artists) (string, error) {
 	return fmt.Sprintf("You're following:\n%v", strings.Join(res, "\n")), nil
 }
 
-func listArtists(r *domain.ArtistRegistry, s Sender) func(c telebot.Context) error {
+func listArtists(
+	r *domain.ArtistRegistry,
+	s Sender,
+	log *slog.Logger,
+) func(c telebot.Context) error {
 	return func(c telebot.Context) error {
 		ctx := context.Background() //TODO check if telebot can provide context
 
-		artists, err := r.ArtistsFor(ctx, domain.UserID(c.Sender().ID))
+		id := c.Sender().ID
+		artists, err := r.ArtistsFor(ctx, domain.UserID(id))
 		if err != nil {
-			log.Print(err)
+			log.Error(fmt.Sprintf("%v has no artists", id), slog.Any("error", err))
 			return c.Send(genericErrMsg("/artists", err))
 		}
 
 		msg, err := listArtistsMsg(artists)
 		if err != nil {
+			log.Error(fmt.Sprintf("%v has no artists", id), slog.Any("error", err))
 			return c.Send(err.Error())
 		}
 

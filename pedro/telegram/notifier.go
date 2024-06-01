@@ -2,9 +2,10 @@ package telegram
 
 import (
 	"context"
+	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
 	"gopkg.in/telebot.v3"
-	"log"
+	"log/slog"
 	"strconv"
 	"time"
 )
@@ -13,6 +14,23 @@ type Notifier struct {
 	bot      *telebot.Bot
 	registry *domain.ArtistRegistry
 	users    []int64
+	log      *slog.Logger
+}
+
+func NewNotifier(
+	bot *telebot.Bot,
+	registry *domain.ArtistRegistry,
+	users []int64,
+	log *slog.Logger,
+) *Notifier {
+	l := log.With(slog.String("adapter", "event_job"))
+
+	return &Notifier{
+		bot:      bot,
+		registry: registry,
+		users:    users,
+		log:      l,
+	}
 }
 
 func (n Notifier) StartEventNotifier() {
@@ -20,14 +38,14 @@ func (n Notifier) StartEventNotifier() {
 
 	err := n.eventLookup()
 	if err != nil {
-		log.Printf("Event lookup: Error when sending events to users. err: %v", err)
+		n.log.Error("error when sending events to users", slog.Any("error", err))
 	}
 
 	duration := 12 * time.Hour
 	ticker := time.NewTicker(duration)
 	defer ticker.Stop()
 
-	log.Printf("event lookup is set to run every %v", duration.String())
+	n.log.Info(fmt.Sprintf("event lookup is set to run every %v", duration.String()))
 
 	for {
 		select {
@@ -38,7 +56,7 @@ func (n Notifier) StartEventNotifier() {
 
 		err := n.eventLookup()
 		if err != nil {
-			log.Printf("Event lookup: Error when sending events to users. err: %v", err)
+			n.log.Error("err when sending events", slog.Any("error", err))
 		}
 	}
 }
@@ -55,7 +73,8 @@ func (n Notifier) eventLookup() error {
 			continue
 		}
 
-		log.Printf("Event lookup: Sending %v\n", events)
+		n.log.Info(fmt.Sprintf("Sending %v", events))
+
 		_, err = n.bot.Send(user(id), eventsMessage(events))
 		if err != nil {
 			return err

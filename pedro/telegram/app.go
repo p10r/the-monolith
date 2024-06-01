@@ -7,7 +7,7 @@ import (
 	"github.com/p10r/pedro/pkg/sqlite"
 	"gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/middleware"
-	"log"
+	"log/slog"
 	"time"
 )
 
@@ -17,7 +17,10 @@ func NewPedro(
 	conn *sqlite.DB,
 	botToken string,
 	allowedUserIds []int64,
+	logHandler slog.Handler,
 ) *telebot.Bot {
+	log := slog.New(logHandler).With(slog.String("app", "pedro"))
+
 	now := func() time.Time { return time.Now() }
 
 	repo := db.NewSqliteArtistRepository(conn)
@@ -33,27 +36,23 @@ func NewPedro(
 		},
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Error("cannot create telegram bot", slog.Any("error", err))
 	}
 
 	bot.Use(middleware.Whitelist(allowedUserIds...))
 
-	log.Print("Started Pedro")
-
-	n := &Notifier{
-		bot:      bot,
-		registry: artistRegistry,
-		users:    allowedUserIds,
-	}
-
+	n := NewNotifier(bot, artistRegistry, allowedUserIds, log)
 	go n.StartEventNotifier()
 
-	sender := TelebotSender{}
+	sender := NewTelegramSender(log)
 
-	//bot.Use(middleware.Logger())
-	bot.Handle("/follow", followArtist(artistRegistry, sender))
-	bot.Handle("/artists", listArtists(artistRegistry, sender))
-	bot.Handle("/events", listEvents(artistRegistry, sender))
+	l := log.With(slog.String("adapter", "telegram_in"))
+	//bot.Use(middleware.Logger()) //TODO check if slog can be added here
+	bot.Handle("/follow", followArtist(artistRegistry, sender, l))
+	bot.Handle("/artists", listArtists(artistRegistry, sender, l))
+	bot.Handle("/events", listEvents(artistRegistry, sender, l))
+
+	log.Info("started pedro")
 
 	return bot
 }

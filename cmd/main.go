@@ -65,8 +65,8 @@ var favouriteLeagues = []string{
 }
 
 func main() {
-	json := slog.NewJSONHandler(os.Stdout, nil)
-	log := slog.New(json)
+	jsonLogHandler := slog.NewJSONHandler(os.Stdout, nil)
+	log := slog.New(jsonLogHandler)
 	ctx := context.Background()
 
 	var cfg Config
@@ -86,6 +86,7 @@ func main() {
 		conn,
 		cfg.TelegramToken,
 		cfg.AllowedUserIds,
+		jsonLogHandler,
 	)
 
 	serveApp := serve.NewServeApp(
@@ -94,7 +95,7 @@ func main() {
 		cfg.FlashscoreApiKey,
 		cfg.DiscordUri,
 		favouriteLeagues,
-		json,
+		jsonLogHandler,
 	)
 
 	go pedroApp.Start()
