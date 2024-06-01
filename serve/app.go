@@ -13,8 +13,9 @@ import (
 )
 
 type Serve struct {
-	Importer *domain.MatchImporter
-	log      *slog.Logger
+	importer       *domain.MatchImporter
+	importSchedule string // CRON
+	log            *slog.Logger
 }
 
 // NewServeApp wires Serve App together.
@@ -24,6 +25,7 @@ func NewServeApp(
 	flashscoreUri, flashscoreApiKey, discordUri string,
 	favouriteLeagues []string,
 	logHandler slog.Handler,
+	importSchedule string,
 ) *Serve {
 	log := slog.New(logHandler).With(slog.String("app", "serve"))
 
@@ -53,13 +55,13 @@ func NewServeApp(
 		log,
 	)
 
-	return &Serve{importer, log}
+	return &Serve{importer, importSchedule, log}
 }
 
 func (s *Serve) Start(ctx context.Context) {
 	c := cron.New()
-	_, err := c.AddFunc("* * * * *", func() {
-		_, err := s.Importer.ImportScheduledMatches(ctx)
+	_, err := c.AddFunc(s.importSchedule, func() {
+		_, err := s.importer.ImportScheduledMatches(ctx)
 		if err != nil {
 			s.log.Error("serve run failed", slog.Any("error", err))
 		}

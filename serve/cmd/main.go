@@ -34,11 +34,8 @@ func main() {
 			"World: Nations League - Play Offs",
 		},
 		logHandler,
+		"0 6 * * *",
 	)
 
-	_, err = app.Importer.ImportScheduledMatches(context.TODO())
-	if err != nil {
-		log.Error("Error when importing matches:", slog.Any("error", err))
-		panic(err)
-	}
+	app.Start(context.TODO())
 }
