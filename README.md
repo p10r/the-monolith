@@ -38,3 +38,7 @@ scp root@<app name in fly.toml>.internal:/data/pedro.db .
 scp root@<app name in fly.toml>.internal:/data/pedro.db-shm .
 scp root@<app name in fly.toml>.internal:/data/pedro.db-wal .
 ```
+
+## TODOs
+
+- [move away from Docker](https://fly.io/docs/languages-and-frameworks/golang/)

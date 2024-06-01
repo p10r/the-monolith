@@ -2,15 +2,14 @@ package flashscore_test
 
 import (
 	"bytes"
+	"github.com/p10r/pedro/pkg/logging"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/expect"
 	"github.com/p10r/pedro/serve/flashscore"
 	"github.com/p10r/pedro/serve/testutil"
 	"io"
-	"log/slog"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 )
 
@@ -36,7 +35,7 @@ func NewFakeServer(t *testing.T, apiKey string) *httptest.Server {
 }
 
 func TestFlashscore(t *testing.T) {
-	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	log := logging.NewTextLogger()
 
 	t.Run("deserializes flashscore response", func(t *testing.T) {
 		json := testutil.RawFlashscoreRes(t)

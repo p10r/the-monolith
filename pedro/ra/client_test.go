@@ -4,13 +4,12 @@ import (
 	"github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pedro/ra"
-	"log/slog"
-	"os"
+	"github.com/p10r/pedro/pkg/logging"
 	"testing"
 )
 
 func TestRAClient(t *testing.T) {
-	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	log := logging.NewTextLogger()
 
 	t.Run("verify contract for in-memory fake", func(t *testing.T) {
 		domain.RAContract{NewRA: func() domain.ResidentAdvisor {

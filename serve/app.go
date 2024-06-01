@@ -2,6 +2,7 @@ package serve
 
 import (
 	"context"
+	"github.com/p10r/pedro/pkg/logging"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve/db"
 	"github.com/p10r/pedro/serve/discord"
@@ -27,7 +28,7 @@ func NewServeApp(
 	logHandler slog.Handler,
 	importSchedule string,
 ) *Serve {
-	log := slog.New(logHandler).With(slog.String("app", "serve"))
+	log := logging.NewAppLogger(logHandler, "serve")
 
 	log.Info("Starting Serve App")
 

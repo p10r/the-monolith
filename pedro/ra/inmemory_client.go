@@ -2,8 +2,7 @@ package ra
 
 import (
 	"github.com/p10r/pedro/pedro/domain"
-	"log/slog"
-	"os"
+	"github.com/p10r/pedro/pkg/logging"
 	"testing"
 	"time"
 )
@@ -42,7 +41,7 @@ func (c *InMemoryClient) GetEventsByArtistId(
 	_ time.Time, //TODO filter for time
 	_ time.Time,
 ) (domain.Events, error) {
-	log := slog.New(slog.NewTextHandler(os.Stdout, nil)) //TODO Move to function
+	log := logging.NewTextLogger()
 
 	raId := a.RAID
 	var fil []ArtistWithEvents

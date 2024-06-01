@@ -4,6 +4,7 @@ import (
 	"github.com/p10r/pedro/pedro/db"
 	"github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/ra"
+	"github.com/p10r/pedro/pkg/logging"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/middleware"
@@ -19,7 +20,7 @@ func NewPedro(
 	allowedUserIds []int64,
 	logHandler slog.Handler,
 ) *telebot.Bot {
-	log := slog.New(logHandler).With(slog.String("app", "pedro"))
+	log := logging.NewAppLogger(logHandler, "pedro")
 
 	artistRegistry := domain.NewArtistRegistry(
 		db.NewSqliteArtistRepository(conn),
@@ -46,11 +47,11 @@ func NewPedro(
 
 	sender := NewTelegramSender(log)
 
-	l := log.With(slog.String("adapter", "telegram_in"))
+	incomingLog := log.With(slog.String("adapter", "telegram_in"))
 	//bot.Use(middleware.Logger()) //TODO check if slog can be added here
-	bot.Handle("/follow", followArtist(artistRegistry, sender, l))
-	bot.Handle("/artists", listArtists(artistRegistry, sender, l))
-	bot.Handle("/events", listEvents(artistRegistry, sender, l))
+	bot.Handle("/follow", followArtist(artistRegistry, sender, incomingLog))
+	bot.Handle("/artists", listArtists(artistRegistry, sender, incomingLog))
+	bot.Handle("/events", listEvents(artistRegistry, sender, incomingLog))
 
 	log.Info("started pedro")
 
