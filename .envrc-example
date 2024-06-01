@@ -1,3 +1,8 @@
-export TELEGRAM_TOKEN=1234:AABBCC
-export DSN=local/local.db
-export ALLOWED_USER_IDS=1,2,
+export TELEGRAM_TOKEN=123:ABC
+export ALLOWED_USER_IDS=1,2
+export FLASHSCORE_API_KEY=api_key
+# staging
+export DISCORD_URI=https://discord.com/api/webhooks/test
+# prod
+#export DISCORD_URI=https://discord.com/api/webhooks/test
+export DSN=pkg/sqlite/local/local.db
