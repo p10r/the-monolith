@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -32,7 +32,7 @@ type Area struct {
 
 type Events []Event
 
-func NewEvent(res *http.Response, err error) (Events, error) {
+func NewEvent(res *http.Response, err error, log *slog.Logger) (Events, error) {
 	if res == nil {
 		return Events{}, fmt.Errorf("ra events response is nil")
 	}
@@ -65,18 +65,18 @@ func NewEvent(res *http.Response, err error) (Events, error) {
 	}
 
 	if err = json.NewDecoder(res.Body).Decode(&events); err != nil {
-		log.Println("Can not deserialize response to EventsResponse")
+		log.Error("Can not deserialize res to events res", slog.Any("error", err))
 		return []Event{}, err
 	}
 	return events.Data.Listing.EventsData, err
 }
 
-func (events Events) ToDomainEvents(artistName string) domain.Events {
+func (events Events) ToDomainEvents(artistName string, log *slog.Logger) domain.Events {
 	d := domain.Events{}
 	for _, e := range events {
 		id, err := domain.NewEventID(e.Id)
 		if err != nil {
-			log.Printf("failed parsing %v to EventID: %v", e.Id, err)
+			log.Error(fmt.Sprintf("failed parsing %v to EventID", e.Id), slog.Any("error", err))
 			continue
 		}
 
@@ -84,7 +84,7 @@ func (events Events) ToDomainEvents(artistName string) domain.Events {
 		date, err := time.Parse(layout, e.StartTime)
 
 		if err != nil {
-			log.Printf("failed parsing %v to time: %v", e.Date, err)
+			log.Error(fmt.Sprintf("failed parsing %v to time", e.Date), slog.Any("error", err))
 			continue
 		}
 

@@ -2,20 +2,25 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve"
-	"log"
 	"log/slog"
 	"os"
 )
 
 func main() {
+	logHandler := slog.NewJSONHandler(os.Stdout, nil)
+	log := slog.New(logHandler).With(slog.String("app", "serve"))
+
 	conn := sqlite.NewDB(os.Getenv("DSN"))
 	err := conn.Open()
 	if err != nil {
-		log.Fatal(err)
+		log.Error("cannot open db conn", slog.Any("error", err))
+		panic(err)
 	}
-	log.Printf("DSN is set to %v", os.Getenv("DSN"))
+
+	log.Info(fmt.Sprintf("DSN is set to %v", os.Getenv("DSN")))
 
 	app := serve.NewServeApp(
 		conn,
@@ -28,11 +33,12 @@ func main() {
 			"World: Nations League",
 			"World: Nations League - Play Offs",
 		},
-		slog.NewJSONHandler(os.Stdout, nil),
+		logHandler,
 	)
 
 	_, err = app.Importer.ImportScheduledMatches(context.TODO())
 	if err != nil {
-		log.Fatal("Error when importing matches:", err)
+		log.Error("Error when importing matches:", slog.Any("error", err))
+		panic(err)
 	}
 }

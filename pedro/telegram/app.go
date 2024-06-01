@@ -21,12 +21,12 @@ func NewPedro(
 ) *telebot.Bot {
 	log := slog.New(logHandler).With(slog.String("app", "pedro"))
 
-	now := func() time.Time { return time.Now() }
-
-	repo := db.NewSqliteArtistRepository(conn)
-
-	m := db.NewEventMonitor(conn)
-	artistRegistry := domain.NewArtistRegistry(repo, ra.NewClient("https://ra.co"), m, now)
+	artistRegistry := domain.NewArtistRegistry(
+		db.NewSqliteArtistRepository(conn),
+		ra.NewClient("https://ra.co", log),
+		func() time.Time { return time.Now() },
+		log,
+	)
 
 	bot, err := telebot.NewBot(
 		telebot.Settings{

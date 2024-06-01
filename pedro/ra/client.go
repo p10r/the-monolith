@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/p10r/pedro/pedro/domain"
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
@@ -14,9 +15,10 @@ var ErrSlugNotFound = errors.New("slug not found on ra.co")
 type Client struct {
 	http    *http.Client
 	baseUri string
+	log     *slog.Logger
 }
 
-func NewClient(baseUri string) *Client {
+func NewClient(baseUri string, log *slog.Logger) *Client {
 	c := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
@@ -29,7 +31,8 @@ func NewClient(baseUri string) *Client {
 			ExpectContinueTimeout: 1 * time.Second,
 		},
 	}
-	return &Client{http: c, baseUri: baseUri}
+
+	return &Client{http: c, baseUri: baseUri, log: log}
 }
 
 func (c *Client) GetArtistBySlug(slug domain.RASlug) (domain.ArtistInfo, error) {
@@ -61,9 +64,9 @@ func (c *Client) GetEventsByArtistId(
 	}
 
 	res, err := c.http.Do(req)
-	e, err := NewEvent(res, err)
+	e, err := NewEvent(res, err, c.log)
 	if err != nil {
 		return domain.Events{}, fmt.Errorf("could not get response: %v", err)
 	}
-	return e.ToDomainEvents(a.Name), err
+	return e.ToDomainEvents(a.Name, c.log), err
 }

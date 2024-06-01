@@ -2,7 +2,9 @@ package ra
 
 import (
 	"github.com/p10r/pedro/pedro/domain"
-	"log"
+	"log/slog"
+	"os"
+	"testing"
 	"time"
 )
 
@@ -15,10 +17,14 @@ type ArtistStore map[domain.RASlug]ArtistWithEvents
 
 type InMemoryClient struct {
 	artists ArtistStore
+	t       *testing.T
 }
 
-func NewInMemoryClient(artists map[domain.RASlug]ArtistWithEvents) *InMemoryClient {
-	return &InMemoryClient{artists: artists}
+func NewInMemoryClient(
+	t *testing.T,
+	artists map[domain.RASlug]ArtistWithEvents,
+) *InMemoryClient {
+	return &InMemoryClient{artists: artists, t: t}
 }
 
 func (c *InMemoryClient) GetArtistBySlug(slug domain.RASlug) (domain.ArtistInfo, error) {
@@ -36,6 +42,8 @@ func (c *InMemoryClient) GetEventsByArtistId(
 	_ time.Time, //TODO filter for time
 	_ time.Time,
 ) (domain.Events, error) {
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil)) //TODO Move to function
+
 	raId := a.RAID
 	var fil []ArtistWithEvents
 	for _, a := range c.artists {
@@ -45,13 +53,13 @@ func (c *InMemoryClient) GetEventsByArtistId(
 	}
 
 	if len(fil) == 0 {
-		log.Fatalf("No artist found for ID %v", raId)
+		c.t.Fatalf("No artist found for ID %v", raId)
 	}
 
 	if len(fil) > 1 {
-		log.Fatalf("More than one artist found for ID %v", raId)
+		c.t.Fatalf("More than one artist found for ID %v", raId)
 	}
 
 	first := fil[0]
-	return first.EventsData.ToDomainEvents(a.Name), nil
+	return first.EventsData.ToDomainEvents(a.Name, log), nil
 }

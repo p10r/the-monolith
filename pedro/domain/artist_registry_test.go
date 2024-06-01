@@ -6,19 +6,21 @@ import (
 	"github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pedro/ra"
+	"log/slog"
+	"os"
 	"testing"
 	"time"
 )
 
 func NewInMemoryArtistRegistry(
+	t *testing.T,
 	raArtists ra.ArtistStore,
 	now func() time.Time,
-) (*domain.ArtistRegistry, domain.EventMonitor) {
+) *domain.ArtistRegistry {
 	repo := db.NewInMemoryArtistRepository()
-	m := db.NewInMemoryEventMonitor()
-	raClient := ra.NewInMemoryClient(raArtists)
-
-	return domain.NewArtistRegistry(repo, raClient, m, now), m
+	raClient := ra.NewInMemoryClient(t, raArtists)
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil)) //Move to function
+	return domain.NewArtistRegistry(repo, raClient, now, log)
 }
 
 func TestArtistRegistry(t *testing.T) {
@@ -28,7 +30,7 @@ func TestArtistRegistry(t *testing.T) {
 	}
 
 	t.Run("lists all artists", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -74,7 +76,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows an artist from resident advisor", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"daftpunk": {
 					Artist:     ra.Artist{RAID: "111", Name: "Daft Punk"},
@@ -102,7 +104,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -131,7 +133,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{},
 			now,
 		)
@@ -143,7 +145,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows new artist as user", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -180,7 +182,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("ignores follow if already following", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -207,7 +209,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows existing artist", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -234,7 +236,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("fetches all events for artist in the next month", func(t *testing.T) {
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -306,7 +308,7 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		}
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -382,7 +384,7 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		}
-		registry, _ := NewInMemoryArtistRegistry(
+		registry := NewInMemoryArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -403,6 +405,7 @@ func TestArtistRegistry(t *testing.T) {
 		got, err := registry.AllEventsForUser(ctx, joe)
 		expect.NoErr(t, err)
 
-		expect.DeepEqual(t, got, events.ToDomainEvents("Boys Noize"))
+		log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+		expect.DeepEqual(t, got, events.ToDomainEvents("Boys Noize", log))
 	})
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
-	"log"
 	"log/slog"
 	"net"
 	"net/http"
@@ -48,7 +47,7 @@ func (c *Client) SendMessage(
 
 	payload, err := json.Marshal(msg)
 	if err != nil {
-		log.Fatal(err)
+		c.log.Error("cannot marshal discord message", slog.Any("error", err))
 		return err
 	}
 
@@ -74,7 +73,6 @@ func (c *Client) SendMessage(
 
 	if res.StatusCode != http.StatusNoContent {
 		c.log.Error("req failed with status code", slog.Any("error", err))
-		log.Printf("Discord request failed with status code: %v\n", res.StatusCode)
 		return fmt.Errorf("request failed with status code: %v", res.StatusCode)
 	}
 

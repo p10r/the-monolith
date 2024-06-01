@@ -4,13 +4,17 @@ import (
 	"github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pedro/ra"
+	"log/slog"
+	"os"
 	"testing"
 )
 
 func TestRAClient(t *testing.T) {
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	t.Run("verify contract for in-memory fake", func(t *testing.T) {
 		domain.RAContract{NewRA: func() domain.ResidentAdvisor {
-			return ra.NewInMemoryClient(
+			return ra.NewInMemoryClient(t,
 				map[domain.RASlug]ra.ArtistWithEvents{
 					"boysnoize": {
 						Artist: ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -74,7 +78,7 @@ func TestRAClient(t *testing.T) {
 		}
 
 		domain.RAContract{NewRA: func() domain.ResidentAdvisor {
-			return ra.NewClient("https://ra.co")
+			return ra.NewClient("https://ra.co", log)
 		}}.Test(t)
 	})
 
@@ -85,7 +89,7 @@ func TestRAClient(t *testing.T) {
 
 		want := domain.ArtistInfo{RAID: "943", Name: "Boys Noize"}
 
-		client := ra.NewClient("https://ra.co")
+		client := ra.NewClient("https://ra.co", log)
 		got, err := client.GetArtistBySlug("boysnoize")
 
 		expect.NoErr(t, err)

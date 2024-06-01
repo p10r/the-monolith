@@ -4,7 +4,6 @@ import (
 	d "github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pkg/sqlite"
-	"log"
 	"testing"
 )
 
@@ -77,7 +76,7 @@ func MustOpenDB(tb testing.TB) *sqlite.DB {
 	dsn := ":memory:"
 	db := sqlite.NewDB(dsn)
 	if err := db.Open(); err != nil {
-		log.Fatal(err)
+		tb.Fatal(err)
 	}
 	return db
 }

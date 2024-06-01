@@ -2,7 +2,6 @@ package db
 
 import (
 	"github.com/p10r/pedro/pedro/domain"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -81,7 +80,6 @@ func (r commaSeparatedStr) toInt64Slice() []int64 {
 	for _, s := range strings.Split(input, ",") {
 		i, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64)
 		if err != nil {
-			log.Printf("SKIPPING: Could not convert '%v' to int - this should never happen\n", r)
 			continue
 		}
 

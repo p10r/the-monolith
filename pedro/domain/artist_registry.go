@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"slices"
 	"time"
 )
@@ -12,19 +12,19 @@ import (
 var ErrNotFoundOnRA = errors.New("artist not found on ra.com")
 
 type ArtistRegistry struct {
-	Repo    ArtistRepository
-	RA      ResidentAdvisor
-	Monitor EventMonitor
-	Now     func() time.Time
+	Repo ArtistRepository
+	RA   ResidentAdvisor
+	Now  func() time.Time
+	log  *slog.Logger
 }
 
 func NewArtistRegistry(
 	repo ArtistRepository,
 	ra ResidentAdvisor,
-	monitor EventMonitor,
 	now func() time.Time,
+	log *slog.Logger,
 ) *ArtistRegistry {
-	return &ArtistRegistry{repo, ra, monitor, now}
+	return &ArtistRegistry{repo, ra, now, log}
 }
 
 func NewDBError(err error) error {
@@ -57,7 +57,7 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 
 	res, err := r.RA.GetArtistBySlug(slug)
 	if err != nil {
-		log.Printf("err when calling ra.co: %v", err)
+		r.log.Error("err when calling ra.co", slog.Any("error", err))
 		return ErrNotFoundOnRA
 	}
 
@@ -74,7 +74,7 @@ func (r *ArtistRegistry) Follow(ctx context.Context, slug RASlug, userId UserID)
 		return NewDBError(err)
 	}
 
-	r.Monitor.Monitor(ctx, NewArtistFollowedEvent(slug, userId, r.Now))
+	r.log.Info(fmt.Sprintf("%v now follows artist %v", userId, slug))
 
 	return nil
 }
@@ -112,7 +112,8 @@ func (r *ArtistRegistry) AllEventsForUser(ctx context.Context, user UserID) (Eve
 		eventsPerArtist = append(eventsPerArtist, localEvents)
 
 		for _, event := range localEvents {
-			r.Monitor.Monitor(ctx, NewNewEventForArtist(event, artist, user, r.Now))
+			r.log.Info(fmt.Sprintf("User %v: New event for %v: %v",
+				user, artist.Name, event.ContentUrl))
 		}
 	}
 
@@ -140,7 +141,8 @@ func (r *ArtistRegistry) NewEventsForUser(ctx context.Context, user UserID) (Eve
 		}
 
 		for _, event := range newEvents {
-			r.Monitor.Monitor(ctx, NewNewEventForArtist(event, artist, user, r.Now))
+			r.log.Info(fmt.Sprintf("User %v: New event for %v: %v",
+				user, artist.Name, event.ContentUrl))
 		}
 	}
 
