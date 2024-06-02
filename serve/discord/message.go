@@ -86,9 +86,9 @@ func upcomingText(matches domain.Matches) string {
 
 func finishedText(matches domain.FinishedMatches) string {
 	var texts []string
-	for _, e := range matches {
+	for _, m := range matches {
 		//nolint
-		formatted := fmt.Sprintf("**%v \t%v - %v\t %v**", e.HomeName, e.HomeSetScore, e.AwaySetScore, e.AwayName)
+		formatted := fmt.Sprintf("**%v - %v**\t\t\tScore:\t||%v\t:\t%v||", m.HomeName, m.AwayName, m.HomeSetScore, m.AwaySetScore)
 		texts = append(texts, formatted)
 	}
 	return strings.Join(texts, "\n")
