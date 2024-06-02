@@ -4,6 +4,7 @@ import (
 	json2 "encoding/json"
 	"github.com/p10r/pedro/serve/domain"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -27,6 +28,16 @@ type Event struct {
 	HomeScoreCurrent string `json:"HOME_SCORE_CURRENT"`
 	AwayScoreCurrent string `json:"AWAY_SCORE_CURRENT"`
 	Stage            string `json:"STAGE"`
+	HomeSetPoints1   string `json:"HOME_SCORE_PART_1"`
+	HomeSetPoints2   string `json:"HOME_SCORE_PART_2"`
+	HomeSetPoints3   string `json:"HOME_SCORE_PART_3"`
+	HomeSetPoints4   string `json:"HOME_SCORE_PART_4"`
+	HomeSetPoints5   string `json:"HOME_SCORE_PART_5"`
+	AwaySetPoints1   string `json:"AWAY_SCORE_PART_1"`
+	AwaySetPoints2   string `json:"AWAY_SCORE_PART_2"`
+	AwaySetPoints3   string `json:"AWAY_SCORE_PART_3"`
+	AwaySetPoints4   string `json:"AWAY_SCORE_PART_4"`
+	AwaySetPoints5   string `json:"AWAY_SCORE_PART_5"`
 }
 
 func NewResponse(input io.ReadCloser) (Response, error) {
@@ -48,14 +59,19 @@ func (r Response) ToUntrackedMatches() domain.UntrackedMatches {
 		leagueName := leagueInfo[1]
 
 		for _, event := range league.Events {
+			home, _ := strconv.Atoi(event.HomeScoreCurrent)
+			away, _ := strconv.Atoi(event.AwayScoreCurrent)
+
 			match := domain.UntrackedMatch{
-				HomeName:       event.HomeName,
-				AwayName:       event.AwayName,
-				StartTime:      event.StartTime,
-				FlashscoreName: league.Name,
-				Country:        country,
-				League:         leagueName,
-				Stage:          event.Stage,
+				HomeName:         event.HomeName,
+				AwayName:         event.AwayName,
+				StartTime:        event.StartTime,
+				FlashscoreName:   league.Name,
+				Country:          country,
+				League:           leagueName,
+				Stage:            event.Stage,
+				HomeScoreCurrent: home,
+				AwayScoreCurrent: away,
 			}
 
 			matches = append(matches, match)

@@ -1,23 +1,13 @@
-package specifications_test
+package specifications
 
 import (
 	"context"
-	"encoding/json"
 	approvals "github.com/approvals/go-approval-tests"
 	"github.com/approvals/go-approval-tests/reporters"
-	"github.com/p10r/pedro/pkg/l"
-	"github.com/p10r/pedro/serve/db"
-	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/expect"
-	"github.com/p10r/pedro/serve/flashscore"
-	"github.com/p10r/pedro/serve/testutil"
-	"log/slog"
-	"net/http/httptest"
 	"os"
-	"sort"
 	"testing"
-	"time"
 )
 
 func TestMain(m *testing.M) {
@@ -26,54 +16,6 @@ func TestMain(m *testing.M) {
 
 	approvals.UseFolder("testdata")
 	os.Exit(m.Run())
-}
-
-type fixture struct {
-	flashscoreServer *httptest.Server
-	discordServer    *testutil.DiscordServer
-	importer         *domain.MatchImporter
-	store            *db.MatchStore
-}
-
-func newFixture(t *testing.T, favLeagues []string, runAgainstDiscord bool) fixture {
-	log := l.NewTextLogger().With(slog.String("app", "serve"))
-
-	apiKey := "random_api_key"
-	flashscoreServer := testutil.NewFlashscoreServer(t, apiKey)
-	fsClient := flashscore.NewClient(flashscoreServer.URL, apiKey, log)
-
-	discordServer := testutil.NewDiscordServer(t, log)
-
-	var discordClient *discord.Client
-	if runAgainstDiscord {
-		uri := os.Getenv("DISCORD_URI")
-		if uri == "" {
-			t.Fatalf("No DISCORD_URI set. Run direnv allow .")
-		}
-		discordClient = discord.NewClient(uri, log)
-	} else {
-		discordClient = discord.NewClient(discordServer.URL, log)
-	}
-
-	may28th := func() time.Time {
-		return time.Date(2024, 5, 28, 0, 0, 0, 0, time.UTC)
-	}
-
-	matchStore := db.NewMatchStore(testutil.MustOpenDB(t))
-	importer := domain.NewMatchImporter(
-		matchStore,
-		fsClient,
-		discordClient,
-		favLeagues,
-		may28th,
-		log,
-	)
-	return fixture{
-		flashscoreServer,
-		discordServer,
-		importer,
-		matchStore,
-	}
 }
 
 func TestImportMatches(t *testing.T) {
@@ -118,16 +60,8 @@ func TestImportMatches(t *testing.T) {
 		requests := *f.discordServer.Requests
 		expect.Len(t, requests, 1)
 
-		var msg discord.Message
-		err := json.Unmarshal(requests[0], &msg)
-		expect.NoErr(t, err)
-		msg = orderLeagues(msg)
-
-		marshal, err := json.MarshalIndent(msg, "", " ")
-		println(string(marshal))
-		expect.NoErr(t, err)
-
-		approvals.VerifyJSONBytes(t, marshal)
+		msg := newDiscordMessage(t, requests[0])
+		approvals.VerifyJSONBytes(t, prettyPrinted(t, msg))
 	})
 
 	// Make sure to:
@@ -140,18 +74,6 @@ func TestImportMatches(t *testing.T) {
 	})
 
 	//TODO sends to discord even if db is not available
-}
-
-// we order the leagues to make sure the output json has always the same structure
-func orderLeagues(msg discord.Message) discord.Message {
-	sort.Slice(msg.Embeds[0].Fields, func(i, j int) bool {
-		leagueName1 := msg.Embeds[0].Fields[i].Name
-		leagueName2 := msg.Embeds[0].Fields[j].Name
-
-		return len(leagueName1) < len(leagueName2)
-	})
-
-	return msg
 }
 
 //TODO test what happens if two matches with the same timestamp are in db

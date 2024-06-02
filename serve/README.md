@@ -54,3 +54,4 @@ formatted
 
 - use `"NAME_PART_1"` & `"NAME_PART_2"` from flashscore response for country/league struct
 - do ping on DB on startup
+- Add Emojis to high set scores

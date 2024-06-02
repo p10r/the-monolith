@@ -88,13 +88,15 @@ func TestFlashscore(t *testing.T) {
 
 		expected := domain.UntrackedMatches{
 			domain.UntrackedMatch{
-				HomeName:       "Berlin",
-				AwayName:       "Haching",
-				StartTime:      1234,
-				FlashscoreName: "Germany: 1. Bundesliga",
-				Country:        "Germany",
-				League:         "1. Bundesliga",
-				Stage:          "FINISHED",
+				HomeName:         "Berlin",
+				AwayName:         "Haching",
+				StartTime:        1234,
+				FlashscoreName:   "Germany: 1. Bundesliga",
+				Country:          "Germany",
+				League:           "1. Bundesliga",
+				Stage:            "FINISHED",
+				HomeScoreCurrent: 3,
+				AwayScoreCurrent: 1,
 			},
 		}
 

@@ -14,7 +14,8 @@ type Flashscore interface {
 }
 
 type Discord interface {
-	SendMessage(context.Context, Matches, time.Time) error
+	SendUpcomingMatches(context.Context, Matches, time.Time) error
+	SendFinishedMatches(context.Context, FinishedMatches, time.Time) error
 }
 
 type MatchImporter struct {
@@ -57,9 +58,9 @@ func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matc
 	importer.log.Info(fmt.Sprintf("%v matches coming up today", len(untrackedMatches)))
 
 	//TODO remove error, return empty slice
-	upcoming, err := untrackedMatches.FilterScheduled(importer.favLeagues)
-	if err != nil {
-		importer.log.Info(fmt.Sprintf("%v", err))
+	upcoming := untrackedMatches.FilterScheduled(importer.favLeagues)
+	if len(upcoming) == 0 {
+		importer.log.Info("No upcoming games today")
 		return Matches{}, nil
 	}
 
@@ -69,13 +70,35 @@ func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matc
 		return nil, err
 	}
 
-	err = importer.discord.SendMessage(ctx, trackedMatches, importer.clock())
+	err = importer.discord.SendUpcomingMatches(ctx, trackedMatches, importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
 		return nil, err
 	}
 
 	return trackedMatches, nil
+}
+
+func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error {
+	flashscoreMatches, err := importer.fetchAllMatches()
+	if err != nil {
+		importer.log.Error(l.Error("cannot fetch matches", err))
+		return err
+	}
+
+	finished := flashscoreMatches.FilterFinished(importer.favLeagues)
+	if len(finished) == 0 {
+		importer.log.Info("No finished games today")
+		return nil
+	}
+
+	err = importer.discord.SendFinishedMatches(ctx, finished, importer.clock())
+	if err != nil {
+		importer.log.Error(l.Error("send to discord error", err))
+		return err
+	}
+
+	return nil
 }
 
 func (importer *MatchImporter) fetchAllMatches() (UntrackedMatches, error) {

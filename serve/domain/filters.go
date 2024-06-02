@@ -1,42 +1,52 @@
 package domain
 
 import (
-	"errors"
 	"slices"
 	"strings"
 )
 
-var (
-	NoFavouriteGamesTodayErr = errors.New("no favourite matches today")
-	NoScheduledGamesTodayErr = errors.New("no scheduled matches today")
+type MatchStage = string
+
+const (
+	SCHEDULED MatchStage = "SCHEDULED"
+	FINISHED  MatchStage = "FINISHED"
 )
 
-func (matches UntrackedMatches) FilterScheduled(favs []string) (UntrackedMatches, error) {
-	scheduled := filter("SCHEDULED", matches)
+func (matches UntrackedMatches) FilterScheduled(favs []string) UntrackedMatches {
+	scheduled := filter(SCHEDULED, matches)
 	if len(scheduled) == 0 {
-		return nil, NoScheduledGamesTodayErr
+		return UntrackedMatches{}
 	}
 
 	filtered := filterFavourites(scheduled, favs) //TODO
 	if len(filtered) == 0 {
-		return nil, NoFavouriteGamesTodayErr
+		return UntrackedMatches{}
 	}
 
-	return filtered, nil
+	return filtered
 }
 
-func (matches UntrackedMatches) FilterFinished(favourites []string) (UntrackedMatches, error) {
-	scheduled := filter("FINISHED", matches)
+func (matches UntrackedMatches) FilterFinished(favourites []string) FinishedMatches {
+	scheduled := filter(FINISHED, matches)
 	if len(scheduled) == 0 {
-		return nil, NoScheduledGamesTodayErr
+		return FinishedMatches{}
 	}
 
 	filtered := filterFavourites(scheduled, favourites) //TODO
 	if len(filtered) == 0 {
-		return nil, NoFavouriteGamesTodayErr
+		return FinishedMatches{}
 	}
 
-	return filtered, nil
+	var finished FinishedMatches
+	for _, match := range filtered {
+		finished = append(finished, FinishedMatch{
+			match,
+			match.HomeScoreCurrent,
+			match.AwayScoreCurrent,
+		})
+	}
+
+	return finished
 }
 
 func filter(stage string, flashscoreMatches UntrackedMatches) UntrackedMatches {

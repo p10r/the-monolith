@@ -1,13 +1,15 @@
 package domain
 
 type UntrackedMatch struct {
-	HomeName       string
-	AwayName       string
-	StartTime      int64
-	FlashscoreName string // Country + League
-	Country        string
-	League         string
-	Stage          string //Scheduled, Finished TODO enum
+	HomeName         string
+	AwayName         string
+	StartTime        int64
+	FlashscoreName   string // Country + League
+	Country          string
+	League           string
+	Stage            string
+	HomeScoreCurrent int
+	AwayScoreCurrent int
 }
 
 type UntrackedMatches []UntrackedMatch
@@ -33,3 +35,11 @@ func NewMatch(id int64, match UntrackedMatch) Match {
 		League:    match.League,
 	}
 }
+
+type FinishedMatch struct {
+	UntrackedMatch
+	HomeSetScore int
+	AwaySetScore int
+}
+
+type FinishedMatches []FinishedMatch

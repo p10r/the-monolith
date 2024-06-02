@@ -14,9 +14,10 @@ import (
 )
 
 type Serve struct {
-	importer       *domain.MatchImporter
-	importSchedule string // CRON
-	log            *slog.Logger
+	importer               *domain.MatchImporter
+	importUpcomingSchedule string // CRON
+	importFinishedSchedule string
+	log                    *slog.Logger
 }
 
 // NewServeApp wires Serve App together.
@@ -26,7 +27,8 @@ func NewServeApp(
 	flashscoreUri, flashscoreApiKey, discordUri string,
 	favouriteLeagues []string,
 	logHandler slog.Handler,
-	importSchedule string,
+	importUpcomingSchedule string,
+	importFinishedSchedule string,
 ) *Serve {
 	log := l.NewAppLogger(logHandler, "serve")
 
@@ -56,15 +58,30 @@ func NewServeApp(
 		log,
 	)
 
-	return &Serve{importer, importSchedule, log}
+	return &Serve{
+		importer,
+		importUpcomingSchedule,
+		importFinishedSchedule,
+		log,
+	}
 }
 
-func (s *Serve) Start(ctx context.Context) {
+func (s *Serve) StartBackgroundJobs(ctx context.Context) {
 	c := cron.New()
-	_, err := c.AddFunc(s.importSchedule, func() {
+	_, err := c.AddFunc(s.importUpcomingSchedule, func() {
 		_, err := s.importer.ImportScheduledMatches(ctx)
 		if err != nil {
-			s.log.Error(l.Error("serve run failed", err))
+			s.log.Error(l.Error("serve import scheduled failed", err))
+		}
+	})
+	if err != nil {
+		s.log.Error(l.Error("serve run failed", err))
+	}
+
+	_, err = c.AddFunc(s.importFinishedSchedule, func() {
+		err = s.importer.ImportFinishedMatches(ctx)
+		if err != nil {
+			s.log.Error(l.Error("serve import finished failed", err))
 		}
 	})
 	if err != nil {

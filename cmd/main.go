@@ -20,7 +20,8 @@ type Config struct {
 	DiscordUri       string  `env:"DISCORD_URI"`
 }
 
-const serveImportSchedule = "0 6 * * *"
+const serveImportUpcomingSchedule = "0 6 * * *"
+const serveImportFinishedSchedule = "0 20 * * *"
 const flashscoreUri = "https://flashscore.p.rapidapi.com"
 
 var favouriteLeagues = []string{
@@ -98,9 +99,10 @@ func main() {
 		cfg.DiscordUri,
 		favouriteLeagues,
 		jsonLogHandler,
-		serveImportSchedule,
+		serveImportUpcomingSchedule,
+		serveImportFinishedSchedule,
 	)
 
 	go pedroApp.Start()
-	serveApp.Start(ctx)
+	serveApp.StartBackgroundJobs(ctx)
 }

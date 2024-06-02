@@ -34,17 +34,59 @@ func NewClient(fullUrl string, log *slog.Logger) *Client {
 		},
 	}
 	retries := 5
-	l := log.With(slog.String("adapter", "discord"))
+	dl := log.With(slog.String("adapter", "discord"))
 
-	return &Client{c, fullUrl, l, retries}
+	return &Client{c, fullUrl, dl, retries}
 }
 
-func (c *Client) SendMessage(
+func (c *Client) SendUpcomingMatches(
 	_ context.Context,
 	matches domain.Matches,
 	now time.Time,
 ) error {
-	msg := NewMessage(matches, now)
+	msg := NewUpcomingMatchesMsg(matches, now)
+
+	payload, err := json.Marshal(msg)
+	if err != nil {
+		c.log.Error(l.Error("cannot marshal discord message", err))
+		return err
+	}
+
+	var res *http.Response
+	for c.retries > 0 {
+		res, err = http.Post(c.fullUrl, "application/json", bytes.NewBuffer(payload))
+		if err != nil {
+			c.log.Error(l.Error("cannot send discord message", err))
+			c.retries -= 1
+		} else {
+			break
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		c.log.Error(l.Error("discord res was nil", err))
+		return fmt.Errorf("discord res was nil")
+	}
+
+	if res.StatusCode != http.StatusNoContent {
+		c.log.Error(l.Error("req failed with status code", err))
+		return fmt.Errorf("request failed with status code: %v", res.StatusCode)
+	}
+
+	//TODO send response for error handling
+	return nil
+}
+
+func (c *Client) SendFinishedMatches(
+	_ context.Context,
+	matches domain.FinishedMatches,
+	now time.Time,
+) error {
+	msg := NewFinishedMatchesMsg(matches, now)
 
 	payload, err := json.Marshal(msg)
 	if err != nil {
