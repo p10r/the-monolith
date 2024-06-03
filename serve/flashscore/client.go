@@ -38,7 +38,7 @@ func NewClient(baseUri, apiKey string, log *slog.Logger) *Client {
 }
 
 func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
-	url := c.baseUri + "/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=0"
+	url := c.baseUri + "/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=-1"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		c.log.Info("Error creating request:", err)

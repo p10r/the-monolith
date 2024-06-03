@@ -55,14 +55,14 @@ func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matc
 		return nil, err
 	}
 
-	importer.log.Info(fmt.Sprintf("%v matches coming up today", len(untrackedMatches)))
-
 	//TODO remove error, return empty slice
 	upcoming := untrackedMatches.FilterScheduled(importer.favLeagues)
 	if len(upcoming) == 0 {
 		importer.log.Info("No upcoming games today")
 		return Matches{}, nil
 	}
+
+	importer.log.Info(fmt.Sprintf("%v matches coming up today", len(upcoming)))
 
 	trackedMatches, err := importer.storeUntrackedMatches(ctx, upcoming)
 	if err != nil {
