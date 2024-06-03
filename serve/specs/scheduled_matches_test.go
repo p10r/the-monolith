@@ -22,7 +22,7 @@ func TestImportMatches(t *testing.T) {
 	ctx := context.TODO()
 	favs := []string{"Europe: Champions League - Play Offs", "USA: PVF Women"}
 
-	f := newFixture(t, favs, false)
+	f := newFixture(t, favs, false, false)
 	defer f.flashscoreServer.Close()
 	defer f.discordServer.Close()
 
@@ -63,17 +63,6 @@ func TestImportMatches(t *testing.T) {
 		msg := newDiscordMessage(t, requests[0])
 		approvals.VerifyJSONBytes(t, prettyPrinted(t, msg))
 	})
-
-	// Make sure to:
-	// 1. remove t.Skip()
-	// 2. direnv allow . && go test specs/scheduled_matches_test.go
-	t.Run("run against real discord", func(t *testing.T) {
-		t.Skip()
-
-		_, _ = newFixture(t, favs, true).importer.ImportScheduledMatches(ctx)
-	})
-
-	//TODO sends to discord even if db is not available
 }
 
 //TODO test what happens if two matches with the same timestamp are in db

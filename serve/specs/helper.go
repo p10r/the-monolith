@@ -2,8 +2,8 @@ package specifications
 
 import (
 	"encoding/json"
-	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/serve/discord"
+	"github.com/p10r/pedro/serve/expect"
 	"sort"
 	"testing"
 )

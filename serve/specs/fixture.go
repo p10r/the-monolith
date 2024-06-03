@@ -21,15 +21,31 @@ type fixture struct {
 	store            *db.MatchStore
 }
 
-func newFixture(t *testing.T, favLeagues []string, runAgainstDiscord bool) fixture {
+func newFixture(
+	t *testing.T,
+	favLeagues []string,
+	runAgainstDiscord bool,
+	runAgainstFlashscore bool,
+) fixture {
 	log := l.NewTextLogger().With(slog.String("app", "serve"))
 
 	apiKey := "random_api_key"
-	flashscoreServer := testutil.NewFlashscoreServer(t, apiKey)
-	fsClient := flashscore.NewClient(flashscoreServer.URL, apiKey, log)
 
-	discordServer := testutil.NewDiscordServer(t, log)
+	var flashscoreServer *httptest.Server
+	var fsClient *flashscore.Client
+	if runAgainstFlashscore {
+		key := os.Getenv("FLASHSCORE_API_KEY")
+		if key == "" {
+			t.Fatalf("No FLASHSCORE_API_KEY set. Run direnv allow .")
+		}
 
+		fsClient = flashscore.NewClient("https://flashscore.p.rapidapi.com", key, log)
+	} else {
+		flashscoreServer = testutil.NewFlashscoreServer(t, apiKey)
+		fsClient = flashscore.NewClient(flashscoreServer.URL, apiKey, log)
+	}
+
+	var discordServer *testutil.DiscordServer
 	var discordClient *discord.Client
 	if runAgainstDiscord {
 		uri := os.Getenv("DISCORD_URI")
@@ -38,6 +54,7 @@ func newFixture(t *testing.T, favLeagues []string, runAgainstDiscord bool) fixtu
 		}
 		discordClient = discord.NewClient(uri, log)
 	} else {
+		discordServer = testutil.NewDiscordServer(t, log)
 		discordClient = discord.NewClient(discordServer.URL, log)
 	}
 

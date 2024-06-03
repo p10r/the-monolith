@@ -10,7 +10,7 @@ import (
 func TestFinishedMatches(t *testing.T) {
 	ctx := context.TODO()
 	favs := []string{"Europe: Champions League Women - Play Offs"}
-	f := newFixture(t, favs, false)
+	f := newFixture(t, favs, false, false)
 	defer f.flashscoreServer.Close()
 	defer f.discordServer.Close()
 
@@ -27,14 +27,5 @@ func TestFinishedMatches(t *testing.T) {
 
 	t.Run("gets statistics from volleystation", func(t *testing.T) {
 
-	})
-
-	// Make sure to:
-	// 1. remove t.Skip()
-	// 2. direnv allow . && go test serve/specs/finished_matches_test.go
-	t.Run("run against real discord", func(t *testing.T) {
-		t.Skip()
-
-		_ = newFixture(t, favs, true).importer.ImportFinishedMatches(ctx)
 	})
 }
