@@ -7,16 +7,18 @@ import (
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pedro/ra"
 	"github.com/p10r/pedro/pkg/l"
+	"github.com/p10r/pedro/pkg/sqlite"
 	"testing"
 	"time"
 )
 
-func NewInMemoryArtistRegistry(
+func NewArtistRegistry(
 	t *testing.T,
 	raArtists ra.ArtistStore,
 	now func() time.Time,
 ) *domain.ArtistRegistry {
-	repo := db.NewInMemoryArtistRepository()
+	conn := sqlite.MustOpenDB(t)
+	repo := db.NewSqliteArtistRepository(conn)
 	raClient := ra.NewInMemoryClient(t, raArtists)
 	log := l.NewTextLogger()
 	return domain.NewArtistRegistry(repo, raClient, now, log)
@@ -29,7 +31,7 @@ func TestArtistRegistry(t *testing.T) {
 	}
 
 	t.Run("lists all artists", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -75,7 +77,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows an artist from resident advisor", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"daftpunk": {
 					Artist:     ra.Artist{RAID: "111", Name: "Daft Punk"},
@@ -103,7 +105,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("doesn't add artist if already added", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -132,7 +134,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("returns error if artist can't be found on RA", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{},
 			now,
 		)
@@ -144,7 +146,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows new artist as user", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -181,7 +183,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("ignores follow if already following", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -208,7 +210,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("follows existing artist", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -235,7 +237,7 @@ func TestArtistRegistry(t *testing.T) {
 	})
 
 	t.Run("fetches all events for artist in the next month", func(t *testing.T) {
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -307,7 +309,7 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		}
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},
@@ -383,7 +385,7 @@ func TestArtistRegistry(t *testing.T) {
 				},
 			},
 		}
-		registry := NewInMemoryArtistRegistry(t,
+		registry := NewArtistRegistry(t,
 			ra.ArtistStore{
 				"boysnoize": {
 					Artist:     ra.Artist{RAID: "943", Name: "Boys Noize"},

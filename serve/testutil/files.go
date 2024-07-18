@@ -2,7 +2,6 @@ package testutil
 
 import (
 	json2 "encoding/json"
-	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/flashscore"
 	"os"
@@ -35,19 +34,4 @@ func UntrackedMatches(tb testing.TB) domain.UntrackedMatches {
 	}
 
 	return res.ToUntrackedMatches()
-}
-
-// MustOpenDB returns a new, open DB. Fatal on error.
-func MustOpenDB(tb testing.TB) *sqlite.DB {
-	tb.Helper()
-
-	// Write to an in-memory database by default.
-	// If the -dump flag is set, generate a temp file for the database.
-	dsn := ":memory:"
-
-	instance := sqlite.NewDB(dsn)
-	if err := instance.Open(); err != nil {
-		tb.Fatal(err)
-	}
-	return instance
 }

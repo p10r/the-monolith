@@ -2,6 +2,7 @@ package specifications
 
 import (
 	"github.com/p10r/pedro/pkg/l"
+	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve/db"
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
@@ -62,7 +63,7 @@ func newFixture(
 		return time.Date(2024, 5, 28, 0, 0, 0, 0, time.UTC)
 	}
 
-	matchStore := db.NewMatchStore(testutil.MustOpenDB(t))
+	matchStore := db.NewMatchStore(sqlite.MustOpenDB(t))
 	importer := domain.NewMatchImporter(
 		matchStore,
 		fsClient,

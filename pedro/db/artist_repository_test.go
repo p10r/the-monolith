@@ -1,26 +1,115 @@
 package db
 
 import (
+	"context"
 	d "github.com/p10r/pedro/pedro/domain"
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"testing"
 )
 
-func TestInMemoryArtistRepository(t *testing.T) {
-	t.Run("verify contract for in-memory repo", func(t *testing.T) {
-		d.ArtistRepositoryContract{NewRepository: func() d.ArtistRepository {
-			return NewInMemoryArtistRepository()
-		}}.Test(t)
-	})
+func NewRepository(t *testing.T) *SqliteArtistRepository {
+	conn := sqlite.MustOpenDB(t)
+	return NewSqliteArtistRepository(conn)
 }
 
 func TestSqliteArtistRepository(t *testing.T) {
-	t.Run("verify contract for sqlite db", func(t *testing.T) {
-		d.ArtistRepositoryContract{NewRepository: func() d.ArtistRepository {
-			repo := NewSqliteArtistRepository(MustOpenDB(t))
-			return repo
-		}}.Test(t)
+	ctx := context.Background()
+
+	t.Run("adds artist", func(t *testing.T) {
+		r := NewRepository(t)
+		artist := d.Artist{
+			RAID:          "943",
+			RASlug:        "boysnoize",
+			Name:          "Boys Noize",
+			FollowedBy:    d.UserIDs{d.UserID(1)},
+			TrackedEvents: d.EventIDs{d.EventID(1)},
+		}
+		_, err := r.Save(ctx, artist)
+		expect.NoErr(t, err)
+
+		want := d.Artists{
+			d.Artist{
+				ID:            1,
+				RAID:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    d.UserIDs{d.UserID(1)},
+				TrackedEvents: d.EventIDs{d.EventID(1)},
+			},
+		}
+		got, err := r.All(ctx)
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, got, want)
+	})
+
+	t.Run("updates artist", func(t *testing.T) {
+		r := NewRepository(t)
+
+		artist := d.Artist{
+			RAID:          "943",
+			RASlug:        "boysnoize",
+			Name:          "Boys Noize",
+			FollowedBy:    d.UserIDs{d.UserID(1)},
+			TrackedEvents: d.EventIDs{},
+		}
+		first, err := r.Save(ctx, artist)
+		expect.NoErr(t, err)
+
+		first.FollowedBy = d.UserIDs{d.UserID(1), d.UserID(2)}
+		_, err = r.Save(ctx, first)
+		expect.NoErr(t, err)
+
+		want := d.Artists{
+			d.Artist{
+				ID:            1,
+				RAID:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    d.UserIDs{d.UserID(1), d.UserID(2)},
+				TrackedEvents: d.EventIDs{},
+			},
+		}
+
+		got, err := r.All(ctx)
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, got, want)
+	})
+
+	t.Run("updates events", func(t *testing.T) {
+		r := NewRepository(t)
+
+		artist := d.Artist{
+			RAID:          "943",
+			RASlug:        "boysnoize",
+			Name:          "Boys Noize",
+			FollowedBy:    d.UserIDs{},
+			TrackedEvents: d.EventIDs{d.EventID(1)},
+		}
+		first, err := r.Save(ctx, artist)
+		expect.NoErr(t, err)
+
+		first.TrackedEvents = d.EventIDs{d.EventID(1), d.EventID(2)}
+		_, err = r.Save(ctx, first)
+		expect.NoErr(t, err)
+
+		want := d.Artists{
+			d.Artist{
+				ID:            1,
+				RAID:          "943",
+				RASlug:        "boysnoize",
+				Name:          "Boys Noize",
+				FollowedBy:    d.UserIDs{},
+				TrackedEvents: d.EventIDs{d.EventID(1), d.EventID(2)},
+			},
+		}
+
+		got, err := r.All(ctx)
+
+		expect.NoErr(t, err)
+		expect.DeepEqual(t, got, want)
 	})
 
 	//same is being mapped for domain.EventIDs
@@ -65,26 +154,4 @@ func TestSqliteArtistRepository(t *testing.T) {
 			expect.DeepEqual(t, tc.Input.toUserIds(), tc.Want)
 		}
 	})
-}
-
-// MustOpenDB returns a new, open DB. Fatal on error.
-func MustOpenDB(tb testing.TB) *sqlite.DB {
-	tb.Helper()
-
-	// Write to an in-memory database by default.
-	// If the -dump flag is set, generate a temp file for the database.
-	dsn := ":memory:"
-	db := sqlite.NewDB(dsn)
-	if err := db.Open(); err != nil {
-		tb.Fatal(err)
-	}
-	return db
-}
-
-// MustCloseDB closes the DB. Fatal on error.
-func MustCloseDB(tb testing.TB, db *sqlite.DB) {
-	tb.Helper()
-	if err := db.Close(); err != nil {
-		tb.Fatal(err)
-	}
 }
