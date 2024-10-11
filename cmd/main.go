@@ -65,6 +65,7 @@ var favouriteLeagues = []string{
 	"Europe: CEV Cup",
 	"Europe: European Championships Women",
 	"Europe: European Championships",
+	"JAPAN: SV.League",
 }
 
 func main() {

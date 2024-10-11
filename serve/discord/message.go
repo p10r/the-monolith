@@ -119,6 +119,9 @@ func flag(leagueName string) string {
 	if strings.Contains(leagueName, "USA") {
 		return "🇺🇸"
 	}
+	if strings.Contains(leagueName, "Japan") {
+		return "🇯🇵"
+	}
 	return ""
 }
 
