@@ -1,22 +1,26 @@
 package giftbox
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/p10r/pedro/pkg/sqlite"
 	"log"
 	"net/http"
-	"sync"
 )
 
 func NewServer(
-	store *sync.Map,
+	conn *sqlite.DB,
 	newUUID func() (string, error),
 ) http.Handler {
+	repo := NewGiftRepository(conn)
+
 	mux := http.NewServeMux()
-	mux.Handle("POST /gifts/sweets", panicMiddleware(handleAddSweet(store, newUUID)))
-	mux.Handle("POST /gifts/redeem", panicMiddleware(handleRedeemGift(store)))
-	return mux
+	mux.Handle("POST /gifts/sweets", handleAddSweet(repo, newUUID))
+	mux.Handle("POST /gifts/redeem", handleRedeemGift(repo))
+	return panicMiddleware(mux)
 }
 
+type Gifts []Gift
 type Gift struct {
 	ID       string
 	Type     string
@@ -27,7 +31,10 @@ type GiftAddedRes struct {
 	ID string `json:"id"`
 }
 
-func handleAddSweet(store *sync.Map, newUUID func() (string, error)) http.HandlerFunc {
+func handleAddSweet(
+	repo *GiftRepository,
+	newUUID func() (string, error),
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := newUUID()
 		if err != nil {
@@ -35,7 +42,14 @@ func handleAddSweet(store *sync.Map, newUUID func() (string, error)) http.Handle
 			return
 		}
 
-		store.Store(id, Gift{ID: id, Type: "SWEET", Redeemed: false})
+		gift := Gift{ID: id, Type: "SWEET", Redeemed: false}
+
+		err = repo.Save(context.Background(), gift)
+		if err != nil {
+			log.Printf("err when writing to db: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
@@ -45,29 +59,44 @@ func handleAddSweet(store *sync.Map, newUUID func() (string, error)) http.Handle
 	}
 }
 
-func handleRedeemGift(store *sync.Map) http.HandlerFunc {
+func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("pling")
-		giftID := r.URL.Query().Get("id")
-		if giftID == "" {
+		reqId := r.URL.Query().Get("id")
+		if reqId == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		v, ok := store.Load(giftID)
+		gifts, err := repo.All(context.Background())
+		if err != nil {
+			return
+		}
+
+		giftsByID := make(map[string]Gift)
+		for _, gift := range gifts {
+			giftsByID[gift.ID] = gift
+		}
+
+		gift, ok := giftsByID[reqId]
 		if !ok {
+			log.Printf("gift %s could not be found in db", reqId)
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		entry := v.(Gift)
-		if entry.Redeemed {
+		if gift.Redeemed {
+			log.Printf("gift %s is already redeemed", gift.ID)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		entry.Redeemed = true
-		store.Store(entry.ID, entry)
+		_, err = repo.SetRedeemedFlag(context.Background(), gift.ID, true)
+		if err != nil {
+			log.Printf("err when writing to db: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		w.WriteHeader(http.StatusOK)
 	}
