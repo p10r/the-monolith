@@ -41,7 +41,6 @@ func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 	url := c.baseUri + "/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=0"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		c.log.Info("Error creating request:", err)
 		return domain.UntrackedMatches{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
