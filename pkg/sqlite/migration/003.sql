@@ -4,6 +4,6 @@ CREATE TABLE gifts
     lookup_id TEXT    NOT NULL,
     gift_type TEXT    NOT NULL,
     redeemed  INTEGER NOT NULL,
-    json      TEXT    NOT NULL
+    img_url    TEXT    NOT NULL
 );
 

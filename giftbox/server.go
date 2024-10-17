@@ -15,9 +15,12 @@ func NewServer(
 	repo := NewGiftRepository(conn)
 
 	mux := http.NewServeMux()
+	// TODO add uuid in separate middleware
 	mux.Handle("POST /gifts/sweets", handleAddSweet(repo, newUUID))
 	mux.Handle("POST /gifts/wishes", handleAddWish(repo, newUUID))
-	mux.Handle("POST /gifts/redeem", handleRedeemGift(repo))
+	mux.Handle("POST /gifts/images", handleAddImage(repo, newUUID))
+	// Using a GET here as it's called via QR code
+	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo))
 	return panicMiddleware(mux)
 }
 
@@ -37,12 +40,15 @@ type GiftType string
 const (
 	TypeSweet GiftType = "SWEET"
 	TypeWish  GiftType = "WISH"
+	TypeImage GiftType = "IMAGE"
 )
 
 type Gift struct {
 	ID       string
 	Type     GiftType
 	Redeemed bool
+	// Only set for type "IMAGE". Might be moved to a separate struct later
+	ImageUrl string
 }
 
 type GiftAddedRes struct {
@@ -105,6 +111,40 @@ func handleAddWish(
 	}
 }
 
+func handleAddImage(
+	repo *GiftRepository,
+	newUUID func() (string, error),
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		imgUrl := r.URL.Query().Get("url")
+		if imgUrl == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		id, err := newUUID()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		gift := Gift{ID: id, Type: TypeImage, Redeemed: false, ImageUrl: imgUrl}
+
+		err = repo.Save(context.Background(), gift)
+		if err != nil {
+			log.Printf("err when writing to db: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		res := GiftAddedRes{ID: id}
+		//nolint:errcheck
+		json.NewEncoder(w).Encode(res)
+	}
+}
+
 func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqId := r.URL.Query().Get("id")
@@ -115,6 +155,8 @@ func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 
 		gifts, err := repo.All(context.Background())
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 
@@ -135,6 +177,12 @@ func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 		if err != nil {
 			log.Printf("err when writing to db: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if gift.Type == TypeImage {
+			w.Header().Set("Location", gift.ImageUrl)
+			w.WriteHeader(http.StatusSeeOther)
 			return
 		}
 

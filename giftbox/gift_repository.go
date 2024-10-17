@@ -2,6 +2,7 @@ package giftbox
 
 import (
 	"context"
+	"fmt"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"log"
 )
@@ -21,7 +22,7 @@ type dbEntity struct {
 	giftType string
 	// Either 0 or 1. Sqlite doesn't have a bool type
 	redeemed int
-	json     string
+	imgUrl   string
 }
 
 func (r *GiftRepository) Save(ctx context.Context, gift Gift) error {
@@ -37,8 +38,8 @@ func (r *GiftRepository) Save(ctx context.Context, gift Gift) error {
 		lookup_id,
 		gift_type,
 		redeemed,
-		json
-	) VALUES (?,?,?,?)`, gift.ID, gift.Type, gift.Redeemed, "{}")
+		img_url
+	) VALUES (?,?,?,?)`, gift.ID, gift.Type, gift.Redeemed, gift.ImageUrl)
 	if err != nil {
 		return err
 	}
@@ -66,7 +67,7 @@ func (r *GiftRepository) All(ctx context.Context) (Gifts, error) {
 			lookup_id,
 			gift_type,
 			redeemed,
-			json
+			img_url
 		FROM gifts 
 		ORDER BY id`)
 	if err != nil {
@@ -82,13 +83,18 @@ func (r *GiftRepository) All(ctx context.Context) (Gifts, error) {
 			&e.lookupId,
 			&e.giftType,
 			&e.redeemed,
-			&e.json,
+			&e.imgUrl,
 		)
 		if err != nil {
 			return Gifts{}, err
 		}
 
-		gifts = append(gifts, e.toGift())
+		gift, err := e.toGift()
+		if err != nil {
+			return Gifts{}, err
+		}
+
+		gifts = append(gifts, gift)
 	}
 	if err := rows.Err(); err != nil {
 		return Gifts{}, err
@@ -97,7 +103,7 @@ func (r *GiftRepository) All(ctx context.Context) (Gifts, error) {
 	return gifts, err
 }
 
-func (e dbEntity) toGift() Gift {
+func (e dbEntity) toGift() (Gift, error) {
 	var redeemed bool
 	if e.redeemed == 0 {
 		redeemed = false
@@ -111,14 +117,19 @@ func (e dbEntity) toGift() Gift {
 		giftType = TypeSweet
 	case string(TypeWish):
 		giftType = TypeWish
+	case string(TypeImage):
+		giftType = TypeImage
+	default:
+		return Gift{}, fmt.Errorf("unknown gift type %v", e.giftType)
 	}
 
 	g := Gift{
 		ID:       e.lookupId,
 		Type:     giftType,
 		Redeemed: redeemed,
+		ImageUrl: e.imgUrl,
 	}
-	return g
+	return g, nil
 }
 
 func (r *GiftRepository) SetRedeemedFlag(

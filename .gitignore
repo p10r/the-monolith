@@ -63,3 +63,5 @@ go.work
 .envrc
 local/
 prod/
+
+.idea/httpRequests

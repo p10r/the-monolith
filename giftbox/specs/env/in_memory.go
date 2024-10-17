@@ -7,6 +7,7 @@ import (
 	"github.com/p10r/pedro/pkg/sqlite"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"sync/atomic"
 	"testing"
 )
@@ -67,8 +68,17 @@ func (env *InMemory) AddWish() *httptest.ResponseRecorder {
 	return w
 }
 
+func (env *InMemory) AddImage(imageUrl string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest("POST", "/gifts/images?url="+url.QueryEscape(imageUrl), nil)
+	w := httptest.NewRecorder()
+
+	env.Server.ServeHTTP(w, req)
+
+	return w
+}
+
 func (env *InMemory) RedeemGift(id string) *httptest.ResponseRecorder {
-	req := httptest.NewRequest("POST", "/gifts/redeem?id="+id, nil)
+	req := httptest.NewRequest("GET", "/gifts/redeem?id="+id, nil)
 	w := httptest.NewRecorder()
 
 	env.Server.ServeHTTP(w, req)

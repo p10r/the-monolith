@@ -39,6 +39,25 @@ func TestAddGift(t *testing.T) {
 		assert.Equal(t, giftbox.TypeWish, gift.Type)
 	})
 
+	t.Run("adds an image", func(t *testing.T) {
+		server := env.NewInMemoryEnv(t, int32(0))
+		defer sqlite.MustCloseDB(t, server.DB)
+
+		url := "https://example.com"
+		res := server.AddImage(url)
+		assert.Equal(t, http.StatusCreated, res.Code)
+		assert.Equal(t, `{"id":"1"}`, strings.TrimSpace(res.Body.String()))
+
+		expected := giftbox.Gift{
+			ID:       "1",
+			Type:     giftbox.TypeImage,
+			Redeemed: false,
+			ImageUrl: url,
+		}
+		actual, _ := server.FindInDB(t, "1")
+		assert.Equal(t, expected, actual)
+	})
+
 	t.Run("redeems gifts", func(t *testing.T) {
 		server := env.NewInMemoryEnv(t, int32(0))
 		defer sqlite.MustCloseDB(t, server.DB)
@@ -52,6 +71,21 @@ func TestAddGift(t *testing.T) {
 		server.RedeemGift("2")
 		value, _ = server.FindInDB(t, "2")
 		assert.Equal(t, giftbox.Gift{ID: "2", Type: giftbox.TypeWish, Redeemed: true}, value)
+
+		url := "https://example.com"
+		server.AddImage(url)
+		res := server.RedeemGift("3")
+		assert.Equal(t, http.StatusSeeOther, res.Code)
+		assert.Equal(t, url, res.Result().Header.Get("Location"))
+
+		value, _ = server.FindInDB(t, "3")
+		expected := giftbox.Gift{
+			ID:       "3",
+			Type:     giftbox.TypeImage,
+			Redeemed: true,
+			ImageUrl: url,
+		}
+		assert.Equal(t, expected, value)
 	})
 
 	t.Run("blocks redeeming a gift twice", func(t *testing.T) {
