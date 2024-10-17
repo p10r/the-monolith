@@ -16,6 +16,7 @@ func NewServer(
 
 	mux := http.NewServeMux()
 	mux.Handle("POST /gifts/sweets", handleAddSweet(repo, newUUID))
+	mux.Handle("POST /gifts/wishes", handleAddWish(repo, newUUID))
 	mux.Handle("POST /gifts/redeem", handleRedeemGift(repo))
 	return panicMiddleware(mux)
 }
@@ -59,7 +60,35 @@ func handleAddSweet(
 			return
 		}
 
-		gift := Gift{ID: id, Type: "SWEET", Redeemed: false}
+		gift := Gift{ID: id, Type: TypeSweet, Redeemed: false}
+
+		err = repo.Save(context.Background(), gift)
+		if err != nil {
+			log.Printf("err when writing to db: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		res := GiftAddedRes{ID: id}
+		//nolint:errcheck
+		json.NewEncoder(w).Encode(res)
+	}
+}
+
+func handleAddWish(
+	repo *GiftRepository,
+	newUUID func() (string, error),
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := newUUID()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		gift := Gift{ID: id, Type: TypeWish, Redeemed: false}
 
 		err = repo.Save(context.Background(), gift)
 		if err != nil {
@@ -78,7 +107,6 @@ func handleAddSweet(
 
 func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("pling")
 		reqId := r.URL.Query().Get("id")
 		if reqId == "" {
 			w.WriteHeader(http.StatusBadRequest)

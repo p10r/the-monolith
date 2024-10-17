@@ -11,6 +11,8 @@ import (
 )
 
 func TestAddGift(t *testing.T) {
+	t.Parallel()
+
 	t.Run("adds a sweet", func(t *testing.T) {
 		server := env.NewInMemoryEnv(t, int32(0))
 		defer sqlite.MustCloseDB(t, server.DB)
@@ -19,11 +21,25 @@ func TestAddGift(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, res.Code)
 		assert.Equal(t, `{"id":"1"}`, strings.TrimSpace(res.Body.String()))
 
-		_, ok := server.FindInDB(t, "1")
+		gift, ok := server.FindInDB(t, "1")
 		assert.True(t, ok)
+		assert.Equal(t, giftbox.TypeSweet, gift.Type)
 	})
 
-	t.Run("redeems sweet", func(t *testing.T) {
+	t.Run("adds a wish", func(t *testing.T) {
+		server := env.NewInMemoryEnv(t, int32(0))
+		defer sqlite.MustCloseDB(t, server.DB)
+
+		res := server.AddWish()
+		assert.Equal(t, http.StatusCreated, res.Code)
+		assert.Equal(t, `{"id":"1"}`, strings.TrimSpace(res.Body.String()))
+
+		gift, ok := server.FindInDB(t, "1")
+		assert.True(t, ok)
+		assert.Equal(t, giftbox.TypeWish, gift.Type)
+	})
+
+	t.Run("redeems gifts", func(t *testing.T) {
 		server := env.NewInMemoryEnv(t, int32(0))
 		defer sqlite.MustCloseDB(t, server.DB)
 
@@ -31,8 +47,17 @@ func TestAddGift(t *testing.T) {
 		res := server.RedeemGift("1")
 		assert.Equal(t, http.StatusOK, res.Code)
 
+		server.AddWish()
+		res = server.RedeemGift("2")
+		assert.Equal(t, http.StatusOK, res.Code)
+
 		expected := giftbox.Gift{ID: "1", Type: "SWEET", Redeemed: true}
 		value, ok := server.FindInDB(t, "1")
+		assert.True(t, ok)
+		assert.Equal(t, expected, value)
+
+		expected = giftbox.Gift{ID: "2", Type: "WISH", Redeemed: true}
+		value, ok = server.FindInDB(t, "2")
 		assert.True(t, ok)
 		assert.Equal(t, expected, value)
 	})

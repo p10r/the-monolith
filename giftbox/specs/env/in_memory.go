@@ -58,6 +58,15 @@ func (env *InMemory) AddSweet() *httptest.ResponseRecorder {
 	return w
 }
 
+func (env *InMemory) AddWish() *httptest.ResponseRecorder {
+	req := httptest.NewRequest("POST", "/gifts/wishes", nil)
+	w := httptest.NewRecorder()
+
+	env.Server.ServeHTTP(w, req)
+
+	return w
+}
+
 func (env *InMemory) RedeemGift(id string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", "/gifts/redeem?id="+id, nil)
 	w := httptest.NewRecorder()
