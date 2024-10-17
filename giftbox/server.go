@@ -21,6 +21,16 @@ func NewServer(
 }
 
 type Gifts []Gift
+
+func (g Gifts) findByID(reqId string) (Gift, bool) {
+	giftsByID := make(map[string]Gift)
+	for _, gift := range g {
+		giftsByID[gift.ID] = gift
+	}
+	gift, ok := giftsByID[reqId]
+	return gift, ok
+}
+
 type Gift struct {
 	ID       string
 	Type     string
@@ -73,12 +83,7 @@ func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 			return
 		}
 
-		giftsByID := make(map[string]Gift)
-		for _, gift := range gifts {
-			giftsByID[gift.ID] = gift
-		}
-
-		gift, ok := giftsByID[reqId]
+		gift, ok := gifts.findByID(reqId)
 		if !ok {
 			log.Printf("gift %s could not be found in db", reqId)
 			w.WriteHeader(http.StatusNotFound)
