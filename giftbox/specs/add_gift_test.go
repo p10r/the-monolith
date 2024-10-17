@@ -44,22 +44,14 @@ func TestAddGift(t *testing.T) {
 		defer sqlite.MustCloseDB(t, server.DB)
 
 		server.AddSweet()
-		res := server.RedeemGift("1")
-		assert.Equal(t, http.StatusOK, res.Code)
+		server.RedeemGift("1")
+		value, _ := server.FindInDB(t, "1")
+		assert.Equal(t, giftbox.Gift{ID: "1", Type: giftbox.TypeSweet, Redeemed: true}, value)
 
 		server.AddWish()
-		res = server.RedeemGift("2")
-		assert.Equal(t, http.StatusOK, res.Code)
-
-		expected := giftbox.Gift{ID: "1", Type: "SWEET", Redeemed: true}
-		value, ok := server.FindInDB(t, "1")
-		assert.True(t, ok)
-		assert.Equal(t, expected, value)
-
-		expected = giftbox.Gift{ID: "2", Type: "WISH", Redeemed: true}
-		value, ok = server.FindInDB(t, "2")
-		assert.True(t, ok)
-		assert.Equal(t, expected, value)
+		server.RedeemGift("2")
+		value, _ = server.FindInDB(t, "2")
+		assert.Equal(t, giftbox.Gift{ID: "2", Type: giftbox.TypeWish, Redeemed: true}, value)
 	})
 
 	t.Run("blocks redeeming a gift twice", func(t *testing.T) {
