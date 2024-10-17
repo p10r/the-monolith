@@ -88,27 +88,37 @@ func (r *GiftRepository) All(ctx context.Context) (Gifts, error) {
 			return Gifts{}, err
 		}
 
-		// map entity to domain
-		var redeemed bool
-		if e.redeemed == 0 {
-			redeemed = false
-		} else {
-			redeemed = true
-		}
-
-		g := Gift{
-			ID:       e.lookupId,
-			Type:     e.giftType,
-			Redeemed: redeemed,
-		}
-
-		gifts = append(gifts, g)
+		gifts = append(gifts, e.toGift())
 	}
 	if err := rows.Err(); err != nil {
 		return Gifts{}, err
 	}
 	_ = tx.Commit()
 	return gifts, err
+}
+
+func (e dbEntity) toGift() Gift {
+	var redeemed bool
+	if e.redeemed == 0 {
+		redeemed = false
+	} else {
+		redeemed = true
+	}
+
+	var giftType GiftType
+	switch e.giftType {
+	case string(TypeSweet):
+		giftType = TypeSweet
+	case string(TypeWish):
+		giftType = TypeWish
+	}
+
+	g := Gift{
+		ID:       e.lookupId,
+		Type:     giftType,
+		Redeemed: redeemed,
+	}
+	return g
 }
 
 func (r *GiftRepository) SetRedeemedFlag(

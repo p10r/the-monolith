@@ -31,9 +31,16 @@ func (g Gifts) findByID(reqId string) (Gift, bool) {
 	return gift, ok
 }
 
+type GiftType string
+
+const (
+	TypeSweet GiftType = "SWEET"
+	TypeWish  GiftType = "WISH"
+)
+
 type Gift struct {
 	ID       string
-	Type     string
+	Type     GiftType
 	Redeemed bool
 }
 
