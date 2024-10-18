@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestAddGift(t *testing.T) {
+func TestAcceptanceCriteria(t *testing.T) {
 	t.Parallel()
 
 	t.Run("adds a sweet", func(t *testing.T) {
