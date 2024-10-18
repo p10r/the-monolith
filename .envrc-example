@@ -6,3 +6,4 @@ export DISCORD_URI=https://discord.com/api/webhooks/test
 # prod
 #export DISCORD_URI=https://discord.com/api/webhooks/test
 export DSN=pkg/sqlite/local/local.db
+export GIFT_BOX_API_KEY=your-key

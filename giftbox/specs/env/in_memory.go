@@ -85,7 +85,6 @@ func (env *InMemory) AddImage(imageUrl string) *httptest.ResponseRecorder {
 
 func (env *InMemory) RedeemGift(id string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("GET", "/gifts/redeem?id="+id, nil)
-	req.Header.Set(giftbox.HeaderApiKey, env.apiKey)
 	w := httptest.NewRecorder()
 
 	env.Server.ServeHTTP(w, req)

@@ -28,13 +28,13 @@ func NewServer(
 
 	mux := http.NewServeMux()
 	// TODO add uuid in separate middleware
-	mux.Handle("POST /gifts/sweets", idMiddleware(handleAddSweet(repo)))
-	mux.Handle("POST /gifts/wishes", idMiddleware(handleAddWish(repo)))
-	mux.Handle("POST /gifts/images", idMiddleware(handleAddImage(repo)))
+	mux.Handle("POST /gifts/sweets", auth(idMiddleware(handleAddSweet(repo))))
+	mux.Handle("POST /gifts/wishes", auth(idMiddleware(handleAddWish(repo))))
+	mux.Handle("POST /gifts/images", auth(idMiddleware(handleAddImage(repo))))
 	// Using a GET here as it's called via QR code
 	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo))
 
-	return panicMiddleware(auth(mux))
+	return panicMiddleware(mux)
 }
 
 type GiftAddedRes struct {
