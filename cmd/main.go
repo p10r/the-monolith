@@ -3,13 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/p10r/pedro/giftbox"
 	"github.com/p10r/pedro/pedro/telegram"
 	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"github.com/p10r/pedro/serve"
+	gracefulshutdown "github.com/quii/go-graceful-shutdown"
 	"github.com/sethvargo/go-envconfig"
 	"log/slog"
+	"net/http"
 	"os"
+	"time"
 )
 
 type Config struct {
@@ -18,6 +23,7 @@ type Config struct {
 	AllowedUserIds   []int64 `env:"ALLOWED_USER_IDS"`
 	FlashscoreApiKey string  `env:"FLASHSCORE_API_KEY"`
 	DiscordUri       string  `env:"DISCORD_URI"`
+	GiftBoxApiKey    string  `env:"GIFT_BOX_API_KEY"`
 }
 
 const serveImportUpcomingSchedule = "0 6 * * *"
@@ -104,6 +110,25 @@ func main() {
 		serveImportFinishedSchedule,
 	)
 
+	// giftbox
+	idGen := func() (string, error) {
+		v7, err := uuid.NewV7()
+		if err != nil {
+			return "", err
+		}
+		return v7.String(), nil
+	}
+
+	httpServer := &http.Server{
+		Addr:              ":8080",
+		ReadHeaderTimeout: 10 * time.Second,
+		Handler:           giftbox.NewServer(ctx, conn, idGen, cfg.GiftBoxApiKey),
+	}
+	server := gracefulshutdown.NewServer(httpServer)
+
 	go pedroApp.Start()
-	serveApp.StartBackgroundJobs(ctx)
+	go serveApp.StartBackgroundJobs(ctx)
+	if err := server.ListenAndServe(ctx); err != nil {
+		log.Error(l.Error("didn't shut down gracefully", err))
+	}
 }
