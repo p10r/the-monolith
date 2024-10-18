@@ -9,18 +9,23 @@ import (
 )
 
 func NewServer(
+	ctx context.Context,
 	conn *sqlite.DB,
 	newUUID func() (string, error),
 ) http.Handler {
 	repo := NewGiftRepository(conn)
+	idMiddleware := func(next http.Handler) http.Handler {
+		return giftIdMiddleware(ctx, newUUID, next)
+	}
 
 	mux := http.NewServeMux()
 	// TODO add uuid in separate middleware
-	mux.Handle("POST /gifts/sweets", handleAddSweet(repo, newUUID))
-	mux.Handle("POST /gifts/wishes", handleAddWish(repo, newUUID))
-	mux.Handle("POST /gifts/images", handleAddImage(repo, newUUID))
+	mux.Handle("POST /gifts/sweets", idMiddleware(handleAddSweet(repo)))
+	mux.Handle("POST /gifts/wishes", idMiddleware(handleAddWish(repo)))
+	mux.Handle("POST /gifts/images", idMiddleware(handleAddImage(repo)))
 	// Using a GET here as it's called via QR code
 	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo))
+
 	return panicMiddleware(mux)
 }
 
@@ -29,7 +34,7 @@ type Gifts []Gift
 func (g Gifts) findByID(reqId string) (Gift, bool) {
 	giftsByID := make(map[string]Gift)
 	for _, gift := range g {
-		giftsByID[gift.ID] = gift
+		giftsByID[gift.ID.String()] = gift
 	}
 	gift, ok := giftsByID[reqId]
 	return gift, ok
@@ -43,8 +48,14 @@ const (
 	TypeImage GiftType = "IMAGE"
 )
 
+type GiftID string
+
+func (id GiftID) String() string {
+	return string(id)
+}
+
 type Gift struct {
-	ID       string
+	ID       GiftID
 	Type     GiftType
 	Redeemed bool
 	// Only set for type "IMAGE". Might be moved to a separate struct later
@@ -57,18 +68,13 @@ type GiftAddedRes struct {
 
 func handleAddSweet(
 	repo *GiftRepository,
-	newUUID func() (string, error),
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := newUUID()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
+		//TODO check ID
+		id := r.Context().Value(ctxGiftID).(GiftID)
 		gift := Gift{ID: id, Type: TypeSweet, Redeemed: false}
 
-		err = repo.Save(context.Background(), gift)
+		err := repo.Save(context.Background(), gift)
 		if err != nil {
 			log.Printf("err when writing to db: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -77,7 +83,7 @@ func handleAddSweet(
 
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
-		res := GiftAddedRes{ID: id}
+		res := GiftAddedRes{ID: id.String()}
 		//nolint:errcheck
 		json.NewEncoder(w).Encode(res)
 	}
@@ -85,18 +91,12 @@ func handleAddSweet(
 
 func handleAddWish(
 	repo *GiftRepository,
-	newUUID func() (string, error),
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := newUUID()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
+		id := r.Context().Value(ctxGiftID).(GiftID)
 		gift := Gift{ID: id, Type: TypeWish, Redeemed: false}
 
-		err = repo.Save(context.Background(), gift)
+		err := repo.Save(context.Background(), gift)
 		if err != nil {
 			log.Printf("err when writing to db: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -105,7 +105,7 @@ func handleAddWish(
 
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
-		res := GiftAddedRes{ID: id}
+		res := GiftAddedRes{ID: id.String()}
 		//nolint:errcheck
 		json.NewEncoder(w).Encode(res)
 	}
@@ -113,7 +113,6 @@ func handleAddWish(
 
 func handleAddImage(
 	repo *GiftRepository,
-	newUUID func() (string, error),
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		imgUrl := r.URL.Query().Get("url")
@@ -122,15 +121,10 @@ func handleAddImage(
 			return
 		}
 
-		id, err := newUUID()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
+		id := r.Context().Value(ctxGiftID).(GiftID)
 		gift := Gift{ID: id, Type: TypeImage, Redeemed: false, ImageUrl: imgUrl}
 
-		err = repo.Save(context.Background(), gift)
+		err := repo.Save(context.Background(), gift)
 		if err != nil {
 			log.Printf("err when writing to db: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -139,7 +133,7 @@ func handleAddImage(
 
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
-		res := GiftAddedRes{ID: id}
+		res := GiftAddedRes{ID: id.String()}
 		//nolint:errcheck
 		json.NewEncoder(w).Encode(res)
 	}
@@ -173,7 +167,7 @@ func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 			return
 		}
 
-		_, err = repo.SetRedeemedFlag(context.Background(), gift.ID, true)
+		_, err = repo.SetRedeemedFlag(context.Background(), gift.ID.String(), true)
 		if err != nil {
 			log.Printf("err when writing to db: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)

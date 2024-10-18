@@ -39,7 +39,7 @@ func (r *GiftRepository) Save(ctx context.Context, gift Gift) error {
 		gift_type,
 		redeemed,
 		img_url
-	) VALUES (?,?,?,?)`, gift.ID, gift.Type, gift.Redeemed, gift.ImageUrl)
+	) VALUES (?,?,?,?)`, gift.ID.String(), gift.Type, gift.Redeemed, gift.ImageUrl)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (e dbEntity) toGift() (Gift, error) {
 	}
 
 	g := Gift{
-		ID:       e.lookupId,
+		ID:       GiftID(e.lookupId),
 		Type:     giftType,
 		Redeemed: redeemed,
 		ImageUrl: e.imgUrl,

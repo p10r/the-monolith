@@ -20,6 +20,7 @@ type InMemory struct {
 }
 
 func NewInMemoryEnv(t *testing.T, initialID int32) *InMemory {
+	ctx := context.Background()
 	idGen := func() (string, error) {
 		current := atomic.AddInt32(&initialID, 1)
 		return fmt.Sprint(current), nil
@@ -27,14 +28,14 @@ func NewInMemoryEnv(t *testing.T, initialID int32) *InMemory {
 	db := sqlite.MustOpenDB(t)
 
 	return &InMemory{
-		Server: giftbox.NewServer(db, idGen),
+		Server: giftbox.NewServer(ctx, db, idGen),
 		DB:     db,
 		Repo:   giftbox.NewGiftRepository(db),
 		IdGen:  idGen,
 	}
 }
 
-func (env *InMemory) FindInDB(t *testing.T, id string) (giftbox.Gift, bool) {
+func (env *InMemory) FindInDB(t *testing.T, id giftbox.GiftID) (giftbox.Gift, bool) {
 	gifts, err := env.Repo.All(context.Background())
 	if err != nil {
 		t.Fatal(err)
