@@ -12,10 +12,18 @@ func NewServer(
 	ctx context.Context,
 	conn *sqlite.DB,
 	newUUID func() (string, error),
+	apiKey string,
 ) http.Handler {
+	if apiKey == "" {
+		log.Fatal("no api key provided")
+	}
+
 	repo := NewGiftRepository(conn)
 	idMiddleware := func(next http.Handler) http.Handler {
 		return giftIdMiddleware(ctx, newUUID, next)
+	}
+	auth := func(next http.Handler) http.Handler {
+		return authMiddleWare(apiKey, next)
 	}
 
 	mux := http.NewServeMux()
@@ -26,7 +34,7 @@ func NewServer(
 	// Using a GET here as it's called via QR code
 	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo))
 
-	return panicMiddleware(mux)
+	return panicMiddleware(auth(mux))
 }
 
 type GiftAddedRes struct {

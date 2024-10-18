@@ -8,6 +8,7 @@ import (
 )
 
 const ctxGiftID GiftID = "giftId"
+const HeaderApiKey = "X-Gift-Box-Api-Key" // #nosec G101
 
 // giftIdMiddleware adds a generated UUID to the request's context
 func giftIdMiddleware(
@@ -38,6 +39,20 @@ func panicMiddleware(next http.Handler) http.Handler {
 			}
 
 		}()
+		next.ServeHTTP(w, r)
+	})
+}
+
+func authMiddleWare(apiKey string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		reqApiKey := r.Header.Get(HeaderApiKey)
+
+		if reqApiKey != apiKey {
+			log.Printf("invalid access: %v, %v", r.Host, apiKey)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }

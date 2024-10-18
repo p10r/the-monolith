@@ -6,6 +6,7 @@ import (
 	"github.com/p10r/pedro/giftbox/specs/env"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -14,7 +15,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 	t.Parallel()
 
 	t.Run("adds a sweet", func(t *testing.T) {
-		server := env.NewInMemoryEnv(t, int32(0))
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
 		defer sqlite.MustCloseDB(t, server.DB)
 
 		res := server.AddSweet()
@@ -27,7 +28,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 	})
 
 	t.Run("adds a wish", func(t *testing.T) {
-		server := env.NewInMemoryEnv(t, int32(0))
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
 		defer sqlite.MustCloseDB(t, server.DB)
 
 		res := server.AddWish()
@@ -40,7 +41,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 	})
 
 	t.Run("adds an image", func(t *testing.T) {
-		server := env.NewInMemoryEnv(t, int32(0))
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
 		defer sqlite.MustCloseDB(t, server.DB)
 
 		url := "https://example.com"
@@ -59,7 +60,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 	})
 
 	t.Run("redeems gifts", func(t *testing.T) {
-		server := env.NewInMemoryEnv(t, int32(0))
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
 		defer sqlite.MustCloseDB(t, server.DB)
 
 		server.AddSweet()
@@ -89,7 +90,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 	})
 
 	t.Run("blocks redeeming a gift twice", func(t *testing.T) {
-		server := env.NewInMemoryEnv(t, int32(0))
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
 		defer sqlite.MustCloseDB(t, server.DB)
 
 		server.AddSweet()
@@ -101,7 +102,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 	})
 
 	t.Run("returns 400 if no id is given", func(t *testing.T) {
-		server := env.NewInMemoryEnv(t, int32(0))
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
 		defer sqlite.MustCloseDB(t, server.DB)
 		emptyID := ""
 
@@ -113,4 +114,23 @@ func TestAcceptanceCriteria(t *testing.T) {
 	t.Run("shows status of all gifts", func(t *testing.T) {
 
 	})
+
+	t.Run("only allows calls with correct api key", func(t *testing.T) {
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
+
+		req := httptest.NewRequest("POST", "/gifts/sweets", nil)
+		req.Header.Set(giftbox.HeaderApiKey, "INVALID")
+
+		w := httptest.NewRecorder()
+		server.Server.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+		req = httptest.NewRequest("POST", "/gifts/sweets", nil)
+		req.Header.Set(giftbox.HeaderApiKey, "apiKey")
+
+		w = httptest.NewRecorder()
+		server.Server.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusCreated, w.Code)
+	})
+
 }

@@ -17,9 +17,10 @@ type InMemory struct {
 	DB     *sqlite.DB
 	Repo   *giftbox.GiftRepository
 	IdGen  func() (string, error)
+	apiKey string
 }
 
-func NewInMemoryEnv(t *testing.T, initialID int32) *InMemory {
+func NewInMemoryEnv(t *testing.T, initialID int32, apiKey string) *InMemory {
 	ctx := context.Background()
 	idGen := func() (string, error) {
 		current := atomic.AddInt32(&initialID, 1)
@@ -28,10 +29,11 @@ func NewInMemoryEnv(t *testing.T, initialID int32) *InMemory {
 	db := sqlite.MustOpenDB(t)
 
 	return &InMemory{
-		Server: giftbox.NewServer(ctx, db, idGen),
+		Server: giftbox.NewServer(ctx, db, idGen, apiKey),
 		DB:     db,
 		Repo:   giftbox.NewGiftRepository(db),
 		IdGen:  idGen,
+		apiKey: apiKey,
 	}
 }
 
@@ -53,6 +55,7 @@ func (env *InMemory) FindInDB(t *testing.T, id giftbox.GiftID) (giftbox.Gift, bo
 
 func (env *InMemory) AddSweet() *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", "/gifts/sweets", nil)
+	req.Header.Set(giftbox.HeaderApiKey, env.apiKey)
 	w := httptest.NewRecorder()
 
 	env.Server.ServeHTTP(w, req)
@@ -62,6 +65,7 @@ func (env *InMemory) AddSweet() *httptest.ResponseRecorder {
 
 func (env *InMemory) AddWish() *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", "/gifts/wishes", nil)
+	req.Header.Set(giftbox.HeaderApiKey, env.apiKey)
 	w := httptest.NewRecorder()
 
 	env.Server.ServeHTTP(w, req)
@@ -71,6 +75,7 @@ func (env *InMemory) AddWish() *httptest.ResponseRecorder {
 
 func (env *InMemory) AddImage(imageUrl string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("POST", "/gifts/images?url="+url.QueryEscape(imageUrl), nil)
+	req.Header.Set(giftbox.HeaderApiKey, env.apiKey)
 	w := httptest.NewRecorder()
 
 	env.Server.ServeHTTP(w, req)
@@ -80,6 +85,7 @@ func (env *InMemory) AddImage(imageUrl string) *httptest.ResponseRecorder {
 
 func (env *InMemory) RedeemGift(id string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest("GET", "/gifts/redeem?id="+id, nil)
+	req.Header.Set(giftbox.HeaderApiKey, env.apiKey)
 	w := httptest.NewRecorder()
 
 	env.Server.ServeHTTP(w, req)
