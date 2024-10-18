@@ -1,0 +1,21 @@
+meta {
+  name: Serve - Flashscore - List Today's Games
+  type: http
+  seq: 6
+}
+
+get {
+  url: https://flashscore.p.rapidapi.com/v1/tournaments/list?locale=en_GB&sport_id=12
+  body: none
+  auth: none
+}
+
+params:query {
+  locale: en_GB
+  sport_id: 12
+}
+
+headers {
+  X-RapidAPI-Host: flashscore.p.rapidapi.com
+  X-RapidAPI-Key: {{X_RAPID_API_KEY}}
+}

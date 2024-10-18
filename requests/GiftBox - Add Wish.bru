@@ -1,0 +1,15 @@
+meta {
+  name: GiftBox - Add Wish
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{PEDRO_URL}}/gifts/wishes
+  body: none
+  auth: none
+}
+
+headers {
+  X-Gift-Box-Api-Key: {{GIFTBOX_API_KEY}}
+}

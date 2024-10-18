@@ -1,0 +1,25 @@
+meta {
+  name: Pedro - RA - Artist ID and Name
+  type: graphql
+  seq: 9
+}
+
+post {
+  url: https://ra.co/graphql
+  body: graphql
+  auth: none
+}
+
+headers {
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36
+}
+
+body:graphql {
+  {
+      artist(slug:"boysnoize") {
+          id
+          name
+      }
+  }
+  
+}

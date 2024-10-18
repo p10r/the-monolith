@@ -1,0 +1,91 @@
+meta {
+  name: Pedro - RA - Full Artist Info
+  type: graphql
+  seq: 10
+}
+
+post {
+  url: https://ra.co/graphql
+  body: graphql
+  auth: none
+}
+
+headers {
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36
+}
+
+body:graphql {
+  query {
+    event(id: 1712179) {
+      id
+      title
+      flyerFront
+      flyerBack
+      newEventForm
+      images {
+        id
+        filename
+        alt
+        type
+        crop
+        __typename
+      }
+      startTime
+      isTicketed
+      isFestival
+      resaleActive
+      attending
+      venue {
+        id
+        name
+        tba
+        area {
+          id
+          name
+          country {
+            id
+            name
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      promoters {
+        id
+        name
+        hasTicketAccess
+        user {
+          id
+          __typename
+        }
+        __typename
+      }
+      artists {
+        id
+        name
+        __typename
+      }
+      pick {
+        id
+        blurb
+        __typename
+      }
+      admin {
+        id
+        __typename
+      }
+      playerLinks {
+        id
+        __typename
+      }
+      revisions {
+        id
+        status
+        __typename
+      }
+      __typename
+    }
+  }
+  
+}

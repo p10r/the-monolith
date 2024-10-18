@@ -1,0 +1,110 @@
+meta {
+  name: Pedro - RA - Get Events
+  type: graphql
+  seq: 11
+}
+
+post {
+  url: https://ra.co/graphql
+  body: graphql
+  auth: none
+}
+
+headers {
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36
+}
+
+body:graphql {
+  query GET_DEFAULT_EVENTS_LISTING {
+    listing(
+      indices: [EVENT]
+      aggregations: []
+      filters: [
+        { type: ARTIST, value: "106972" }
+        { type: DATERANGE, value: "{\"gte\":\"2023-11-01T00:00:00.000Z\"}" }
+        { type: DATERANGE, value: "{\"lte\":\"2023-11-13T00:00:00.000Z\"}" }
+      ]
+      pageSize: 20
+      page: 1 
+      sortField: DATE
+      sortOrder: ASCENDING
+    ) {
+      data {
+        ...eventFragment
+        __typename
+      }
+      totalResults
+      __typename
+    }
+    aggregations: listing(
+      indices: [EVENT]
+      aggregations: []
+      filters: [
+        { type: ARTIST, value: "106972" }
+        { type: DATERANGE, value: "{\"gte\":\"2023-11-01T00:00:00.000Z\"}" }
+        { type: DATERANGE, value: "{\"lte\":\"2023-11-12T00:00:00.000Z\"}" }
+      ]
+      pageSize: 0
+      sortField: DATE
+      sortOrder: ASCENDING
+    ) {
+      aggregations {
+        type
+        values {
+          value
+          name
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+  }
+  
+  fragment eventFragment on IListingItem {
+    ... on Event {
+      id
+      title
+      attending
+      date
+      startTime
+      contentUrl
+      queueItEnabled
+      flyerFront
+      newEventForm
+      images {
+        id
+        filename
+        alt
+        type
+        crop
+      }
+      venue {
+        id
+        name
+        contentUrl
+        live
+        area {
+          id
+          name
+          urlName
+          country {
+            id
+            name
+            urlCode
+            __typename
+          }
+          __typename
+        }
+      }
+      pick {
+        id
+        blurb
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Serve - Flashscore - List All Leagues
+  type: http
+  seq: 7
+}
+
+get {
+  url: https://flashscore.p.rapidapi.com/v1/tournaments/list?locale=en_GB&sport_id=12
+  body: none
+  auth: none
+}
+
+params:query {
+  locale: en_GB
+  sport_id: 12
+}
+
+headers {
+  X-RapidAPI-Host: flashscore.p.rapidapi.com
+  X-RapidAPI-Key: {{X_RAPID_API_KEY}}
+}

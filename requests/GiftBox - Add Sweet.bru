@@ -1,0 +1,15 @@
+meta {
+  name: GiftBox - Add Sweet
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{PEDRO_URL}}/gifts/sweets
+  body: none
+  auth: none
+}
+
+headers {
+  X-Gift-Box-Api-Key: {{GIFTBOX_API_KEY}}
+}
