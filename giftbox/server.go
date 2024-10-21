@@ -31,6 +31,7 @@ func NewServer(
 	mux.Handle("POST /gifts/sweets", auth(idMiddleware(handleAddSweet(repo))))
 	mux.Handle("POST /gifts/wishes", auth(idMiddleware(handleAddWish(repo))))
 	mux.Handle("POST /gifts/images", auth(idMiddleware(handleAddImage(repo))))
+	mux.Handle("GET /gifts", auth(idMiddleware(handleListAllGifts(repo))))
 	// Using a GET here as it's called via QR code
 	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo))
 
@@ -156,5 +157,23 @@ func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+type AllGiftsRes struct {
+	Gifts Gifts `json:"gifts"`
+}
+
+func handleListAllGifts(repo *GiftRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		gifts, err := repo.All(context.Background())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		//nolint:errcheck
+		json.NewEncoder(w).Encode(AllGiftsRes{Gifts: gifts})
 	}
 }

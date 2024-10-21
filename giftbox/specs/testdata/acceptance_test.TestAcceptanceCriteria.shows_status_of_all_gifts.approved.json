@@ -1,0 +1,20 @@
+{
+  "gifts": [
+    {
+      "id": "1",
+      "redeemed": true,
+      "type": "SWEET"
+    },
+    {
+      "id": "2",
+      "redeemed": false,
+      "type": "WISH"
+    },
+    {
+      "id": "3",
+      "image_url": "https://example.com",
+      "redeemed": true,
+      "type": "IMAGE"
+    }
+  ]
+}

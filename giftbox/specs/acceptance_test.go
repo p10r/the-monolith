@@ -1,15 +1,29 @@
 package specs
 
 import (
+	"cmp"
+	"encoding/json"
 	"github.com/alecthomas/assert/v2"
+	approvals "github.com/approvals/go-approval-tests"
+	"github.com/approvals/go-approval-tests/reporters"
 	"github.com/p10r/pedro/giftbox"
 	"github.com/p10r/pedro/giftbox/specs/env"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"slices"
 	"strings"
 	"testing"
 )
+
+func TestMain(m *testing.M) {
+	r := approvals.UseReporter(reporters.NewIntelliJReporter())
+	defer r.Close()
+
+	approvals.UseFolder("testdata")
+	os.Exit(m.Run())
+}
 
 func TestAcceptanceCriteria(t *testing.T) {
 	t.Parallel()
@@ -111,10 +125,6 @@ func TestAcceptanceCriteria(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, res.Code)
 	})
 
-	t.Run("shows status of all gifts", func(t *testing.T) {
-
-	})
-
 	t.Run("only allows calls with correct api key", func(t *testing.T) {
 		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
 
@@ -133,4 +143,33 @@ func TestAcceptanceCriteria(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, w.Code)
 	})
 
+	t.Run("shows status of all gifts", func(t *testing.T) {
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
+		defer sqlite.MustCloseDB(t, server.DB)
+
+		server.AddSweet()
+		server.AddWish()
+		server.AddImage("https://example.com")
+		server.RedeemGift("1")
+		server.RedeemGift("3")
+
+		res := server.ListAllGifts()
+		assert.Equal(t, http.StatusOK, res.Code)
+
+		var gifts giftbox.AllGiftsRes
+		err := json.Unmarshal(res.Body.Bytes(), &gifts)
+		assert.NoError(t, err)
+
+		slices.SortFunc(gifts.Gifts, func(a, b giftbox.Gift) int {
+			return cmp.Compare(a.ID, b.ID)
+		})
+
+		approvals.VerifyJSONBytes(t, prettyPrinted(t, gifts))
+	})
+}
+
+func prettyPrinted(t *testing.T, gifts giftbox.AllGiftsRes) []byte {
+	marshal, err := json.MarshalIndent(gifts, "", " ")
+	assert.NoError(t, err)
+	return marshal
 }

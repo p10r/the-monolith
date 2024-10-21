@@ -20,11 +20,11 @@ func (id GiftID) String() string {
 }
 
 type Gift struct {
-	ID       GiftID
-	Type     GiftType
-	Redeemed bool
+	ID       GiftID   `json:"id"`
+	Type     GiftType `json:"type"`
+	Redeemed bool     `json:"redeemed"`
 	// Only set for type "IMAGE". Might be moved to a separate struct later
-	ImageUrl string
+	ImageUrl string `json:"image_url,omitempty"`
 }
 
 func NewGift(

@@ -91,3 +91,13 @@ func (env *InMemory) RedeemGift(id string) *httptest.ResponseRecorder {
 
 	return w
 }
+
+func (env *InMemory) ListAllGifts() *httptest.ResponseRecorder {
+	req := httptest.NewRequest("GET", "/gifts", nil)
+	req.Header.Set(giftbox.HeaderApiKey, env.apiKey)
+	w := httptest.NewRecorder()
+
+	env.Server.ServeHTTP(w, req)
+
+	return w
+}
