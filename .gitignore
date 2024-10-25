@@ -64,7 +64,6 @@ go.work
 local/
 prod/
 
-.idea/httpRequests
-.idea/inspectionProfiles
+.idea/
 
 giftbox/cmd/qr*
