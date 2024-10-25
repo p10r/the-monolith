@@ -166,6 +166,31 @@ func TestAcceptanceCriteria(t *testing.T) {
 
 		approvals.VerifyJSONBytes(t, prettyPrinted(t, gifts))
 	})
+
+	t.Run("returns only gifts that have not been redeemed", func(t *testing.T) {
+		server := env.NewInMemoryEnv(t, int32(0), "apiKey")
+		defer sqlite.MustCloseDB(t, server.DB)
+
+		server.AddSweet()
+		server.AddWish()
+		server.AddImage("https://example.com")
+		server.RedeemGift("1")
+		server.RedeemGift("3")
+
+		res := server.ListAllPendingGifts()
+		assert.Equal(t, http.StatusOK, res.Code)
+
+		var gifts giftbox.AllGiftsRes
+		err := json.Unmarshal(res.Body.Bytes(), &gifts)
+		assert.NoError(t, err)
+
+		slices.SortFunc(gifts.Gifts, func(a, b giftbox.Gift) int {
+			return cmp.Compare(a.ID, b.ID)
+		})
+
+		approvals.VerifyJSONBytes(t, prettyPrinted(t, gifts))
+	})
+
 }
 
 func prettyPrinted(t *testing.T, gifts giftbox.AllGiftsRes) []byte {

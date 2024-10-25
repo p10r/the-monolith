@@ -165,14 +165,35 @@ type AllGiftsRes struct {
 
 func handleListAllGifts(repo *GiftRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		var pendingOnly bool
+		if r.URL.Query().Get("pending-only") == "true" {
+			pendingOnly = true
+		} else {
+			pendingOnly = false
+		}
+
 		gifts, err := repo.All(context.Background())
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		if !pendingOnly {
+			w.WriteHeader(http.StatusOK)
+			//nolint:errcheck
+			json.NewEncoder(w).Encode(AllGiftsRes{Gifts: gifts})
+			return
+		}
+
+		var outstandingGifts Gifts
+		for _, gift := range gifts {
+			if !gift.Redeemed {
+				outstandingGifts = append(outstandingGifts, gift)
+			}
+		}
+
 		w.WriteHeader(http.StatusOK)
 		//nolint:errcheck
-		json.NewEncoder(w).Encode(AllGiftsRes{Gifts: gifts})
+		json.NewEncoder(w).Encode(AllGiftsRes{Gifts: outstandingGifts})
 	}
 }

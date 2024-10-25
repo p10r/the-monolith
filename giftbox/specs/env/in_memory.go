@@ -101,3 +101,13 @@ func (env *InMemory) ListAllGifts() *httptest.ResponseRecorder {
 
 	return w
 }
+
+func (env *InMemory) ListAllPendingGifts() *httptest.ResponseRecorder {
+	req := httptest.NewRequest("GET", "/gifts?pending-only=true", nil)
+	req.Header.Set(giftbox.HeaderApiKey, env.apiKey)
+	w := httptest.NewRecorder()
+
+	env.Server.ServeHTTP(w, req)
+
+	return w
+}
