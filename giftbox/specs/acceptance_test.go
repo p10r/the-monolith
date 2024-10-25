@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -81,11 +82,13 @@ func TestAcceptanceCriteria(t *testing.T) {
 		server.RedeemGift("1")
 		value, _ := server.FindInDB(t, "1")
 		assert.Equal(t, giftbox.Gift{ID: "1", Type: giftbox.TypeSweet, Redeemed: true}, value)
+		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[0])
 
 		server.AddWish()
 		server.RedeemGift("2")
 		value, _ = server.FindInDB(t, "2")
 		assert.Equal(t, giftbox.Gift{ID: "2", Type: giftbox.TypeWish, Redeemed: true}, value)
+		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[1])
 
 		url := "https://example.com"
 		server.AddImage(url)
@@ -101,6 +104,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 			ImageUrl: url,
 		}
 		assert.Equal(t, expected, value)
+		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[2])
 	})
 
 	t.Run("blocks redeeming a gift twice", func(t *testing.T) {
@@ -113,6 +117,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 
 		res = server.RedeemGift("1")
 		assert.Equal(t, http.StatusBadRequest, res.Code)
+		assertEqualsEventType(t, giftbox.AlreadyRedeemedEvent{}, server.EventMonitor.Events[1])
 	})
 
 	t.Run("returns 400 if no id is given", func(t *testing.T) {
@@ -134,6 +139,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 		w := httptest.NewRecorder()
 		server.Server.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
+		assertEqualsEventType(t, giftbox.IllegalAccessEvent{}, server.EventMonitor.Events[0])
 
 		req = httptest.NewRequest("POST", "/gifts/sweets", nil)
 		req.Header.Set(giftbox.HeaderApiKey, "apiKey")
@@ -197,4 +203,12 @@ func prettyPrinted(t *testing.T, gifts giftbox.AllGiftsRes) []byte {
 	marshal, err := json.MarshalIndent(gifts, "", " ")
 	assert.NoError(t, err)
 	return marshal
+}
+
+func assertEqualsEventType(t *testing.T, expected, actual giftbox.Event) {
+	assert.Equal(
+		t,
+		reflect.TypeOf(expected).String(),
+		reflect.TypeOf(actual).String(),
+	)
 }

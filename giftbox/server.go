@@ -13,6 +13,7 @@ func NewServer(
 	conn *sqlite.DB,
 	newUUID func() (string, error),
 	apiKey string,
+	monitor EventMonitor,
 ) http.Handler {
 	if apiKey == "" {
 		log.Fatal("no api key provided")
@@ -23,7 +24,7 @@ func NewServer(
 		return giftIdMiddleware(ctx, newUUID, next)
 	}
 	auth := func(next http.Handler) http.Handler {
-		return authMiddleWare(apiKey, next)
+		return authMiddleWare(apiKey, monitor, next)
 	}
 
 	mux := http.NewServeMux()
@@ -32,7 +33,7 @@ func NewServer(
 	mux.Handle("POST /gifts/images", auth(idMiddleware(handleAddImage(repo))))
 	mux.Handle("GET /gifts", auth(idMiddleware(handleListAllGifts(repo))))
 	// Using a GET here as it's called via QR code
-	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo))
+	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo, monitor))
 
 	return panicMiddleware(mux)
 }
@@ -114,7 +115,7 @@ func handleAddImage(
 	}
 }
 
-func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
+func handleRedeemGift(repo *GiftRepository, monitor EventMonitor) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqId := r.URL.Query().Get("id")
 		if reqId == "" {
@@ -131,13 +132,13 @@ func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 
 		gift, ok := gifts.findByID(reqId)
 		if !ok {
-			log.Printf("gift %s could not be found in db", reqId)
+			monitor.Track(NotFoundEvent{ID: reqId})
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
 		if gift.Redeemed {
-			log.Printf("gift %s is already redeemed", gift.ID)
+			monitor.Track(AlreadyRedeemedEvent{gift.ID, gift.Type})
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -148,6 +149,11 @@ func handleRedeemGift(repo *GiftRepository) http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		monitor.Track(RedeemedEvent{
+			ID:   gift.ID,
+			Type: gift.Type,
+		})
 
 		if gift.Type == TypeImage {
 			w.Header().Set("Location", gift.ImageUrl)

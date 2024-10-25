@@ -13,11 +13,20 @@ import (
 )
 
 type InMemory struct {
-	Server http.Handler
-	DB     *sqlite.DB
-	Repo   *giftbox.GiftRepository
-	IdGen  func() (string, error)
-	apiKey string
+	Server       http.Handler
+	DB           *sqlite.DB
+	Repo         *giftbox.GiftRepository
+	EventMonitor *InMemoryEventMonitor
+	IdGen        func() (string, error)
+	apiKey       string
+}
+
+type InMemoryEventMonitor struct {
+	Events []giftbox.Event
+}
+
+func (m *InMemoryEventMonitor) Track(e giftbox.Event) {
+	m.Events = append(m.Events, e)
 }
 
 func NewInMemoryEnv(t *testing.T, initialID int32, apiKey string) *InMemory {
@@ -27,13 +36,15 @@ func NewInMemoryEnv(t *testing.T, initialID int32, apiKey string) *InMemory {
 		return fmt.Sprint(current), nil
 	}
 	db := sqlite.MustOpenDB(t)
+	monitor := &InMemoryEventMonitor{Events: make([]giftbox.Event, 0)}
 
 	return &InMemory{
-		Server: giftbox.NewServer(ctx, db, idGen, apiKey),
-		DB:     db,
-		Repo:   giftbox.NewGiftRepository(db),
-		IdGen:  idGen,
-		apiKey: apiKey,
+		Server:       giftbox.NewServer(ctx, db, idGen, apiKey, monitor),
+		DB:           db,
+		Repo:         giftbox.NewGiftRepository(db),
+		EventMonitor: monitor,
+		IdGen:        idGen,
+		apiKey:       apiKey,
 	}
 }
 

@@ -3,6 +3,7 @@ package giftbox
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 )
@@ -43,12 +44,18 @@ func panicMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func authMiddleWare(apiKey string, next http.Handler) http.Handler {
+func authMiddleWare(apiKey string, monitor EventMonitor, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqApiKey := r.Header.Get(HeaderApiKey)
 
 		if reqApiKey != apiKey {
-			log.Printf("invalid access: %v, %v", r.Host, apiKey)
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			monitor.Track(IllegalAccessEvent{r.URL.String(), string(body)})
+
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

@@ -1,0 +1,9 @@
+{
+  "gifts": [
+    {
+      "id": "2",
+      "redeemed": false,
+      "type": "WISH"
+    }
+  ]
+}

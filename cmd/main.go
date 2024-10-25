@@ -19,6 +19,7 @@ import (
 
 type Config struct {
 	TelegramToken    string  `env:"TELEGRAM_TOKEN"`
+	TelegramAdmin    string  `env:"TELEGRAM_ADMIN_USER"`
 	DSN              string  `env:"DSN"`
 	AllowedUserIds   []int64 `env:"ALLOWED_USER_IDS"`
 	FlashscoreApiKey string  `env:"FLASHSCORE_API_KEY"`
@@ -135,10 +136,12 @@ func main() {
 		return v7.String(), nil
 	}
 
+	monitor := giftbox.NewTelegramMonitor(cfg.TelegramToken, cfg.TelegramAdmin)
+
 	httpServer := &http.Server{
 		Addr:              ":8080",
 		ReadHeaderTimeout: 10 * time.Second,
-		Handler:           giftbox.NewServer(ctx, conn, idGen, cfg.GiftBoxApiKey),
+		Handler:           giftbox.NewServer(ctx, conn, idGen, cfg.GiftBoxApiKey, monitor),
 	}
 	server := gracefulshutdown.NewServer(httpServer)
 
