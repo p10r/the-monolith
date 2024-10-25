@@ -1,0 +1,15 @@
+meta {
+  name: GiftBox - List All Gifts
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{PEDRO_URL}}/gifts
+  body: none
+  auth: none
+}
+
+headers {
+  X-Gift-Box-Api-Key: {{GIFTBOX_API_KEY}}
+}
