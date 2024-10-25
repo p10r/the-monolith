@@ -123,7 +123,7 @@ func (importer *MatchImporter) storeUntrackedMatches(
 			dbErrs = append(dbErrs, dbErr)
 		}
 
-		importer.log.Info(fmt.Sprintf("Stored in DB: %v", trackedMatch))
+		importer.log.Debug(fmt.Sprintf("Stored in DB: %v", trackedMatch))
 
 		trackedMatches = append(trackedMatches, trackedMatch)
 	}

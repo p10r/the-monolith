@@ -75,8 +75,24 @@ var favouriteLeagues = []string{
 }
 
 func main() {
-	jsonLogHandler := slog.NewJSONHandler(os.Stdout, nil)
-	log := slog.New(jsonLogHandler)
+	// Remove time, as fly.io is logging it automatically
+	// Time is automatically left out if it is 0, see HandlerOptions.ReplaceAttr
+	// For more examples, see
+	// https://github.com/golang/go/blob/master/src/log/slog/example_custom_levels_test.go
+	//
+	// Good article for further configuration:
+	// https://betterstack.com/community/guides/logging/logging-in-go/#error-logging-with-slog
+	replace := func(_ []string, a slog.Attr) slog.Attr {
+		if a.Key == "time" {
+			return slog.Attr{}
+		}
+		return a
+	}
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		ReplaceAttr: replace,
+	})
+
+	log := slog.New(handler)
 	ctx := context.Background()
 
 	var cfg Config
@@ -96,7 +112,7 @@ func main() {
 		conn,
 		cfg.TelegramToken,
 		cfg.AllowedUserIds,
-		jsonLogHandler,
+		handler,
 	)
 
 	serveApp := serve.NewServeApp(
@@ -105,7 +121,7 @@ func main() {
 		cfg.FlashscoreApiKey,
 		cfg.DiscordUri,
 		favouriteLeagues,
-		jsonLogHandler,
+		handler,
 		serveImportUpcomingSchedule,
 		serveImportFinishedSchedule,
 	)
