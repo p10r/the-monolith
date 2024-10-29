@@ -3,6 +3,7 @@ package giftbox
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"log"
 	"net/http"
@@ -115,6 +116,43 @@ func handleAddImage(
 	}
 }
 
+// Could be a template, but why bother when there's just one HTML response.
+//
+//nolint:lll
+const wishRedeemedPage = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Centered GIF</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body {
+            background-color: #f0f0f0;
+        }
+
+        img {
+            max-width: 90%;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<img src="https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif"
+     alt="A gif granting a wish">
+</body>
+</html>
+`
+
 func handleRedeemGift(repo *GiftRepository, monitor EventMonitor) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqId := r.URL.Query().Get("id")
@@ -161,7 +199,9 @@ func handleRedeemGift(repo *GiftRepository, monitor EventMonitor) http.HandlerFu
 			return
 		}
 
+		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
+		_, _ = fmt.Fprintf(w, "%s", wishRedeemedPage)
 	}
 }
 

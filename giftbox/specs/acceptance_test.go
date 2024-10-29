@@ -85,14 +85,16 @@ func TestAcceptanceCriteria(t *testing.T) {
 		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[0])
 
 		server.AddWish()
-		server.RedeemGift("2")
+		res := server.RedeemGift("2")
 		value, _ = server.FindInDB(t, "2")
 		assert.Equal(t, giftbox.Gift{ID: "2", Type: giftbox.TypeWish, Redeemed: true}, value)
 		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[1])
+		assert.Equal(t, "text/html", res.Result().Header.Get("Content-Type"))
+		assert.True(t, strings.Contains(res.Body.String(), ".gif"))
 
 		url := "https://example.com"
 		server.AddImage(url)
-		res := server.RedeemGift("3")
+		res = server.RedeemGift("3")
 		assert.Equal(t, http.StatusSeeOther, res.Code)
 		assert.Equal(t, url, res.Result().Header.Get("Location"))
 
