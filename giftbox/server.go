@@ -7,6 +7,7 @@ import (
 	"github.com/p10r/pedro/pkg/sqlite"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func NewServer(
@@ -197,6 +198,19 @@ func handleRedeemGift(repo *GiftRepository, monitor EventMonitor) http.HandlerFu
 			w.Header().Set("Location", gift.ImageUrl)
 			w.WriteHeader(http.StatusSeeOther)
 			return
+		}
+
+		if gift.Type == TypeSweet {
+			html := strings.Replace(
+				wishRedeemedPage,
+				"https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif",
+				"https://media1.tenor.com/m/M3p9DCrC7OkAAAAC/christmas-dinner-sweets.gif",
+				1,
+			)
+
+			w.Header().Set("Content-Type", "text/html")
+			w.WriteHeader(http.StatusOK)
+			_, _ = fmt.Fprintf(w, "%s", html)
 		}
 
 		w.Header().Set("Content-Type", "text/html")
