@@ -3,11 +3,16 @@ package giftbox
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/p10r/pedro/pkg/sqlite"
+	"html/template"
 	"log"
 	"net/http"
-	"strings"
+)
+
+const (
+	sweetsGif = "https://media1.tenor.com/m/M3p9DCrC7OkAAAAC/christmas-dinner-sweets.gif"
+	//nolint:lll
+	wishGif = "https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif"
 )
 
 func NewServer(
@@ -16,9 +21,15 @@ func NewServer(
 	newUUID func() (string, error),
 	apiKey string,
 	monitor EventMonitor,
-) http.Handler {
+	templateDir string,
+) (http.Handler, error) {
 	if apiKey == "" {
 		log.Fatal("no api key provided")
+	}
+
+	tmpl, err := template.ParseFiles(templateDir + "gift-redeemed.html")
+	if err != nil {
+		return nil, err
 	}
 
 	repo := NewGiftRepository(conn)
@@ -35,9 +46,9 @@ func NewServer(
 	mux.Handle("POST /gifts/images", auth(idMiddleware(handleAddImage(repo))))
 	mux.Handle("GET /gifts", auth(idMiddleware(handleListAllGifts(repo))))
 	// Using a GET here as it's called via QR code
-	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo, monitor))
+	mux.Handle("GET /gifts/redeem", handleRedeemGift(repo, monitor, tmpl))
 
-	return panicMiddleware(mux)
+	return panicMiddleware(mux), nil
 }
 
 type GiftAddedRes struct {
@@ -117,44 +128,11 @@ func handleAddImage(
 	}
 }
 
-// Could be a template, but why bother when there's just one HTML response.
-//
-//nolint:lll
-const wishRedeemedPage = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Centered GIF</title>
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        body {
-            background-color: #f0f0f0;
-        }
-
-        img {
-            max-width: 90%;
-            max-height: 80vh;
-            width: auto;
-            height: auto;
-        }
-    </style>
-</head>
-<body>
-<img src="https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif"
-     alt="A gif granting a wish">
-</body>
-</html>
-`
-
-func handleRedeemGift(repo *GiftRepository, monitor EventMonitor) http.HandlerFunc {
+func handleRedeemGift(
+	repo *GiftRepository,
+	monitor EventMonitor,
+	tmpl *template.Template,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqId := r.URL.Query().Get("id")
 		if reqId == "" {
@@ -201,21 +179,11 @@ func handleRedeemGift(repo *GiftRepository, monitor EventMonitor) http.HandlerFu
 		}
 
 		if gift.Type == TypeSweet {
-			html := strings.Replace(
-				wishRedeemedPage,
-				"https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif",
-				"https://media1.tenor.com/m/M3p9DCrC7OkAAAAC/christmas-dinner-sweets.gif",
-				1,
-			)
-
-			w.Header().Set("Content-Type", "text/html")
-			w.WriteHeader(http.StatusOK)
-			_, _ = fmt.Fprintf(w, "%s", html)
+			_ = tmpl.Execute(w, sweetsGif)
+			return
 		}
 
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusOK)
-		_, _ = fmt.Fprintf(w, "%s", wishRedeemedPage)
+		_ = tmpl.Execute(w, wishGif)
 	}
 }
 

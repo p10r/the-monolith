@@ -83,7 +83,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 		value, _ := server.FindInDB(t, "1")
 		assert.Equal(t, giftbox.Gift{ID: "1", Type: giftbox.TypeSweet, Redeemed: true}, value)
 		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[0])
-		assert.Equal(t, "text/html", res.Result().Header.Get("Content-Type"))
+		assert.Equal(t, "text/html; charset=utf-8", res.Result().Header.Get("Content-Type"))
 		//nolint:lll
 		assert.True(t, strings.Contains(res.Body.String(), "https://media1.tenor.com/m/M3p9DCrC7OkAAAAC/christmas-dinner-sweets.gif"))
 
@@ -92,7 +92,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 		value, _ = server.FindInDB(t, "2")
 		assert.Equal(t, giftbox.Gift{ID: "2", Type: giftbox.TypeWish, Redeemed: true}, value)
 		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[1])
-		assert.Equal(t, "text/html", res.Result().Header.Get("Content-Type"))
+		assert.Equal(t, "text/html; charset=utf-8", res.Result().Header.Get("Content-Type"))
 		assert.True(t, strings.Contains(res.Body.String(), ".gif"))
 
 		url := "https://example.com"

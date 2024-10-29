@@ -38,8 +38,12 @@ func NewInMemoryEnv(t *testing.T, initialID int32, apiKey string) *InMemory {
 	db := sqlite.MustOpenDB(t)
 	monitor := &InMemoryEventMonitor{Events: make([]giftbox.Event, 0)}
 
+	server, err := giftbox.NewServer(ctx, db, idGen, apiKey, monitor, "../")
+	if err != nil {
+		t.Fatal(err)
+	}
 	return &InMemory{
-		Server:       giftbox.NewServer(ctx, db, idGen, apiKey, monitor),
+		Server:       server,
 		DB:           db,
 		Repo:         giftbox.NewGiftRepository(db),
 		EventMonitor: monitor,

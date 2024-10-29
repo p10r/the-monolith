@@ -138,10 +138,21 @@ func main() {
 
 	monitor := giftbox.NewTelegramMonitor(cfg.TelegramToken, cfg.TelegramAdmin)
 
+	giftBoxServer, err := giftbox.NewServer(
+		ctx,
+		conn,
+		idGen,
+		cfg.GiftBoxApiKey,
+		monitor,
+		"giftbox/",
+	)
+	if err != nil {
+		panic(fmt.Errorf("error starting gift box server: %v", err))
+	}
 	httpServer := &http.Server{
 		Addr:              ":8080",
 		ReadHeaderTimeout: 10 * time.Second,
-		Handler:           giftbox.NewServer(ctx, conn, idGen, cfg.GiftBoxApiKey, monitor),
+		Handler:           giftBoxServer,
 	}
 	server := gracefulshutdown.NewServer(httpServer)
 
