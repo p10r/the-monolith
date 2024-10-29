@@ -138,13 +138,18 @@ func main() {
 
 	monitor := giftbox.NewTelegramMonitor(cfg.TelegramToken, cfg.TelegramAdmin)
 
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	log.Info(wd)
 	giftBoxServer, err := giftbox.NewServer(
 		ctx,
 		conn,
 		idGen,
 		cfg.GiftBoxApiKey,
 		monitor,
-		"giftbox/",
+		wd+"/giftbox/",
 	)
 	if err != nil {
 		panic(fmt.Errorf("error starting gift box server: %v", err))
