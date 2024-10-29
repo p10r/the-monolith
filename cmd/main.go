@@ -138,28 +138,17 @@ func main() {
 
 	monitor := giftbox.NewTelegramMonitor(cfg.TelegramToken, cfg.TelegramAdmin)
 
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	log.Info(wd)
-	giftBoxServer, err := giftbox.NewServer(
-		ctx,
-		conn,
-		idGen,
-		cfg.GiftBoxApiKey,
-		monitor,
-		wd+"/giftbox/",
-	)
+	giftBoxServer, err := giftbox.NewServer(ctx, conn, idGen, cfg.GiftBoxApiKey, monitor)
 	if err != nil {
 		panic(fmt.Errorf("error starting gift box server: %v", err))
 	}
-	httpServer := &http.Server{
-		Addr:              ":8080",
-		ReadHeaderTimeout: 10 * time.Second,
-		Handler:           giftBoxServer,
-	}
-	server := gracefulshutdown.NewServer(httpServer)
+	server := gracefulshutdown.NewServer(
+		&http.Server{
+			Addr:              ":8080",
+			ReadHeaderTimeout: 10 * time.Second,
+			Handler:           giftBoxServer,
+		},
+	)
 
 	go pedroApp.Start()
 	go serveApp.StartBackgroundJobs(ctx)

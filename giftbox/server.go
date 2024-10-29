@@ -2,6 +2,7 @@ package giftbox
 
 import (
 	"context"
+	"embed"
 	"encoding/json"
 	"github.com/p10r/pedro/pkg/sqlite"
 	"html/template"
@@ -15,19 +16,21 @@ const (
 	wishGif = "https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif"
 )
 
+//go:embed gift-redeemed.html
+var fs embed.FS
+
 func NewServer(
 	ctx context.Context,
 	conn *sqlite.DB,
 	newUUID func() (string, error),
 	apiKey string,
 	monitor EventMonitor,
-	templateDir string,
 ) (http.Handler, error) {
 	if apiKey == "" {
 		log.Fatal("no api key provided")
 	}
 
-	tmpl, err := template.ParseFiles(templateDir + "gift-redeemed.html")
+	tmpl, err := template.ParseFS(fs, "gift-redeemed.html")
 	if err != nil {
 		return nil, err
 	}
