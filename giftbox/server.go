@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	sweetsGif = "https://media1.tenor.com/m/M3p9DCrC7OkAAAAC/christmas-dinner-sweets.gif"
+	SweetsGif = "https://media1.tenor.com/m/M3p9DCrC7OkAAAAC/christmas-dinner-sweets.gif"
 	//nolint:lll
-	wishGif = "https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif"
+	WishGif = "https://media1.tenor.com/m/CRN0ZkGmuLkAAAAC/your-wish-is-my-command-jeremy-reynolds.gif"
 )
 
 //go:embed gift-redeemed.html
@@ -182,11 +182,11 @@ func handleRedeemGift(
 		}
 
 		if gift.Type == TypeSweet {
-			_ = tmpl.Execute(w, sweetsGif)
+			_ = tmpl.Execute(w, SweetsGif)
 			return
 		}
 
-		_ = tmpl.Execute(w, wishGif)
+		_ = tmpl.Execute(w, WishGif)
 	}
 }
 

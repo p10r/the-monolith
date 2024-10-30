@@ -37,8 +37,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, res.Code)
 		assert.Equal(t, `{"id":"1"}`, strings.TrimSpace(res.Body.String()))
 
-		gift, ok := server.FindInDB(t, "1")
-		assert.True(t, ok)
+		gift := server.FindInDB(t, "1")
 		assert.Equal(t, giftbox.TypeSweet, gift.Type)
 	})
 
@@ -50,8 +49,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, res.Code)
 		assert.Equal(t, `{"id":"1"}`, strings.TrimSpace(res.Body.String()))
 
-		gift, ok := server.FindInDB(t, "1")
-		assert.True(t, ok)
+		gift := server.FindInDB(t, "1")
 		assert.Equal(t, giftbox.TypeWish, gift.Type)
 	})
 
@@ -70,7 +68,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 			Redeemed: false,
 			ImageUrl: url,
 		}
-		actual, _ := server.FindInDB(t, "1")
+		actual := server.FindInDB(t, "1")
 		assert.Equal(t, expected, actual)
 	})
 
@@ -79,37 +77,27 @@ func TestAcceptanceCriteria(t *testing.T) {
 		defer sqlite.MustCloseDB(t, server.DB)
 
 		server.AddSweet()
-		res := server.RedeemGift("1")
-		value, _ := server.FindInDB(t, "1")
-		assert.Equal(t, giftbox.Gift{ID: "1", Type: giftbox.TypeSweet, Redeemed: true}, value)
-		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[0])
-		assert.Equal(t, "text/html; charset=utf-8", res.Result().Header.Get("Content-Type"))
-		//nolint:lll
-		assert.True(t, strings.Contains(res.Body.String(), "https://media1.tenor.com/m/M3p9DCrC7OkAAAAC/christmas-dinner-sweets.gif"))
+		assertSweetWasRedeemed(t,
+			server.RedeemGift("1"),
+			server.FindInDB(t, "1"),
+			server.Events()[0],
+		)
 
 		server.AddWish()
-		res = server.RedeemGift("2")
-		value, _ = server.FindInDB(t, "2")
-		assert.Equal(t, giftbox.Gift{ID: "2", Type: giftbox.TypeWish, Redeemed: true}, value)
-		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[1])
-		assert.Equal(t, "text/html; charset=utf-8", res.Result().Header.Get("Content-Type"))
-		assert.True(t, strings.Contains(res.Body.String(), ".gif"))
+		assertWishWasRedeemed(t,
+			server.RedeemGift("2"),
+			server.FindInDB(t, "2"),
+			server.Events()[1],
+		)
 
 		url := "https://example.com"
 		server.AddImage(url)
-		res = server.RedeemGift("3")
-		assert.Equal(t, http.StatusSeeOther, res.Code)
-		assert.Equal(t, url, res.Result().Header.Get("Location"))
-
-		value, _ = server.FindInDB(t, "3")
-		expected := giftbox.Gift{
-			ID:       "3",
-			Type:     giftbox.TypeImage,
-			Redeemed: true,
-			ImageUrl: url,
-		}
-		assert.Equal(t, expected, value)
-		assertEqualsEventType(t, giftbox.RedeemedEvent{}, server.EventMonitor.Events[2])
+		assertImageWasRedeemed(t,
+			server.RedeemGift("3"),
+			server.FindInDB(t, "3"),
+			server.Events()[2],
+			url,
+		)
 	})
 
 	t.Run("blocks redeeming a gift twice", func(t *testing.T) {
@@ -122,7 +110,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 
 		res = server.RedeemGift("1")
 		assert.Equal(t, http.StatusBadRequest, res.Code)
-		assertEqualsEventType(t, giftbox.AlreadyRedeemedEvent{}, server.EventMonitor.Events[1])
+		assertEqualsEventType(t, giftbox.AlreadyRedeemedEvent{}, server.Events()[1])
 	})
 
 	t.Run("returns 400 if no id is given", func(t *testing.T) {
@@ -144,7 +132,7 @@ func TestAcceptanceCriteria(t *testing.T) {
 		w := httptest.NewRecorder()
 		server.Server.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
-		assertEqualsEventType(t, giftbox.IllegalAccessEvent{}, server.EventMonitor.Events[0])
+		assertEqualsEventType(t, giftbox.IllegalAccessEvent{}, server.Events()[0])
 
 		req = httptest.NewRequest("POST", "/gifts/sweets", nil)
 		req.Header.Set(giftbox.HeaderApiKey, "apiKey")
@@ -204,10 +192,51 @@ func TestAcceptanceCriteria(t *testing.T) {
 
 }
 
-func prettyPrinted(t *testing.T, gifts giftbox.AllGiftsRes) []byte {
-	marshal, err := json.MarshalIndent(gifts, "", " ")
-	assert.NoError(t, err)
-	return marshal
+func assertSweetWasRedeemed(
+	t *testing.T,
+	res *httptest.ResponseRecorder,
+	value giftbox.Gift,
+	event giftbox.Event,
+) {
+	assertEqualsEventType(t, giftbox.RedeemedEvent{}, event)
+	assert.Equal(t, giftbox.TypeSweet, value.Type)
+	assert.True(t, value.Redeemed)
+
+	assert.True(t, strings.Contains(res.Body.String(), giftbox.SweetsGif))
+	actualHeader := res.Result().Header.Get("Content-Type")
+	assert.Equal(t, "text/html; charset=utf-8", actualHeader)
+}
+
+func assertWishWasRedeemed(
+	t *testing.T,
+	res *httptest.ResponseRecorder,
+	value giftbox.Gift,
+	event giftbox.Event,
+) {
+	assertEqualsEventType(t, giftbox.RedeemedEvent{}, event)
+	assert.Equal(t, giftbox.TypeWish, value.Type)
+	assert.True(t, value.Redeemed)
+
+	actualHeader := res.Result().Header.Get("Content-Type")
+	assert.Equal(t, "text/html; charset=utf-8", actualHeader)
+	assert.True(t, strings.Contains(res.Body.String(), giftbox.WishGif))
+}
+
+func assertImageWasRedeemed(
+	t *testing.T,
+	res *httptest.ResponseRecorder,
+	value giftbox.Gift,
+	event giftbox.Event,
+	url string,
+) {
+	assertEqualsEventType(t, giftbox.RedeemedEvent{}, event)
+	assert.Equal(t, giftbox.TypeImage, value.Type)
+	assert.True(t, value.Redeemed)
+
+	assertEqualsEventType(t, giftbox.RedeemedEvent{}, event)
+
+	assert.Equal(t, http.StatusSeeOther, res.Code)
+	assert.Equal(t, url, res.Result().Header.Get("Location"))
 }
 
 func assertEqualsEventType(t *testing.T, expected, actual giftbox.Event) {
@@ -216,4 +245,10 @@ func assertEqualsEventType(t *testing.T, expected, actual giftbox.Event) {
 		reflect.TypeOf(expected).String(),
 		reflect.TypeOf(actual).String(),
 	)
+}
+
+func prettyPrinted(t *testing.T, gifts giftbox.AllGiftsRes) []byte {
+	marshal, err := json.MarshalIndent(gifts, "", " ")
+	assert.NoError(t, err)
+	return marshal
 }

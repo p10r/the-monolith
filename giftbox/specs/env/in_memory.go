@@ -52,7 +52,11 @@ func NewInMemoryEnv(t *testing.T, initialID int32, apiKey string) *InMemory {
 	}
 }
 
-func (env *InMemory) FindInDB(t *testing.T, id giftbox.GiftID) (giftbox.Gift, bool) {
+func (env *InMemory) Events() []giftbox.Event {
+	return env.EventMonitor.Events
+}
+
+func (env *InMemory) FindInDB(t *testing.T, id giftbox.GiftID) giftbox.Gift {
 	gifts, err := env.Repo.All(context.Background())
 	if err != nil {
 		t.Fatal(err)
@@ -60,12 +64,10 @@ func (env *InMemory) FindInDB(t *testing.T, id giftbox.GiftID) (giftbox.Gift, bo
 
 	for _, gift := range gifts {
 		if gift.ID == id {
-			return gift, true
+			return gift
 		}
 	}
-	return giftbox.Gift{}, false
-	//value, ok := env.Store.Load(id)
-	//return value.(giftbox.Gift), ok
+	return giftbox.Gift{}
 }
 
 func (env *InMemory) AddSweet() *httptest.ResponseRecorder {
