@@ -28,7 +28,7 @@ type Config struct {
 }
 
 const serveImportUpcomingSchedule = "0 6 * * *"
-const serveImportFinishedSchedule = "0 20 * * *"
+const serveImportFinishedSchedule = "0 22 * * *"
 const flashscoreUri = "https://flashscore.p.rapidapi.com"
 
 var favouriteLeagues = []string{

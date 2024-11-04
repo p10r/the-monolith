@@ -27,7 +27,20 @@ func main() {
 	}
 
 	gifts := fetchGifts(apiKey)
+	refs := toGiftIDs(gifts)
+	writeQRCodes(refs)
+}
 
+func writeQRCodes(refs []GiftRef) {
+	for _, ref := range refs {
+		err := qrcode.WriteFile(ref.url, qrcode.Medium, 256, "qr-"+ref.id+".png")
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func toGiftIDs(gifts giftbox.Gifts) []GiftRef {
 	var refs []GiftRef
 	for _, gift := range gifts {
 		ref := GiftRef{
@@ -36,13 +49,7 @@ func main() {
 		}
 		refs = append(refs, ref)
 	}
-
-	for _, ref := range refs {
-		err := qrcode.WriteFile(ref.url, qrcode.Medium, 256, "qr-"+ref.id+".png")
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	return refs
 }
 
 func fetchGifts(key string) giftbox.Gifts {
