@@ -2,7 +2,7 @@ package specifications
 
 import (
 	"context"
-	"github.com/p10r/pedro/serve/expect"
+	"github.com/alecthomas/assert/v2"
 	"log"
 	"testing"
 )
@@ -71,7 +71,7 @@ func TestProd(t *testing.T) {
 		f := newFixture(t, favs, false, true)
 
 		matches, err := f.importer.ImportScheduledMatches(ctx)
-		expect.NoErr(t, err)
+		assert.NoError(t, err)
 		for _, match := range matches {
 			log.Println(match)
 		}

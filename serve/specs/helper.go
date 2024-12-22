@@ -3,7 +3,7 @@ package specifications
 import (
 	"encoding/json"
 	"github.com/p10r/pedro/serve/discord"
-	"github.com/p10r/pedro/serve/expect"
+	"github.com/quii/go-graceful-shutdown/assert"
 	"sort"
 	"testing"
 )
@@ -11,7 +11,7 @@ import (
 func newDiscordMessage(t *testing.T, input []byte) discord.Message {
 	var msg discord.Message
 	err := json.Unmarshal(input, &msg)
-	expect.NoErr(t, err)
+	assert.NoError(t, err)
 
 	return orderLeagues(msg)
 }
@@ -30,6 +30,6 @@ func orderLeagues(msg discord.Message) discord.Message {
 
 func prettyPrinted(t *testing.T, msg discord.Message) []byte {
 	marshal, err := json.MarshalIndent(msg, "", " ")
-	expect.NoErr(t, err)
+	assert.NoError(t, err)
 	return marshal
 }

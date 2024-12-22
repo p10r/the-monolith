@@ -2,8 +2,9 @@ package specifications
 
 import (
 	"context"
+	"github.com/alecthomas/assert/v2"
 	approvals "github.com/approvals/go-approval-tests"
-	"github.com/p10r/pedro/serve/expect"
+	"github.com/p10r/pedro/pedro/domain/expect"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ func TestFinishedMatches(t *testing.T) {
 	defer f.discordServer.Close()
 
 	err := f.importer.ImportFinishedMatches(ctx)
-	expect.NoErr(t, err)
+	assert.NoError(t, err)
 
 	t.Run("sends scores to discord", func(t *testing.T) {
 		requests := *f.discordServer.Requests

@@ -1,8 +1,8 @@
 package domain_test
 
 import (
+	"github.com/alecthomas/assert/v2"
 	"github.com/p10r/pedro/serve/domain"
-	"github.com/p10r/pedro/serve/expect"
 	"github.com/p10r/pedro/serve/testutil"
 	"testing"
 )
@@ -37,7 +37,7 @@ func TestDomain(t *testing.T) {
 		untrackedMatches := testutil.UntrackedMatches(t)
 		favs := []string{"Europe: Champions League - Play Offs"}
 		matches := untrackedMatches.FilterScheduled(favs)
-		expect.DeepEqual(t, matches, expected)
+		assert.Equal(t, matches, expected)
 	})
 
 	t.Run("filters for finished matches", func(t *testing.T) {
@@ -61,12 +61,12 @@ func TestDomain(t *testing.T) {
 
 		untrackedMatches := testutil.UntrackedMatches(t)
 		matches := untrackedMatches.FilterFinished([]string{"Croatia: Superliga - Play Offs"})
-		expect.DeepEqual(t, matches, expected)
+		assert.Equal(t, matches, expected)
 	})
 
 	t.Run("handles 0 scheduled matches", func(t *testing.T) {
 		m := domain.UntrackedMatches{}.FilterScheduled([]string{"Italy: SuperLega"})
-		expect.Len(t, m, 0)
+		assert.Equal(t, len(m), 0)
 	})
 
 	t.Run("filters for favourites", func(t *testing.T) {
@@ -109,6 +109,6 @@ func TestDomain(t *testing.T) {
 		favourites := []string{"Europe: Champions League - Play Offs", "USA: PVF Women"}
 
 		matches := testutil.UntrackedMatches(t).FilterScheduled(favourites)
-		expect.DeepEqual(t, matches, expected)
+		assert.Equal(t, matches, expected)
 	})
 }

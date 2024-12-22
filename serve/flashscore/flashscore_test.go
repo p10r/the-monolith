@@ -2,9 +2,10 @@ package flashscore_test
 
 import (
 	"bytes"
+	"github.com/alecthomas/assert/v2"
+	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/serve/domain"
-	"github.com/p10r/pedro/serve/expect"
 	"github.com/p10r/pedro/serve/flashscore"
 	"github.com/p10r/pedro/serve/testutil"
 	"io"
@@ -42,8 +43,8 @@ func TestFlashscore(t *testing.T) {
 
 		response, err := flashscore.NewResponse(io.NopCloser(bytes.NewBufferString(string(json))))
 
-		expect.NoErr(t, err)
-		expect.Equal(t, len(response.Leagues), 5)
+		assert.NoError(t, err)
+		assert.Equal(t, len(response.Leagues), 5)
 	})
 
 	t.Run("fetches response", func(t *testing.T) {
@@ -54,7 +55,7 @@ func TestFlashscore(t *testing.T) {
 		client := flashscore.NewClient(flashscoreServer.URL, apiKey, log)
 
 		_, err := client.GetUpcomingMatches()
-		expect.NoErr(t, err)
+		assert.NoError(t, err)
 	})
 
 	t.Run("reports error", func(t *testing.T) {
@@ -100,7 +101,7 @@ func TestFlashscore(t *testing.T) {
 			},
 		}
 
-		expect.DeepEqual(t, resp.ToUntrackedMatches(), expected)
+		assert.Equal(t, resp.ToUntrackedMatches(), expected)
 	})
 
 }
