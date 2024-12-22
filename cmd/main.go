@@ -25,6 +25,7 @@ type Config struct {
 	FlashscoreApiKey string  `env:"FLASHSCORE_API_KEY"`
 	DiscordUri       string  `env:"DISCORD_URI"`
 	GiftBoxApiKey    string  `env:"GIFT_BOX_API_KEY"`
+	ServeApiKey      string  `env:"SERVE_API_KEY"`
 }
 
 const serveImportUpcomingSchedule = "0 6 * * *"
@@ -122,7 +123,7 @@ func main() {
 		cfg.FlashscoreApiKey,
 		cfg.DiscordUri,
 		favouriteLeagues,
-		handler,
+		l.NewTelegramLogger(cfg.TelegramToken, cfg.TelegramAdmin, "serve"),
 		serveImportUpcomingSchedule,
 		serveImportFinishedSchedule,
 	)
@@ -136,7 +137,9 @@ func main() {
 		return v7.String(), nil
 	}
 
-	monitor := giftbox.NewTelegramMonitor(cfg.TelegramToken, cfg.TelegramAdmin)
+	monitor := giftbox.NewTelegramMonitor(
+		l.NewTelegramLogger(cfg.TelegramToken, cfg.TelegramAdmin, "giftbox"),
+	)
 
 	giftBoxServer, err := giftbox.NewServer(ctx, conn, idGen, cfg.GiftBoxApiKey, monitor)
 	if err != nil {

@@ -2,7 +2,6 @@ package giftbox
 
 import (
 	"fmt"
-	slogtelegram "github.com/samber/slog-telegram/v2"
 	"log/slog"
 )
 
@@ -53,14 +52,8 @@ type TelegramMonitor struct {
 	logger *slog.Logger
 }
 
-func NewTelegramMonitor(token, username string) *TelegramMonitor {
-	logger := slog.New(slogtelegram.Option{
-		Level:    slog.LevelInfo,
-		Token:    token,
-		Username: username,
-	}.NewTelegramHandler())
-
-	return &TelegramMonitor{logger: logger}
+func NewTelegramMonitor(log *slog.Logger) *TelegramMonitor {
+	return &TelegramMonitor{logger: log}
 }
 
 func (t TelegramMonitor) Track(e Event) {

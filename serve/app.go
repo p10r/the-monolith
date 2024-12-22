@@ -26,12 +26,10 @@ func NewServeApp(
 	conn *sqlite.DB,
 	flashscoreUri, flashscoreApiKey, discordUri string,
 	favouriteLeagues []string,
-	logHandler slog.Handler,
+	log *slog.Logger,
 	importUpcomingSchedule string,
 	importFinishedSchedule string,
 ) *Serve {
-	log := l.NewAppLogger(logHandler, "serve")
-
 	log.Info("Starting Serve App")
 
 	if flashscoreUri == "" {
