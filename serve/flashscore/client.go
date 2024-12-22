@@ -47,19 +47,25 @@ func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 	req.Header.Add("X-RapidAPI-Host", "flashscore.p.rapidapi.com")
 	req.Header.Add("X-RapidAPI-Key", c.apiKey)
 
+	retries := c.retries
 	var res *http.Response
-	for c.retries > 0 {
+	for retries > 0 {
 		res, err = c.http.Do(req)
 		if err != nil {
 			c.log.Error(l.Error("Error executing GET request", err))
-			c.retries -= 1
+			retries -= 1
+			time.Sleep(1 * time.Second)
 		} else {
 			break
 		}
 	}
 
 	if res == nil {
-		c.log.Error(l.Error("res was nil", err))
+		c.log.Error(
+			"flashscore res was nil",
+			slog.Any("error", err),
+			slog.Any("retries_left", retries),
+		)
 		return domain.UntrackedMatches{}, fmt.Errorf("res was nil")
 	}
 
