@@ -9,23 +9,17 @@ import (
 	"strings"
 )
 
-type PlusLiga struct {
-	baseUrl string
-}
-
 type plusLigaMatch struct {
 	homeTeam, awayTeam, statsUrl string
 }
 
-//nolint:unused
+type plusLigaMatches map[matchKey]plusLigaMatch
+
 type matchKey string
 
-//nolint:unused
 func newMatchKey(homeName, awayName string) matchKey {
 	return matchKey(homeName + "-" + awayName)
 }
-
-type plusLigaMatches []plusLigaMatch
 
 var domainToPlusLigaMappings = map[string]string{
 	"Barkom":             "Barkom Każany Lwów",
@@ -46,26 +40,36 @@ var domainToPlusLigaMappings = map[string]string{
 	"Zawierce":           "Aluron CMC Warta Zawiercie",
 }
 
-//nolint:lll
-func (m plusLigaMatches) ZipWith(dm domain.Matches) (zipped domain.Matches, notFound domain.Matches) {
+func (m plusLigaMatches) ZipWith(
+	dm domain.Matches,
+) (zipped domain.Matches, notFound domain.Matches) {
 	zipped = domain.Matches{}
+	notFound = domain.Matches{}
+
 	for _, d := range dm {
 		plusLigaHome := domainToPlusLigaMappings[d.HomeName]
 		plusLigaAway := domainToPlusLigaMappings[d.AwayName]
+		key := newMatchKey(plusLigaHome, plusLigaAway)
 
-		for _, plMatch := range m {
-			if plMatch.homeTeam == plusLigaHome && plMatch.awayTeam == plusLigaAway {
-				d.StatsUrl = plMatch.statsUrl
-				zipped = append(zipped, d)
-			}
+		plMatch, ok := m[key]
+		if !ok {
+			notFound = append(notFound, d)
+			continue
 		}
+
+		d.StatsUrl = plMatch.statsUrl
+		zipped = append(zipped, d)
 	}
 
 	return zipped, nil
 }
 
-func (pl *PlusLiga) ParseStats(res *http.Response) ([]plusLigaMatch, error) {
-	var matches []plusLigaMatch
+type PlusLiga struct {
+	baseUrl string
+}
+
+func (pl *PlusLiga) parseStats(res *http.Response) (matches plusLigaMatches, err error) {
+	matches = plusLigaMatches{}
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
@@ -89,12 +93,11 @@ func (pl *PlusLiga) ParseStats(res *http.Response) ([]plusLigaMatch, error) {
 				return
 			}
 
-			match := plusLigaMatch{
+			matches[newMatchKey(homeTeam, awayTeam)] = plusLigaMatch{
 				homeTeam: homeTeam,
 				awayTeam: awayTeam,
 				statsUrl: pl.baseUrl + statsUrl,
 			}
-			matches = append(matches, match)
 		})
 
 	return matches, nil
