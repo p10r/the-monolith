@@ -7,6 +7,7 @@ import (
 	"github.com/approvals/go-approval-tests/reporters"
 	"github.com/p10r/pedro/pedro/domain/expect"
 	"github.com/p10r/pedro/serve/domain"
+	"github.com/p10r/pedro/serve/testutil"
 	"os"
 	"sort"
 	"testing"
@@ -66,7 +67,7 @@ func TestImportMatches(t *testing.T) {
 		expect.Len(t, requests, 1)
 
 		msg := newDiscordMessage(t, requests[0])
-		approvals.VerifyJSONBytes(t, prettyPrinted(t, msg))
+		approvals.VerifyJSONBytes(t, testutil.PrettyPrinted(t, msg))
 	})
 }
 

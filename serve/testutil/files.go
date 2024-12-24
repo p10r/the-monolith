@@ -8,13 +8,16 @@ import (
 	"testing"
 )
 
-func RawFlashscoreRes(tb testing.TB) []byte {
-	content, err := os.ReadFile("../testdata/flashscore-res.json")
+func MustReadFile(tb testing.TB, path string) []byte {
+	content, err := os.ReadFile(path)
 	if err != nil {
-		tb.Fatalf("Error trying to load flashscore res: %v", err)
+		tb.Fatalf("Error trying to load file: %v", err)
 	}
-
 	return content
+}
+
+func RawFlashscoreRes(tb testing.TB) []byte {
+	return MustReadFile(tb, "../testdata/flashscore-res.json")
 }
 
 func FlashscoreRes(tb testing.TB) flashscore.Response {

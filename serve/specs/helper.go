@@ -27,9 +27,3 @@ func orderLeagues(msg discord.Message) discord.Message {
 
 	return msg
 }
-
-func prettyPrinted(t *testing.T, msg discord.Message) []byte {
-	marshal, err := json.MarshalIndent(msg, "", " ")
-	assert.NoError(t, err)
-	return marshal
-}
