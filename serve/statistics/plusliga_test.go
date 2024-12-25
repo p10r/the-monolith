@@ -1,19 +1,20 @@
-package scraper
+package statistics
 
 import (
 	"github.com/alecthomas/assert/v2"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/testutil"
+	"net/http"
 	"strings"
 	"testing"
 )
 
 func TestPlusLigaScraper(t *testing.T) {
 	plusLigaBaseUrl := "plusliga-url"
-	plusLiga := PlusLiga{baseUrl: plusLigaBaseUrl}
+	plusLiga := plusLigaScraper{baseUrl: plusLigaBaseUrl}
 
 	t.Run("scrapes matches", func(t *testing.T) {
-		f := testutil.MustReadFile(t, "../testdata/scraper/plusliga-game-day.html")
+		f := testutil.MustReadFile(t, "../testdata/statistics/plusliga-game-day.html")
 		res := testutil.SomeRes(f)
 
 		stats, err := plusLiga.parseStats(res)
@@ -45,7 +46,7 @@ func TestPlusLigaScraper(t *testing.T) {
 	})
 
 	t.Run("scrapes matches from full page", func(t *testing.T) {
-		f := testutil.MustReadFile(t, "../testdata/scraper/plusliga.html")
+		f := testutil.MustReadFile(t, "../testdata/statistics/plusliga.html")
 		res := testutil.SomeRes(f)
 
 		stats, err := plusLiga.parseStats(res)
@@ -60,7 +61,7 @@ func TestPlusLigaScraper(t *testing.T) {
 		}
 	})
 
-	t.Run("maps PlusLiga matches to Serve Matches", func(t *testing.T) {
+	t.Run("maps plusLigaScraper matches to Serve Matches", func(t *testing.T) {
 		match1 := plusLigaMatch{
 			homeTeam: "BOGDANKA LUK Lublin",
 			awayTeam: "Ślepsk Malow Suwałki",
@@ -76,49 +77,57 @@ func TestPlusLigaScraper(t *testing.T) {
 			newMatchKey(match2.homeTeam, match2.awayTeam): match2,
 		}
 
-		domainMatches := domain.Matches{
-			domain.Match{
-				ID:        123,
-				HomeName:  "Lublin",
-				AwayName:  "Slepsk Suwalki",
-				StartTime: 1,
-				Country:   "Poland",
-				League:    "PlusLiga",
-				StatsUrl:  "",
+		domainMatches := domain.FinishedMatches{
+			domain.FinishedMatch{
+				HomeName: "Lublin",
+				AwayName: "Slepsk Suwalki",
+				StatsUrl: "",
 			},
-			domain.Match{
-				ID:        6124,
-				HomeName:  "Zawierce",
-				AwayName:  "Norwid Czestochowa",
-				StartTime: 1,
-				Country:   "Poland",
-				League:    "PlusLiga",
-				StatsUrl:  "",
+			domain.FinishedMatch{
+				HomeName: "Zawierce",
+				AwayName: "Norwid Czestochowa",
+				StatsUrl: "",
 			},
 		}
 
-		expected := domain.Matches{
-			domain.Match{
-				ID:        123,
-				HomeName:  "Lublin",
-				AwayName:  "Slepsk Suwalki",
-				StartTime: 1,
-				Country:   "Poland",
-				League:    "PlusLiga",
-				StatsUrl:  match1.statsUrl,
+		expected := domain.FinishedMatches{
+			domain.FinishedMatch{
+				HomeName: "Lublin",
+				AwayName: "Slepsk Suwalki",
+				StatsUrl: match1.statsUrl,
 			},
-			domain.Match{
-				ID:        6124,
-				HomeName:  "Zawierce",
-				AwayName:  "Norwid Czestochowa",
-				StartTime: 1,
-				Country:   "Poland",
-				League:    "PlusLiga",
-				StatsUrl:  match2.statsUrl,
+			domain.FinishedMatch{
+				HomeName: "Zawierce",
+				AwayName: "Norwid Czestochowa",
+				StatsUrl: match2.statsUrl,
 			},
 		}
 
 		zipped, _ := plm.ZipWith(domainMatches)
 		assert.Equal(t, expected, zipped)
 	})
+
+	t.Run("round-trip", func(t *testing.T) {
+		f := testutil.MustReadFile(t, "../testdata/statistics/plusliga.html")
+		plusLigaSite := testutil.NewPlusLigaServer(t, f)
+		plusLigaSite.Start()
+		defer plusLigaSite.Close()
+
+		plusLiga := newPlusLiga(plusLigaSite.URL, &http.Client{})
+
+		urls, err := plusLiga.GetAllStats()
+		assert.NoError(t, err)
+		assert.Equal(t, 240, len(urls))
+	})
+
+	t.Run("run against prod", func(t *testing.T) {
+		t.Skip()
+
+		plusLiga := newPlusLiga("https://www.plusliga.pl", &http.Client{})
+
+		urls, err := plusLiga.GetAllStats()
+		assert.NoError(t, err)
+		assert.Equal(t, 240, len(urls))
+	})
+
 }

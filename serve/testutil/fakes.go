@@ -83,3 +83,13 @@ func NewFlashscoreServer(t *testing.T, apiKey string) *httptest.Server {
 		}
 	}))
 }
+
+func NewPlusLigaServer(t *testing.T, resBody []byte) *httptest.Server {
+	t.Helper()
+
+	//nolint:lll
+	return httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(resBody)
+	}))
+}

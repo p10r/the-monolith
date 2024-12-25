@@ -54,7 +54,9 @@ func TestDomain(t *testing.T) {
 					HomeScoreCurrent: 2,
 					AwayScoreCurrent: 3,
 				},
+				HomeName:     "Mok Mursa",
 				HomeSetScore: 2,
+				AwayName:     "HAOK Mladost",
 				AwaySetScore: 3,
 			},
 		}

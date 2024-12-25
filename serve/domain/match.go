@@ -21,8 +21,6 @@ type Match struct {
 	StartTime int64
 	Country   string
 	League    string
-	// Set through scraper package
-	StatsUrl string
 }
 
 type Matches []Match
@@ -40,8 +38,11 @@ func NewMatch(id int64, match UntrackedMatch) Match {
 
 type FinishedMatch struct {
 	UntrackedMatch
+	HomeName     string
 	HomeSetScore int
+	AwayName     string
 	AwaySetScore int
+	StatsUrl     string
 }
 
 type FinishedMatches []FinishedMatch

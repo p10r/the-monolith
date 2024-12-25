@@ -18,10 +18,15 @@ type Discord interface {
 	SendFinishedMatches(context.Context, FinishedMatches, time.Time) error
 }
 
+type Statistics interface {
+	EnrichMatches(matches FinishedMatches) FinishedMatches
+}
+
 type MatchImporter struct {
 	store      MatchStore
 	flashscore Flashscore
 	discord    Discord
+	statistics Statistics
 	favLeagues []string
 	clock      func() time.Time
 	log        *slog.Logger
@@ -31,6 +36,7 @@ func NewMatchImporter(
 	store MatchStore,
 	flashscore Flashscore,
 	discord Discord,
+	statistics Statistics,
 	favLeagues []string,
 	clock func() time.Time,
 	log *slog.Logger,
@@ -39,6 +45,7 @@ func NewMatchImporter(
 		store,
 		flashscore,
 		discord,
+		statistics,
 		favLeagues,
 		clock,
 		log,
@@ -92,7 +99,8 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		return nil
 	}
 
-	err = importer.discord.SendFinishedMatches(ctx, finished, importer.clock())
+	matchesWithStats := importer.statistics.EnrichMatches(finished)
+	err = importer.discord.SendFinishedMatches(ctx, matchesWithStats, importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
 		return err

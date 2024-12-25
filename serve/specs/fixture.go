@@ -7,8 +7,10 @@ import (
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/flashscore"
+	"github.com/p10r/pedro/serve/statistics"
 	"github.com/p10r/pedro/serve/testutil"
 	"log/slog"
+	"net"
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -18,6 +20,7 @@ import (
 type fixture struct {
 	flashscoreServer *httptest.Server
 	discordServer    *testutil.DiscordServer
+	plusLigaWebsite  *httptest.Server
 	importer         *domain.MatchImporter
 	store            *db.MatchStore
 }
@@ -59,6 +62,20 @@ func newFixture(
 		discordClient = discord.NewClient(discordServer.URL, log)
 	}
 
+	// We set a static string so the approval test doesn't break
+	listener, err := net.Listen("tcp", "127.0.0.1:58773")
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	plusLigaWebsite := testutil.NewPlusLigaServer(
+		t,
+		testutil.MustReadFile(t, "../testdata/statistics/plusliga.html"),
+	)
+	plusLigaWebsite.Listener = listener
+	plusLigaWebsite.Start()
+
+	aggr := statistics.NewAggregator(plusLigaWebsite.URL, log)
+
 	may28th := func() time.Time {
 		return time.Date(2024, 5, 28, 0, 0, 0, 0, time.UTC)
 	}
@@ -68,6 +85,7 @@ func newFixture(
 		matchStore,
 		fsClient,
 		discordClient,
+		aggr,
 		favLeagues,
 		may28th,
 		log,
@@ -75,6 +93,7 @@ func newFixture(
 	return fixture{
 		flashscoreServer,
 		discordServer,
+		plusLigaWebsite,
 		importer,
 		matchStore,
 	}

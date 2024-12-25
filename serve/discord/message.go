@@ -3,6 +3,7 @@ package discord
 import (
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -85,10 +86,21 @@ func upcomingText(matches domain.Matches) string {
 }
 
 func finishedText(matches domain.FinishedMatches) string {
+	// Sort, to always have the same order in the message
+	sort.Slice(matches, func(i, j int) bool {
+		one := matches[i].HomeName
+		other := matches[j].HomeName
+
+		return len(one) > len(other)
+	})
+
 	var texts []string
 	for _, m := range matches {
-		//nolint
+		//nolint:lll
 		formatted := fmt.Sprintf("**%v - %v**\t\t\tScore:\t||%v\t:\t%v||", m.HomeName, m.AwayName, m.HomeSetScore, m.AwaySetScore)
+		if m.StatsUrl != "" {
+			formatted = formatted + "\t\t\t[📊 Statistics](" + m.StatsUrl + ")"
+		}
 		texts = append(texts, formatted)
 	}
 	return strings.Join(texts, "\n")

@@ -41,8 +41,12 @@ func (matches UntrackedMatches) FilterFinished(favourites []string) FinishedMatc
 	for _, match := range filtered {
 		finished = append(finished, FinishedMatch{
 			match,
+			match.HomeName,
 			match.HomeScoreCurrent,
+			match.AwayName,
 			match.AwayScoreCurrent,
+			// Empty by default - set through statistics package
+			"",
 		})
 	}
 

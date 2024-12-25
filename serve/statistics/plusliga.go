@@ -1,10 +1,9 @@
-package scraper
+package statistics
 
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/p10r/pedro/serve/domain"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -41,10 +40,10 @@ var domainToPlusLigaMappings = map[string]string{
 }
 
 func (m plusLigaMatches) ZipWith(
-	dm domain.Matches,
-) (zipped domain.Matches, notFound domain.Matches) {
-	zipped = domain.Matches{}
-	notFound = domain.Matches{}
+	dm domain.FinishedMatches,
+) (zipped domain.FinishedMatches, notFound domain.FinishedMatches) {
+	zipped = domain.FinishedMatches{}
+	notFound = domain.FinishedMatches{}
 
 	for _, d := range dm {
 		plusLigaHome := domainToPlusLigaMappings[d.HomeName]
@@ -64,11 +63,68 @@ func (m plusLigaMatches) ZipWith(
 	return zipped, nil
 }
 
-type PlusLiga struct {
+type plusLigaScraper struct {
 	baseUrl string
+	client  *http.Client
 }
 
-func (pl *PlusLiga) parseStats(res *http.Response) (matches plusLigaMatches, err error) {
+func newPlusLiga(baseUrl string, client *http.Client) *plusLigaScraper {
+	return &plusLigaScraper{baseUrl: baseUrl, client: client}
+}
+
+func (pl *plusLigaScraper) GetAllStats() (statUrls []string, err error) {
+	page, err := pl.getAllMatchesPage()
+	if err != nil {
+		return []string{}, fmt.Errorf("could not fetch plusLigaScraper match page: %w", err)
+	}
+
+	plMatches, err := pl.parseStats(page)
+	if err != nil {
+		return []string{}, fmt.Errorf("could not parse plusLigaScraper match page: %w", err)
+	}
+
+	urls := []string{}
+	for _, match := range plMatches {
+		urls = append(urls, match.statsUrl)
+	}
+	return urls, nil
+}
+
+func (pl *plusLigaScraper) GetStatsFor(dm domain.FinishedMatches) (
+	matched domain.FinishedMatches,
+	notFound domain.FinishedMatches,
+	err error,
+) {
+	page, err := pl.getAllMatchesPage()
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not fetch plusLigaScraper match page: %w", err)
+	}
+
+	plMatches, err := pl.parseStats(page)
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not parse plusLigaScraper match page: %w", err)
+	}
+
+	zipped, notFound := plMatches.ZipWith(dm)
+	return zipped, notFound, nil
+}
+
+func (pl *plusLigaScraper) getAllMatchesPage() (*http.Response, error) {
+	res, err := pl.client.Get(pl.baseUrl + "/games.html")
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("got %d when fetching page. err: %w", res.StatusCode, err)
+	}
+
+	return res, nil
+}
+
+//nolint:lll
+func (pl *plusLigaScraper) parseStats(res *http.Response) (matches plusLigaMatches, err error) {
+	defer res.Body.Close()
 	matches = plusLigaMatches{}
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
@@ -89,7 +145,6 @@ func (pl *PlusLiga) parseStats(res *http.Response) (matches plusLigaMatches, err
 			awayTeam := strings.TrimSpace(awaySelection)
 
 			if awayTeam == "" || homeTeam == "" || !statsExist {
-				// TODO: add some logging here
 				return
 			}
 
@@ -100,22 +155,9 @@ func (pl *PlusLiga) parseStats(res *http.Response) (matches plusLigaMatches, err
 			}
 		})
 
+	//printAllTeamsInLeague(matches)
+
 	return matches, nil
-}
-
-//nolint:unused
-func (pl *PlusLiga) getAllMatchesPage() (*http.Response, error) {
-	res, err := http.Get(pl.baseUrl + "/games.html")
-	if err != nil {
-		return nil, err
-	}
-	//defer res.Body.Close() TODO where?
-	if res.StatusCode != 200 {
-		log.Fatal("boom")
-		// TODO logging
-	}
-
-	return res, nil
 }
 
 // printAllTeamsInLeague is intended to be run whenever there is a mismatch in teams.
@@ -123,7 +165,7 @@ func (pl *PlusLiga) getAllMatchesPage() (*http.Response, error) {
 //
 //nolint:unused
 //goland:noinspection GoUnusedFunction
-func printAllTeamsInLeague(matches []plusLigaMatch) {
+func printAllTeamsInLeague(matches plusLigaMatches) {
 	teamsSet := map[string]string{}
 	for _, match := range matches {
 		teamsSet[match.homeTeam] = ""

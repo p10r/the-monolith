@@ -8,6 +8,7 @@ import (
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/flashscore"
+	"github.com/p10r/pedro/serve/statistics"
 	"github.com/robfig/cron/v3"
 	"log/slog"
 	"time"
@@ -45,12 +46,14 @@ func NewServeApp(
 	store := db.NewMatchStore(conn)
 	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey, log)
 	discordClient := discord.NewClient(discordUri, log)
+	stats := statistics.NewAggregator("https://www.plusliga.pl", log)
 	now := func() time.Time { return time.Now() }
 
 	importer := domain.NewMatchImporter(
 		store,
 		flashscoreClient,
 		discordClient,
+		stats,
 		favouriteLeagues,
 		now,
 		log,

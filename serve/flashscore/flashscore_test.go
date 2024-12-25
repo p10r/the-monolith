@@ -44,7 +44,7 @@ func TestFlashscore(t *testing.T) {
 		response, err := flashscore.NewResponse(io.NopCloser(bytes.NewBufferString(string(json))))
 
 		assert.NoError(t, err)
-		assert.Equal(t, len(response.Leagues), 5)
+		assert.Equal(t, len(response.Leagues), 6)
 	})
 
 	t.Run("fetches response", func(t *testing.T) {

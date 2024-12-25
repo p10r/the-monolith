@@ -5,6 +5,11 @@
       "fields": [
         {
           "inline": false,
+          "name": "🇵🇱Poland: PlusLiga",
+          "value": "**Rzeszow - Jastrzebski**\t\t\tScore:\t||0\t:\t3||\t\t\t[📊 Statistics](http://127.0.0.1:58773/games/action/show/id/1103726.html)\n**Olsztyn - Slepsk Suwalki**\t\t\tScore:\t||3\t:\t1||\t\t\t[📊 Statistics](http://127.0.0.1:58773/games/action/show/id/1103722.html)\n**Barkom - Zawiercie**\t\t\tScore:\t||1\t:\t3||"
+        },
+        {
+          "inline": false,
           "name": "🇪🇺Europe: Champions League Women - Play Offs",
           "value": "**Conegliano W - Vero Volley W**\t\t\tScore:\t||3\t:\t2||"
         }
