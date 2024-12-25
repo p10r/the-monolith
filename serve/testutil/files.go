@@ -29,12 +29,12 @@ func FlashscoreRes(tb testing.TB) flashscore.Response {
 	return res
 }
 
-func UntrackedMatches(tb testing.TB) domain.UntrackedMatches {
+func Matches(tb testing.TB) domain.Matches {
 	var res flashscore.Response
 	err := json2.Unmarshal(RawFlashscoreRes(tb), &res)
 	if err != nil {
 		tb.Fail()
 	}
 
-	return res.ToUntrackedMatches()
+	return res.ToMatches()
 }

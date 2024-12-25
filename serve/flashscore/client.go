@@ -37,11 +37,11 @@ func NewClient(baseUri, apiKey string, log *slog.Logger) *Client {
 	return &Client{c, baseUri, apiKey, fsl, r}
 }
 
-func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
+func (c *Client) GetUpcomingMatches() (domain.Matches, error) {
 	url := c.baseUri + "/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=0"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return domain.UntrackedMatches{}, err
+		return domain.Matches{}, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-RapidAPI-Host", "flashscore.p.rapidapi.com")
@@ -66,30 +66,30 @@ func (c *Client) GetUpcomingMatches() (domain.UntrackedMatches, error) {
 			slog.Any("error", err),
 			slog.Any("retries_left", retries),
 		)
-		return domain.UntrackedMatches{}, fmt.Errorf("res was nil")
+		return domain.Matches{}, fmt.Errorf("res was nil")
 	}
 
 	if res.StatusCode == http.StatusForbidden {
 		c.log.Error("Forbidden - wrong API key?")
-		return domain.UntrackedMatches{}, err
+		return domain.Matches{}, err
 	}
 
 	if res.StatusCode != http.StatusOK {
 		//Todo have Adapter logger that has "data" field
 		c.log.Error(fmt.Sprintf("Request failed: %v, req: %v", res.StatusCode, req))
 		err := fmt.Errorf("req failed: %v, body: %v", res.StatusCode, res.Body)
-		return domain.UntrackedMatches{}, err
+		return domain.Matches{}, err
 	}
 
 	if res.Body == nil {
-		return domain.UntrackedMatches{}, errors.New("no response body")
+		return domain.Matches{}, errors.New("no response body")
 	}
 	defer res.Body.Close()
 
 	response, err := NewResponse(res.Body)
 	if res.Body == nil {
-		return domain.UntrackedMatches{}, errors.New("could not parse JSON")
+		return domain.Matches{}, errors.New("could not parse JSON")
 	}
 
-	return response.ToUntrackedMatches(), err
+	return response.ToMatches(), err
 }

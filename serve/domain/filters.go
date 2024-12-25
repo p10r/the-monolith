@@ -12,21 +12,21 @@ const (
 	FINISHED  MatchStage = "FINISHED"
 )
 
-func (matches UntrackedMatches) FilterScheduled(favs []string) UntrackedMatches {
+func (matches Matches) FilterScheduled(favs []string) Matches {
 	scheduled := filter(SCHEDULED, matches)
 	if len(scheduled) == 0 {
-		return UntrackedMatches{}
+		return Matches{}
 	}
 
 	filtered := filterFavourites(scheduled, favs) //TODO
 	if len(filtered) == 0 {
-		return UntrackedMatches{}
+		return Matches{}
 	}
 
 	return filtered
 }
 
-func (matches UntrackedMatches) FilterFinished(favourites []string) FinishedMatches {
+func (matches Matches) FilterFinished(favourites []string) FinishedMatches {
 	scheduled := filter(FINISHED, matches)
 	if len(scheduled) == 0 {
 		return FinishedMatches{}
@@ -41,10 +41,6 @@ func (matches UntrackedMatches) FilterFinished(favourites []string) FinishedMatc
 	for _, match := range filtered {
 		finished = append(finished, FinishedMatch{
 			match,
-			match.HomeName,
-			match.HomeScoreCurrent,
-			match.AwayName,
-			match.AwayScoreCurrent,
 			// Empty by default - set through statistics package
 			"",
 		})
@@ -53,8 +49,8 @@ func (matches UntrackedMatches) FilterFinished(favourites []string) FinishedMatc
 	return finished
 }
 
-func filter(stage string, flashscoreMatches UntrackedMatches) UntrackedMatches {
-	filtered := UntrackedMatches{}
+func filter(stage string, flashscoreMatches Matches) Matches {
+	filtered := Matches{}
 
 	for _, match := range flashscoreMatches {
 		if lowerCase(match.Stage) == lowerCase(stage) {
@@ -66,13 +62,13 @@ func filter(stage string, flashscoreMatches UntrackedMatches) UntrackedMatches {
 }
 
 // TODO move favourites to struct that has Country and League separate
-func filterFavourites(matches UntrackedMatches, favourites []string) UntrackedMatches {
+func filterFavourites(matches Matches, favourites []string) Matches {
 	var favs []string
 	for _, favourite := range favourites {
 		favs = append(favs, lowerCase(favourite))
 	}
 
-	filtered := UntrackedMatches{}
+	filtered := Matches{}
 	for _, match := range matches {
 		if slices.Contains(favs, lowerCase(match.FlashscoreName)) {
 			filtered = append(filtered, match)

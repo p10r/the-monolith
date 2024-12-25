@@ -3,8 +3,6 @@ package serve
 import (
 	"context"
 	"github.com/p10r/pedro/pkg/l"
-	"github.com/p10r/pedro/pkg/sqlite"
-	"github.com/p10r/pedro/serve/db"
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/flashscore"
@@ -24,7 +22,6 @@ type Serve struct {
 // NewServeApp wires Serve App together.
 // Expects an already opened connection.
 func NewServeApp(
-	conn *sqlite.DB,
 	flashscoreUri, flashscoreApiKey, discordUri string,
 	favouriteLeagues []string,
 	log *slog.Logger,
@@ -43,14 +40,12 @@ func NewServeApp(
 		log.Error("DISCORD_URI has not been set")
 	}
 
-	store := db.NewMatchStore(conn)
 	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey, log)
 	discordClient := discord.NewClient(discordUri, log)
 	stats := statistics.NewAggregator("https://www.plusliga.pl", log)
 	now := func() time.Time { return time.Now() }
 
 	importer := domain.NewMatchImporter(
-		store,
 		flashscoreClient,
 		discordClient,
 		stats,

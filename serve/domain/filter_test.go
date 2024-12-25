@@ -9,7 +9,7 @@ import (
 
 func TestDomain(t *testing.T) {
 	t.Run("filters for scheduled matches", func(t *testing.T) {
-		expected := domain.UntrackedMatches{
+		expected := domain.Matches{
 			{
 				HomeName:         "Trentino",
 				AwayName:         "Jastrzebski",
@@ -34,16 +34,16 @@ func TestDomain(t *testing.T) {
 			},
 		}
 
-		untrackedMatches := testutil.UntrackedMatches(t)
+		m := testutil.Matches(t)
 		favs := []string{"Europe: Champions League - Play Offs"}
-		matches := untrackedMatches.FilterScheduled(favs)
+		matches := m.FilterScheduled(favs)
 		assert.Equal(t, matches, expected)
 	})
 
 	t.Run("filters for finished matches", func(t *testing.T) {
 		expected := domain.FinishedMatches{
 			domain.FinishedMatch{
-				UntrackedMatch: domain.UntrackedMatch{
+				Match: domain.Match{
 					HomeName:         "Mok Mursa",
 					AwayName:         "HAOK Mladost",
 					StartTime:        1714932000,
@@ -54,25 +54,21 @@ func TestDomain(t *testing.T) {
 					HomeScoreCurrent: 2,
 					AwayScoreCurrent: 3,
 				},
-				HomeName:     "Mok Mursa",
-				HomeSetScore: 2,
-				AwayName:     "HAOK Mladost",
-				AwaySetScore: 3,
 			},
 		}
 
-		untrackedMatches := testutil.UntrackedMatches(t)
-		matches := untrackedMatches.FilterFinished([]string{"Croatia: Superliga - Play Offs"})
+		m := testutil.Matches(t)
+		matches := m.FilterFinished([]string{"Croatia: Superliga - Play Offs"})
 		assert.Equal(t, matches, expected)
 	})
 
 	t.Run("handles 0 scheduled matches", func(t *testing.T) {
-		m := domain.UntrackedMatches{}.FilterScheduled([]string{"Italy: SuperLega"})
+		m := domain.Matches{}.FilterScheduled([]string{"Italy: SuperLega"})
 		assert.Equal(t, len(m), 0)
 	})
 
 	t.Run("filters for favourites", func(t *testing.T) {
-		expected := domain.UntrackedMatches{
+		expected := domain.Matches{
 			{
 				HomeName:         "Trentino",
 				AwayName:         "Jastrzebski",
@@ -110,7 +106,7 @@ func TestDomain(t *testing.T) {
 
 		favourites := []string{"Europe: Champions League - Play Offs", "USA: PVF Women"}
 
-		matches := testutil.UntrackedMatches(t).FilterScheduled(favourites)
+		matches := testutil.Matches(t).FilterScheduled(favourites)
 		assert.Equal(t, matches, expected)
 	})
 }

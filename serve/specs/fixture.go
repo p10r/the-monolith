@@ -2,8 +2,6 @@ package specifications
 
 import (
 	"github.com/p10r/pedro/pkg/l"
-	"github.com/p10r/pedro/pkg/sqlite"
-	"github.com/p10r/pedro/serve/db"
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/flashscore"
@@ -22,7 +20,6 @@ type fixture struct {
 	discordServer    *testutil.DiscordServer
 	plusLigaWebsite  *httptest.Server
 	importer         *domain.MatchImporter
-	store            *db.MatchStore
 }
 
 func newFixture(
@@ -80,9 +77,7 @@ func newFixture(
 		return time.Date(2024, 5, 28, 0, 0, 0, 0, time.UTC)
 	}
 
-	matchStore := db.NewMatchStore(sqlite.MustOpenDB(t))
 	importer := domain.NewMatchImporter(
-		matchStore,
 		fsClient,
 		discordClient,
 		aggr,
@@ -95,6 +90,5 @@ func newFixture(
 		discordServer,
 		plusLigaWebsite,
 		importer,
-		matchStore,
 	}
 }

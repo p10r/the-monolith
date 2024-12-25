@@ -118,7 +118,6 @@ func main() {
 	)
 
 	serveApp := serve.NewServeApp(
-		conn,
 		flashscoreUri,
 		cfg.FlashscoreApiKey,
 		cfg.DiscordUri,

@@ -32,36 +32,6 @@ func TestImportMatches(t *testing.T) {
 	_, err := f.importer.ImportScheduledMatches(ctx)
 	assert.NoError(t, err)
 
-	t.Run("imports today's matches to db", func(t *testing.T) {
-		expected := domain.Matches{
-			{
-				HomeName:  "Trentino",
-				AwayName:  "Jastrzebski",
-				StartTime: 1714917600,
-				Country:   "Europe",
-				League:    "Champions League - Play Offs",
-			},
-			{
-				HomeName:  "Resovia",
-				AwayName:  "Zaksa",
-				StartTime: 1714917600,
-				Country:   "Europe",
-				League:    "Champions League - Play Offs",
-			},
-			{
-				HomeName:  "Grand Rapids Rise W",
-				AwayName:  "San Diego Mojo W",
-				StartTime: 1714939200,
-				Country:   "USA",
-				League:    "PVF Women",
-			},
-		}
-
-		matches, err := f.store.All(context.Background())
-		assert.NoError(t, err)
-		MatchesEqual(t, matches, expected)
-	})
-
 	t.Run("sends discord message", func(t *testing.T) {
 		requests := *f.discordServer.Requests
 		expect.Len(t, requests, 1)

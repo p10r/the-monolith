@@ -87,8 +87,8 @@ func TestFlashscore(t *testing.T) {
 				},
 			}}}
 
-		expected := domain.UntrackedMatches{
-			domain.UntrackedMatch{
+		expected := domain.Matches{
+			domain.Match{
 				HomeName:         "Berlin",
 				AwayName:         "Haching",
 				StartTime:        1234,
@@ -101,7 +101,7 @@ func TestFlashscore(t *testing.T) {
 			},
 		}
 
-		assert.Equal(t, resp.ToUntrackedMatches(), expected)
+		assert.Equal(t, resp.ToMatches(), expected)
 	})
 
 }

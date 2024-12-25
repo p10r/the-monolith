@@ -97,7 +97,7 @@ func finishedText(matches domain.FinishedMatches) string {
 	var texts []string
 	for _, m := range matches {
 		//nolint:lll
-		formatted := fmt.Sprintf("**%v - %v**\t\t\tScore:\t||%v\t:\t%v||", m.HomeName, m.AwayName, m.HomeSetScore, m.AwaySetScore)
+		formatted := fmt.Sprintf("**%v - %v**\t\t\tScore:\t||%v\t:\t%v||", m.HomeName, m.AwayName, m.HomeScoreCurrent, m.AwayScoreCurrent)
 		if m.StatsUrl != "" {
 			formatted = formatted + "\t\t\t[📊 Statistics](" + m.StatsUrl + ")"
 		}

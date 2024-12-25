@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/p10r/pedro/pkg/l"
 	"log/slog"
@@ -10,7 +9,7 @@ import (
 )
 
 type Flashscore interface {
-	GetUpcomingMatches() (UntrackedMatches, error)
+	GetUpcomingMatches() (Matches, error)
 }
 
 type Discord interface {
@@ -23,7 +22,6 @@ type Statistics interface {
 }
 
 type MatchImporter struct {
-	store      MatchStore
 	flashscore Flashscore
 	discord    Discord
 	statistics Statistics
@@ -33,7 +31,6 @@ type MatchImporter struct {
 }
 
 func NewMatchImporter(
-	store MatchStore,
 	flashscore Flashscore,
 	discord Discord,
 	statistics Statistics,
@@ -42,7 +39,6 @@ func NewMatchImporter(
 	log *slog.Logger,
 ) *MatchImporter {
 	return &MatchImporter{
-		store,
 		flashscore,
 		discord,
 		statistics,
@@ -56,14 +52,14 @@ func NewMatchImporter(
 // Doesn't validate if the match is already present,
 // as it's expected to be triggered only once per day for now.
 func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matches, error) {
-	untrackedMatches, err := importer.fetchAllMatches()
+	matches, err := importer.fetchAllMatches()
 	if err != nil {
 		importer.log.Error(l.Error("cannot fetch matches", err))
 		return nil, err
 	}
 
 	//TODO remove error, return empty slice
-	upcoming := untrackedMatches.FilterScheduled(importer.favLeagues)
+	upcoming := matches.FilterScheduled(importer.favLeagues)
 	if len(upcoming) == 0 {
 		importer.log.Info("No upcoming games today")
 		return Matches{}, nil
@@ -71,19 +67,13 @@ func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matc
 
 	importer.log.Info(fmt.Sprintf("%v matches coming up today", len(upcoming)))
 
-	trackedMatches, err := importer.storeUntrackedMatches(ctx, upcoming)
-	if err != nil {
-		importer.log.Error(l.Error("error when writing to db", err))
-		return nil, err
-	}
-
-	err = importer.discord.SendUpcomingMatches(ctx, trackedMatches, importer.clock())
+	err = importer.discord.SendUpcomingMatches(ctx, upcoming, importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
 		return nil, err
 	}
 
-	return trackedMatches, nil
+	return upcoming, nil
 }
 
 func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error {
@@ -109,32 +99,10 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 	return nil
 }
 
-func (importer *MatchImporter) fetchAllMatches() (UntrackedMatches, error) {
-	untrackedMatches, err := importer.flashscore.GetUpcomingMatches()
+func (importer *MatchImporter) fetchAllMatches() (Matches, error) {
+	m, err := importer.flashscore.GetUpcomingMatches()
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch matches from flashscore: %v", err)
 	}
-	return untrackedMatches, err
-}
-
-func (importer *MatchImporter) storeUntrackedMatches(
-	ctx context.Context,
-	matches UntrackedMatches,
-) (Matches, error) {
-	var trackedMatches Matches
-	var dbErrs []error
-	for _, untrackedMatch := range matches {
-		trackedMatch, err := importer.store.Add(ctx, untrackedMatch)
-		if err != nil {
-			//nolint
-			dbErr := fmt.Errorf("could not persist match %v, aborting: %v", untrackedMatch.HomeName, err)
-			dbErrs = append(dbErrs, dbErr)
-		}
-
-		importer.log.Debug(fmt.Sprintf("Stored in DB: %v", trackedMatch))
-
-		trackedMatches = append(trackedMatches, trackedMatch)
-	}
-
-	return trackedMatches, errors.Join(dbErrs...)
+	return m, err
 }

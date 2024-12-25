@@ -50,8 +50,8 @@ func NewResponse(input io.ReadCloser) (Response, error) {
 
 	return res, nil
 }
-func (r Response) ToUntrackedMatches() domain.UntrackedMatches {
-	matches := domain.UntrackedMatches{}
+func (r Response) ToMatches() domain.Matches {
+	matches := domain.Matches{}
 
 	for _, league := range r.Leagues {
 		leagueInfo := strings.Split(league.Name, ": ")
@@ -62,7 +62,7 @@ func (r Response) ToUntrackedMatches() domain.UntrackedMatches {
 			home, _ := strconv.Atoi(event.HomeScoreCurrent)
 			away, _ := strconv.Atoi(event.AwayScoreCurrent)
 
-			match := domain.UntrackedMatch{
+			match := domain.Match{
 				HomeName:         event.HomeName,
 				AwayName:         event.AwayName,
 				StartTime:        event.StartTime,
