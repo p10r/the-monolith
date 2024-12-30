@@ -1,9 +1,10 @@
 package discord
 
 import (
+	"cmp"
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -87,11 +88,8 @@ func upcomingText(matches domain.Matches) string {
 
 func finishedText(matches domain.FinishedMatches) string {
 	// Sort, to always have the same order in the message
-	sort.Slice(matches, func(i, j int) bool {
-		one := matches[i].HomeName
-		other := matches[j].HomeName
-
-		return len(one) > len(other)
+	slices.SortFunc(matches, func(a, b domain.FinishedMatch) int {
+		return cmp.Compare(fmt.Sprintf("%v", a), fmt.Sprintf("%v", b))
 	})
 
 	var texts []string

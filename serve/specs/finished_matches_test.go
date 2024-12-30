@@ -11,13 +11,18 @@ import (
 
 func TestFinishedMatches(t *testing.T) {
 	ctx := context.TODO()
-	favs := []string{"Europe: Champions League Women - Play Offs", "Poland: PlusLiga"}
+	favs := []string{
+		"Europe: Champions League Women - Play Offs",
+		"Poland: PlusLiga",
+		"Italy: SuperLega",
+	}
 
 	t.Run("sends scores to discord", func(t *testing.T) {
 		f := newFixture(t, favs, false, false)
 		defer f.flashscoreServer.Close()
 		defer f.discordServer.Close()
 		defer f.plusLigaWebsite.Close()
+		defer f.superLegaWebsite.Close()
 
 		err := f.importer.ImportFinishedMatches(ctx)
 		assert.NoError(t, err)
@@ -36,6 +41,7 @@ func TestFinishedMatches(t *testing.T) {
 		f := newFixture(t, favs, true, false)
 		defer f.flashscoreServer.Close()
 		defer f.plusLigaWebsite.Close()
+		defer f.superLegaWebsite.Close()
 
 		err := f.importer.ImportFinishedMatches(ctx)
 		assert.NoError(t, err)

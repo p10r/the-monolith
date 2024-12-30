@@ -69,16 +69,16 @@ type plusLigaScraper struct {
 }
 
 func newPlusLiga(baseUrl string, client *http.Client) *plusLigaScraper {
-	return &plusLigaScraper{baseUrl: baseUrl, client: client}
+	return &plusLigaScraper{baseUrl: strings.TrimSuffix(baseUrl, "/"), client: client}
 }
 
-func (pl *plusLigaScraper) GetAllStats() (statUrls []string, err error) {
-	page, err := pl.getAllMatchesPage()
+func (scraper *plusLigaScraper) GetAllStats() (statUrls []string, err error) {
+	page, err := scraper.getAllMatchesPage()
 	if err != nil {
 		return []string{}, fmt.Errorf("could not fetch plusLigaScraper match page: %w", err)
 	}
 
-	plMatches, err := pl.parseStats(page)
+	plMatches, err := scraper.parseStats(page)
 	if err != nil {
 		return []string{}, fmt.Errorf("could not parse plusLigaScraper match page: %w", err)
 	}
@@ -90,17 +90,17 @@ func (pl *plusLigaScraper) GetAllStats() (statUrls []string, err error) {
 	return urls, nil
 }
 
-func (pl *plusLigaScraper) GetStatsFor(dm domain.FinishedMatches) (
+func (scraper *plusLigaScraper) GetStatsFor(dm domain.FinishedMatches) (
 	matched domain.FinishedMatches,
 	notFound domain.FinishedMatches,
 	err error,
 ) {
-	page, err := pl.getAllMatchesPage()
+	page, err := scraper.getAllMatchesPage()
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not fetch plusLigaScraper match page: %w", err)
 	}
 
-	plMatches, err := pl.parseStats(page)
+	plMatches, err := scraper.parseStats(page)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not parse plusLigaScraper match page: %w", err)
 	}
@@ -109,8 +109,8 @@ func (pl *plusLigaScraper) GetStatsFor(dm domain.FinishedMatches) (
 	return zipped, notFound, nil
 }
 
-func (pl *plusLigaScraper) getAllMatchesPage() (*http.Response, error) {
-	res, err := pl.client.Get(pl.baseUrl + "/games.html")
+func (scraper *plusLigaScraper) getAllMatchesPage() (*http.Response, error) {
+	res, err := scraper.client.Get(scraper.baseUrl + "/games.html")
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (pl *plusLigaScraper) getAllMatchesPage() (*http.Response, error) {
 }
 
 //nolint:lll
-func (pl *plusLigaScraper) parseStats(res *http.Response) (matches plusLigaMatches, err error) {
+func (scraper *plusLigaScraper) parseStats(res *http.Response) (matches plusLigaMatches, err error) {
 	defer res.Body.Close()
 	matches = plusLigaMatches{}
 
@@ -151,7 +151,7 @@ func (pl *plusLigaScraper) parseStats(res *http.Response) (matches plusLigaMatch
 			matches[newMatchKey(homeTeam, awayTeam)] = plusLigaMatch{
 				homeTeam: homeTeam,
 				awayTeam: awayTeam,
-				statsUrl: pl.baseUrl + statsUrl,
+				statsUrl: scraper.baseUrl + statsUrl,
 			}
 		})
 

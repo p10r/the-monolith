@@ -19,6 +19,7 @@ type fixture struct {
 	flashscoreServer *httptest.Server
 	discordServer    *testutil.DiscordServer
 	plusLigaWebsite  *httptest.Server
+	superLegaWebsite *httptest.Server
 	importer         *domain.MatchImporter
 }
 
@@ -71,7 +72,18 @@ func newFixture(
 	plusLigaWebsite.Listener = listener
 	plusLigaWebsite.Start()
 
-	aggr := statistics.NewAggregator(plusLigaWebsite.URL, log)
+	listener2, err := net.Listen("tcp", "127.0.0.1:58774")
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	superLegaWebsite := testutil.NewSuperLegaServer(
+		t,
+		testutil.MustReadFile(t, "../testdata/statistics/superlega-italy-m.html"),
+	)
+	superLegaWebsite.Listener = listener2
+	superLegaWebsite.Start()
+
+	aggr := statistics.NewAggregator(plusLigaWebsite.URL, superLegaWebsite.URL, log)
 
 	may28th := func() time.Time {
 		return time.Date(2024, 5, 28, 0, 0, 0, 0, time.UTC)
@@ -89,6 +101,7 @@ func newFixture(
 		flashscoreServer,
 		discordServer,
 		plusLigaWebsite,
+		superLegaWebsite,
 		importer,
 	}
 }

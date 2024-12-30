@@ -534,270 +534,408 @@
       ]
     },
     {
-      "NAME": "Italy: Coppa Italia",
-      "HEADER": "Italy: Coppa Italia;183;4hzuJMDE",
+      "NAME": "Italy: SuperLega",
+      "HEADER": "Italy: SuperLega;184;xUtHyDX6",
       "NAME_PART_1": "Italy",
-      "NAME_PART_2": "Coppa Italia",
+      "NAME_PART_2": "SuperLega",
+      "TOURNAMENT_TEMPLATE_ID": "nm8RF0ON",
       "COUNTRY_ID": 98,
       "COUNTRY_NAME": "Italy",
-      "TOURNAMENT_STAGE_ID": "4hzuJMDE",
-      "TOURNAMENT_TYPE": "p",
+      "TOURNAMENT_STAGE_ID": "xUtHyDX6",
+      "TOURNAMENT_TYPE": "t",
+      "TOURNAMENT_ID": "06mrIh7p",
       "SOURCE_TYPE": 0,
       "HAS_LIVE_TABLE": 0,
-      "STANDING_INFO": 2,
-      "TEMPLATE_ID": "98_tQXRNIxt",
+      "STANDING_INFO": 1,
+      "TEMPLATE_ID": "98_nm8RF0ON",
       "TOURNAMENT_STAGE_TYPE": 2,
-      "SHORT_NAME": "Coppa Italia A2",
-      "URL": "/volleyball/italy/coppa-italia-a2/",
+      "SHORT_NAME": "SuperLega",
+      "URL": "/volleyball/italy/superlega/",
+      "TOURNAMENT_IMAGE": "https://www.flashscore.com/res/image/data/x0o4Yvld-2sVkvsss.png",
+      "SORT": "33Italy       005......0000000000001000SuperLega   009erLega000",
       "STAGES_COUNT": 0,
       "TSS": "",
       "ZKL": "",
       "ZKU": "",
-      "TOURNAMENT_SEASON_ID": "6wmEnCrA",
+      "TOURNAMENT_SEASON_ID": "06mrIh7p",
       "CATEGORY_NAME": "Italy",
       "EVENTS": [
         {
-          "EVENT_ID": "G6eDsMyH",
-          "START_TIME": 1714924800,
-          "START_UTIME": 1714924800,
+          "EVENT_ID": "403ZzhUg",
+          "START_TIME": 1735228800,
+          "START_UTIME": 1735228800,
           "STAGE_TYPE": "FINISHED",
           "MERGE_STAGE_TYPE": "FINISHED",
           "STAGE": "FINISHED",
-          "ROUND": "Quarter-finals",
+          "SORT": "Monza",
+          "ROUND": "Round 14",
           "VISIBLE_RUN_RATE": 0,
-          "HAS_LINEPS": 0,
-          "STAGE_START_TIME": 1714930456,
+          "HAS_LINEPS": 1,
+          "STAGE_START_TIME": 1735238232,
           "GAME_TIME": "-1",
           "PLAYING_ON_SETS": null,
           "RECENT_OVERS": null,
-          "SHORTNAME_HOME": "GRO",
+          "SHORTNAME_AWAY": "LUB",
+          "AWAY_PARTICIPANT_IDS": [
+            "hxtqRVVu"
+          ],
+          "AWAY_PARTICIPANT_TYPES": [
+            1
+          ],
+          "AWAY_NAME": "Lube Civitanova",
+          "AWAY_PARTICIPANT_NAME_ONE": "Lube Civitanova",
+          "AWAY_EVENT_PARTICIPANT_ID": "OQSYBtrI",
+          "AWAY_GOAL_VAR": 0,
+          "AWAY_SCORE_CURRENT": "2",
+          "AWAY_SCORE_FULL": 2,
+          "AWAY_SCORE_PART_1": "13",
+          "AWAY_SCORE_PART_2": "25",
+          "AWAY_SCORE_PART_3": "25",
+          "AWAY_SCORE_PART_4": "29",
+          "AWAY_SCORE_PART_5": "12",
+          "AWAY_IMAGES": [
+            "https://www.flashscore.com/res/image/data/AXZfNZWg-f9yk56To.png"
+          ],
+          "IMM": "vgreOTFb",
+          "IMW": "100",
+          "IMP": "UusuMehl-UuidxQyg.png",
+          "IME": "",
+          "SHORTNAME_HOME": "MON",
           "HOME_PARTICIPANT_IDS": [
-            "nNpxlbKs"
+            "vgreOTFb"
           ],
           "HOME_PARTICIPANT_TYPES": [
             1
           ],
-          "HOME_NAME": "Grottazzolina",
-          "HOME_PARTICIPANT_NAME_ONE": "Grottazzolina",
-          "HOME_EVENT_PARTICIPANT_ID": "21eZpUxR",
+          "HOME_NAME": "Monza",
+          "HOME_PARTICIPANT_NAME_ONE": "Monza",
+          "HOME_EVENT_PARTICIPANT_ID": "G0PQD2D5",
           "WINNER": 1,
           "ODDS_WINNER": 1,
           "ODDS_WINNER_OUTCOME": 1,
-          "DRAW_PARTICIPANT_WINNER_HOME": "1",
-          "HOME_GOAL_VAR": 0,
-          "HOME_SCORE_CURRENT": "3",
-          "HOME_SCORE_PART_1": "22",
-          "HOME_SCORE_PART_2": "25",
-          "HOME_SCORE_PART_3": "25",
-          "HOME_SCORE_PART_4": "25",
-          "IMM": "YJaykt38",
-          "IMW": "100",
-          "IMP": "QZhBVQh5-S8OjwraF.png",
-          "IME": "",
-          "SHORTNAME_AWAY": "CAN",
-          "AWAY_PARTICIPANT_IDS": [
-            "YJaykt38"
-          ],
-          "AWAY_PARTICIPANT_TYPES": [
-            1
-          ],
-          "AWAY_NAME": "Cantu",
-          "AWAY_PARTICIPANT_NAME_ONE": "Cantu",
-          "AWAY_EVENT_PARTICIPANT_ID": "UZsSnj8E",
-          "AWAY_GOAL_VAR": 0,
-          "AWAY_SCORE_CURRENT": "1",
-          "AWAY_SCORE_FULL": 1,
-          "AWAY_SCORE_PART_1": "25",
-          "AWAY_SCORE_PART_2": "15",
-          "AWAY_SCORE_PART_3": "17",
-          "AWAY_SCORE_PART_4": "19",
-          "AWAY_IMAGES": [
-            "https://www.flashscore.com/res/image/data/QZhBVQh5-S8OjwraF.png"
-          ],
-          "INFO_NOTICE": "1st leg result: 3-1. Aggregate: 6-2.",
-          "STATS_DATA": {}
-        },
-        {
-          "EVENT_ID": "84zhzvUj",
-          "START_TIME": 1714928400,
-          "START_UTIME": 1714928400,
-          "STAGE_TYPE": "FINISHED",
-          "MERGE_STAGE_TYPE": "FINISHED",
-          "STAGE": "FINISHED",
-          "ROUND": "Quarter-finals",
-          "VISIBLE_RUN_RATE": 0,
-          "HAS_LINEPS": 0,
-          "STAGE_START_TIME": 1714934310,
-          "GAME_TIME": "-1",
-          "PLAYING_ON_SETS": null,
-          "RECENT_OVERS": null,
-          "SHORTNAME_HOME": "CUN",
-          "HOME_PARTICIPANT_IDS": [
-            "KCDVlA71"
-          ],
-          "HOME_PARTICIPANT_TYPES": [
-            1
-          ],
-          "HOME_NAME": "Cuneo Volley",
-          "HOME_PARTICIPANT_NAME_ONE": "Cuneo Volley",
-          "HOME_EVENT_PARTICIPANT_ID": "v1u7aTiK",
-          "HOME_GOAL_VAR": 0,
-          "HOME_SCORE_CURRENT": "1",
-          "HOME_SCORE_PART_1": "20",
-          "HOME_SCORE_PART_2": "25",
-          "HOME_SCORE_PART_3": "18",
-          "HOME_SCORE_PART_4": "18",
-          "IMM": "noGVbkaL",
-          "IMW": "100",
-          "IMP": "AcR4B2cM-KE75SzbB.png",
-          "IME": "",
-          "SHORTNAME_AWAY": "POR",
-          "AWAY_PARTICIPANT_IDS": [
-            "noGVbkaL"
-          ],
-          "AWAY_PARTICIPANT_TYPES": [
-            1
-          ],
-          "AWAY_NAME": "Porto Viro",
-          "AWAY_PARTICIPANT_NAME_ONE": "Porto Viro",
-          "AWAY_EVENT_PARTICIPANT_ID": "ENmLyQaD",
-          "WINNER": 2,
-          "ODDS_WINNER": 2,
-          "ODDS_WINNER_OUTCOME": 2,
-          "DRAW_PARTICIPANT_WINNER_AWAY": "1",
-          "AWAY_GOAL_VAR": 0,
-          "AWAY_SCORE_CURRENT": "3",
-          "AWAY_SCORE_FULL": 3,
-          "AWAY_SCORE_PART_1": "25",
-          "AWAY_SCORE_PART_2": "17",
-          "AWAY_SCORE_PART_3": "25",
-          "AWAY_SCORE_PART_4": "25",
-          "AWAY_IMAGES": [
-            "https://www.flashscore.com/res/image/data/AcR4B2cM-KE75SzbB.png"
-          ],
-          "INFO_NOTICE": "1st leg result: 1-3. Aggregate: 2-6.",
-          "STATS_DATA": {}
-        },
-        {
-          "EVENT_ID": "Esado4xh",
-          "START_TIME": 1714928400,
-          "START_UTIME": 1714928400,
-          "STAGE_TYPE": "FINISHED",
-          "MERGE_STAGE_TYPE": "FINISHED",
-          "STAGE": "FINISHED",
-          "ROUND": "Quarter-finals",
-          "VISIBLE_RUN_RATE": 0,
-          "HAS_LINEPS": 0,
-          "STAGE_START_TIME": 1714934680,
-          "GAME_TIME": "-1",
-          "PLAYING_ON_SETS": null,
-          "RECENT_OVERS": null,
-          "SHORTNAME_AWAY": "POR",
-          "AWAY_PARTICIPANT_IDS": [
-            "Aa26nUKi"
-          ],
-          "AWAY_PARTICIPANT_TYPES": [
-            1
-          ],
-          "AWAY_NAME": "Pordenone",
-          "AWAY_PARTICIPANT_NAME_ONE": "Pordenone",
-          "AWAY_EVENT_PARTICIPANT_ID": "QJ2fYjgL",
-          "AWAY_GOAL_VAR": 0,
-          "AWAY_SCORE_CURRENT": "1",
-          "AWAY_SCORE_FULL": 1,
-          "AWAY_SCORE_PART_1": "16",
-          "AWAY_SCORE_PART_2": "24",
-          "AWAY_SCORE_PART_3": "25",
-          "AWAY_SCORE_PART_4": "17",
-          "AWAY_IMAGES": [
-            "https://www.flashscore.com/res/image/data/4WrXpwCa-024Uf2h2.png"
-          ],
-          "IMM": "vDAia314",
-          "IMW": "100",
-          "IMP": "niC6m4cM-Y95LDlqc.png",
-          "IME": "",
-          "SHORTNAME_HOME": "MAR",
-          "HOME_PARTICIPANT_IDS": [
-            "vDAia314"
-          ],
-          "HOME_PARTICIPANT_TYPES": [
-            1
-          ],
-          "HOME_NAME": "Ravenna",
-          "HOME_PARTICIPANT_NAME_ONE": "Ravenna",
-          "HOME_EVENT_PARTICIPANT_ID": "MklQSUGr",
-          "WINNER": 1,
-          "ODDS_WINNER": 1,
-          "ODDS_WINNER_OUTCOME": 1,
-          "DRAW_PARTICIPANT_WINNER_HOME": "1",
           "HOME_GOAL_VAR": 0,
           "HOME_SCORE_CURRENT": "3",
           "HOME_SCORE_PART_1": "25",
-          "HOME_SCORE_PART_2": "26",
-          "HOME_SCORE_PART_3": "20",
-          "HOME_SCORE_PART_4": "25",
-          "INFO_NOTICE": "1st leg result: 3-1. Aggregate: 6-2.",
+          "HOME_SCORE_PART_2": "22",
+          "HOME_SCORE_PART_3": "17",
+          "HOME_SCORE_PART_4": "31",
+          "HOME_SCORE_PART_5": "15",
+          "HOME_IMAGES": [
+            "https://www.flashscore.com/res/image/data/UusuMehl-UuidxQyg.png"
+          ],
           "STATS_DATA": {}
         },
         {
-          "EVENT_ID": "noSR1lbK",
-          "START_TIME": 1714928400,
-          "START_UTIME": 1714928400,
+          "EVENT_ID": "UH50kiqm",
+          "START_TIME": 1735228800,
+          "START_UTIME": 1735228800,
           "STAGE_TYPE": "FINISHED",
           "MERGE_STAGE_TYPE": "FINISHED",
           "STAGE": "FINISHED",
-          "ROUND": "Quarter-finals",
+          "SORT": "Padova",
+          "ROUND": "Round 14",
           "VISIBLE_RUN_RATE": 0,
-          "HAS_LINEPS": 0,
-          "STAGE_START_TIME": 1714935281,
+          "HAS_LINEPS": 1,
+          "STAGE_START_TIME": 1735236420,
           "GAME_TIME": "-1",
           "PLAYING_ON_SETS": null,
           "RECENT_OVERS": null,
-          "SHORTNAME_HOME": "SIE",
-          "HOME_PARTICIPANT_IDS": [
-            "GWwIvBws"
-          ],
-          "HOME_PARTICIPANT_TYPES": [
-            1
-          ],
-          "HOME_NAME": "Siena",
-          "HOME_PARTICIPANT_NAME_ONE": "Siena",
-          "HOME_EVENT_PARTICIPANT_ID": "pEAGJMpS",
-          "HOME_GOAL_VAR": 0,
-          "HOME_SCORE_CURRENT": "1",
-          "HOME_SCORE_PART_1": "18",
-          "HOME_SCORE_PART_2": "22",
-          "HOME_SCORE_PART_3": "25",
-          "HOME_SCORE_PART_4": "21",
-          "IMM": "E5GbH1It",
-          "IMW": "100",
-          "IMP": "SGOFipDr-tKdNw1A0.png",
-          "IME": "",
-          "SHORTNAME_AWAY": "CEN",
+          "SHORTNAME_AWAY": "TAR",
           "AWAY_PARTICIPANT_IDS": [
-            "E5GbH1It"
+            "CGTMvJJt"
           ],
           "AWAY_PARTICIPANT_TYPES": [
             1
           ],
-          "AWAY_NAME": "Brescia",
-          "AWAY_PARTICIPANT_NAME_ONE": "Brescia",
-          "AWAY_EVENT_PARTICIPANT_ID": "C0C8LrGF",
-          "WINNER": 2,
-          "ODDS_WINNER": 2,
-          "ODDS_WINNER_OUTCOME": 2,
-          "DRAW_PARTICIPANT_WINNER_AWAY": "1",
+          "AWAY_NAME": "Taranto",
+          "AWAY_PARTICIPANT_NAME_ONE": "Taranto",
+          "AWAY_EVENT_PARTICIPANT_ID": "4bwuShYF",
           "AWAY_GOAL_VAR": 0,
-          "AWAY_SCORE_CURRENT": "3",
-          "AWAY_SCORE_FULL": 3,
-          "AWAY_SCORE_PART_1": "25",
+          "AWAY_SCORE_CURRENT": "1",
+          "AWAY_SCORE_FULL": 1,
+          "AWAY_SCORE_PART_1": "20",
+          "AWAY_SCORE_PART_2": "21",
+          "AWAY_SCORE_PART_3": "26",
+          "AWAY_SCORE_PART_4": "19",
+          "AWAY_IMAGES": [
+            "https://www.flashscore.com/res/image/data/CzB3K2eM-E75kQbkS.png"
+          ],
+          "IMM": "Kfbd7lGB",
+          "IMW": "100",
+          "IMP": "2w95QYhl-r7sfAaVB.png",
+          "IME": "",
+          "SHORTNAME_HOME": "PAD",
+          "HOME_PARTICIPANT_IDS": [
+            "Kfbd7lGB"
+          ],
+          "HOME_PARTICIPANT_TYPES": [
+            1
+          ],
+          "HOME_NAME": "Padova",
+          "HOME_PARTICIPANT_NAME_ONE": "Padova",
+          "HOME_EVENT_PARTICIPANT_ID": "WpuXTE33",
+          "WINNER": 1,
+          "ODDS_WINNER": 1,
+          "ODDS_WINNER_OUTCOME": 1,
+          "HOME_GOAL_VAR": 0,
+          "HOME_SCORE_CURRENT": "3",
+          "HOME_SCORE_PART_1": "25",
+          "HOME_SCORE_PART_2": "25",
+          "HOME_SCORE_PART_3": "24",
+          "HOME_SCORE_PART_4": "25",
+          "HOME_IMAGES": [
+            "https://www.flashscore.com/res/image/data/2w95QYhl-r7sfAaVB.png"
+          ],
+          "STATS_DATA": {}
+        },
+        {
+          "EVENT_ID": "8h0jX9TI",
+          "START_TIME": 1735232400,
+          "START_UTIME": 1735232400,
+          "STAGE_TYPE": "FINISHED",
+          "MERGE_STAGE_TYPE": "FINISHED",
+          "STAGE": "FINISHED",
+          "SORT": "Perugia",
+          "ROUND": "Round 14",
+          "VISIBLE_RUN_RATE": 0,
+          "HAS_LINEPS": 1,
+          "STAGE_START_TIME": 1735238611,
+          "GAME_TIME": "-1",
+          "PLAYING_ON_SETS": null,
+          "RECENT_OVERS": null,
+          "SHORTNAME_AWAY": "MOD",
+          "AWAY_PARTICIPANT_IDS": [
+            "6upmQkon"
+          ],
+          "AWAY_PARTICIPANT_TYPES": [
+            1
+          ],
+          "AWAY_NAME": "Modena",
+          "AWAY_PARTICIPANT_NAME_ONE": "Modena",
+          "AWAY_EVENT_PARTICIPANT_ID": "Mi37DgJM",
+          "AWAY_GOAL_VAR": 0,
+          "AWAY_SCORE_CURRENT": "0",
+          "AWAY_SCORE_FULL": 0,
+          "AWAY_SCORE_PART_1": "22",
           "AWAY_SCORE_PART_2": "25",
-          "AWAY_SCORE_PART_3": "19",
+          "AWAY_SCORE_PART_3": "21",
+          "AWAY_IMAGES": [
+            "https://www.flashscore.com/res/image/data/llKSF8EG-dnJZkoij.png"
+          ],
+          "IMM": "EJS1lfOD",
+          "IMW": "100",
+          "IMP": "rJmXQuwS-AypQcuRK.png",
+          "IME": "",
+          "SHORTNAME_HOME": "SAF",
+          "HOME_PARTICIPANT_IDS": [
+            "EJS1lfOD"
+          ],
+          "HOME_PARTICIPANT_TYPES": [
+            1
+          ],
+          "HOME_NAME": "Perugia",
+          "HOME_PARTICIPANT_NAME_ONE": "Perugia",
+          "HOME_EVENT_PARTICIPANT_ID": "ERaaFFlA",
+          "WINNER": 1,
+          "ODDS_WINNER": 1,
+          "ODDS_WINNER_OUTCOME": 1,
+          "HOME_GOAL_VAR": 0,
+          "HOME_SCORE_CURRENT": "3",
+          "HOME_SCORE_PART_1": "25",
+          "HOME_SCORE_PART_2": "27",
+          "HOME_SCORE_PART_3": "25",
+          "HOME_IMAGES": [
+            "https://www.flashscore.com/res/image/data/rJmXQuwS-AypQcuRK.png"
+          ],
+          "STATS_DATA": {}
+        },
+        {
+          "EVENT_ID": "0nmxeDLP",
+          "START_TIME": 1735232400,
+          "START_UTIME": 1735232400,
+          "STAGE_TYPE": "FINISHED",
+          "MERGE_STAGE_TYPE": "FINISHED",
+          "STAGE": "FINISHED",
+          "SORT": "Piacenza",
+          "ROUND": "Round 14",
+          "VISIBLE_RUN_RATE": 0,
+          "HAS_LINEPS": 1,
+          "STAGE_START_TIME": 1735240264,
+          "GAME_TIME": "-1",
+          "PLAYING_ON_SETS": null,
+          "RECENT_OVERS": null,
+          "SHORTNAME_AWAY": "LAT",
+          "AWAY_PARTICIPANT_IDS": [
+            "A7seqaBP"
+          ],
+          "AWAY_PARTICIPANT_TYPES": [
+            1
+          ],
+          "AWAY_NAME": "Cisterna",
+          "AWAY_PARTICIPANT_NAME_ONE": "Cisterna",
+          "AWAY_EVENT_PARTICIPANT_ID": "4vmo6BBd",
+          "AWAY_GOAL_VAR": 0,
+          "AWAY_SCORE_CURRENT": "1",
+          "AWAY_SCORE_FULL": 1,
+          "AWAY_SCORE_PART_1": "21",
+          "AWAY_SCORE_PART_2": "25",
+          "AWAY_SCORE_PART_3": "23",
           "AWAY_SCORE_PART_4": "25",
           "AWAY_IMAGES": [
-            "https://www.flashscore.com/res/image/data/SGOFipDr-tKdNw1A0.png"
+            "https://www.flashscore.com/res/image/data/AZfjT4Yg-Y5ZdHel2.png"
           ],
-          "INFO_NOTICE": "1st leg result: 2-3. Aggregate: 3-6.",
+          "IMM": "IXfYN7pB",
+          "IMW": "100",
+          "IMP": "CxO5hJh5-0vzgTC0Q.png",
+          "IME": "",
+          "SHORTNAME_HOME": "PIA",
+          "HOME_PARTICIPANT_IDS": [
+            "IXfYN7pB"
+          ],
+          "HOME_PARTICIPANT_TYPES": [
+            1
+          ],
+          "HOME_NAME": "Piacenza",
+          "HOME_PARTICIPANT_NAME_ONE": "Piacenza",
+          "HOME_EVENT_PARTICIPANT_ID": "INlw8Xtp",
+          "WINNER": 1,
+          "ODDS_WINNER": 1,
+          "ODDS_WINNER_OUTCOME": 1,
+          "HOME_GOAL_VAR": 0,
+          "HOME_SCORE_CURRENT": "3",
+          "HOME_SCORE_PART_1": "25",
+          "HOME_SCORE_PART_2": "22",
+          "HOME_SCORE_PART_3": "25",
+          "HOME_SCORE_PART_4": "27",
+          "HOME_IMAGES": [
+            "https://www.flashscore.com/res/image/data/CxO5hJh5-0vzgTC0Q.png"
+          ],
+          "STATS_DATA": {}
+        },
+        {
+          "EVENT_ID": "CQ6sZVb6",
+          "START_TIME": 1735232400,
+          "START_UTIME": 1735232400,
+          "STAGE_TYPE": "FINISHED",
+          "MERGE_STAGE_TYPE": "FINISHED",
+          "STAGE": "FINISHED",
+          "SORT": "Trentino",
+          "ROUND": "Round 14",
+          "VISIBLE_RUN_RATE": 0,
+          "HAS_LINEPS": 1,
+          "STAGE_START_TIME": 1735237330,
+          "GAME_TIME": "-1",
+          "PLAYING_ON_SETS": null,
+          "RECENT_OVERS": null,
+          "SHORTNAME_AWAY": "MIL",
+          "AWAY_PARTICIPANT_IDS": [
+            "2qsyTQW9"
+          ],
+          "AWAY_PARTICIPANT_TYPES": [
+            1
+          ],
+          "AWAY_NAME": "Milano",
+          "AWAY_PARTICIPANT_NAME_ONE": "Milano",
+          "AWAY_EVENT_PARTICIPANT_ID": "61diHyKc",
+          "AWAY_GOAL_VAR": 0,
+          "AWAY_SCORE_CURRENT": "0",
+          "AWAY_SCORE_FULL": 0,
+          "AWAY_SCORE_PART_1": "18",
+          "AWAY_SCORE_PART_2": "23",
+          "AWAY_SCORE_PART_3": "19",
+          "AWAY_IMAGES": [
+            "https://www.flashscore.com/res/image/data/h8p3aXCa-bmgOhIxD.png"
+          ],
+          "IMM": "CffxNRaH",
+          "IMW": "100",
+          "IMP": "xv8lIhyB-82hg4BWq.png",
+          "IME": "",
+          "SHORTNAME_HOME": "TRE",
+          "HOME_PARTICIPANT_IDS": [
+            "CffxNRaH"
+          ],
+          "HOME_PARTICIPANT_TYPES": [
+            1
+          ],
+          "HOME_NAME": "Trentino",
+          "HOME_PARTICIPANT_NAME_ONE": "Trentino",
+          "HOME_EVENT_PARTICIPANT_ID": "E795gYRj",
+          "WINNER": 1,
+          "ODDS_WINNER": 1,
+          "ODDS_WINNER_OUTCOME": 1,
+          "HOME_GOAL_VAR": 0,
+          "HOME_SCORE_CURRENT": "3",
+          "HOME_SCORE_PART_1": "25",
+          "HOME_SCORE_PART_2": "25",
+          "HOME_SCORE_PART_3": "25",
+          "HOME_IMAGES": [
+            "https://www.flashscore.com/res/image/data/xv8lIhyB-82hg4BWq.png"
+          ],
+          "STATS_DATA": {}
+        },
+        {
+          "EVENT_ID": "xr98mVDa",
+          "START_TIME": 1735232400,
+          "START_UTIME": 1735232400,
+          "STAGE_TYPE": "FINISHED",
+          "MERGE_STAGE_TYPE": "FINISHED",
+          "STAGE": "FINISHED",
+          "SORT": "Verona",
+          "ROUND": "Round 14",
+          "VISIBLE_RUN_RATE": 0,
+          "HAS_LINEPS": 1,
+          "STAGE_START_TIME": 1735240387,
+          "GAME_TIME": "-1",
+          "PLAYING_ON_SETS": null,
+          "RECENT_OVERS": null,
+          "SHORTNAME_AWAY": "GRO",
+          "AWAY_PARTICIPANT_IDS": [
+            "nNpxlbKs"
+          ],
+          "AWAY_PARTICIPANT_TYPES": [
+            1
+          ],
+          "AWAY_NAME": "Grottazzolina",
+          "AWAY_PARTICIPANT_NAME_ONE": "Grottazzolina",
+          "AWAY_EVENT_PARTICIPANT_ID": "tvXIKAQk",
+          "AWAY_GOAL_VAR": 0,
+          "AWAY_SCORE_CURRENT": "2",
+          "AWAY_SCORE_FULL": 2,
+          "AWAY_SCORE_PART_1": "17",
+          "AWAY_SCORE_PART_2": "16",
+          "AWAY_SCORE_PART_3": "25",
+          "AWAY_SCORE_PART_4": "25",
+          "AWAY_SCORE_PART_5": "13",
+          "AWAY_IMAGES": [
+            "https://www.flashscore.com/res/image/data/Am7DY2yS-4xlg4DYS.png"
+          ],
+          "IMM": "OdjU5n0U",
+          "IMW": "100",
+          "IMP": "4M9cIGh5-dnJZkoij.png",
+          "IME": "",
+          "SHORTNAME_HOME": "VER",
+          "HOME_PARTICIPANT_IDS": [
+            "OdjU5n0U"
+          ],
+          "HOME_PARTICIPANT_TYPES": [
+            1
+          ],
+          "HOME_NAME": "Verona",
+          "HOME_PARTICIPANT_NAME_ONE": "Verona",
+          "HOME_EVENT_PARTICIPANT_ID": "COtmQW2S",
+          "WINNER": 1,
+          "ODDS_WINNER": 1,
+          "ODDS_WINNER_OUTCOME": 1,
+          "HOME_GOAL_VAR": 0,
+          "HOME_SCORE_CURRENT": "3",
+          "HOME_SCORE_PART_1": "25",
+          "HOME_SCORE_PART_2": "25",
+          "HOME_SCORE_PART_3": "23",
+          "HOME_SCORE_PART_4": "17",
+          "HOME_SCORE_PART_5": "15",
+          "HOME_IMAGES": [
+            "https://www.flashscore.com/res/image/data/4M9cIGh5-dnJZkoij.png"
+          ],
           "STATS_DATA": {}
         }
       ]

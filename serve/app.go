@@ -42,7 +42,11 @@ func NewServeApp(
 
 	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey, log)
 	discordClient := discord.NewClient(discordUri, log)
-	stats := statistics.NewAggregator("https://www.plusliga.pl", log)
+	stats := statistics.NewAggregator(
+		"https://www.plusliga.pl",
+		"https://www.legavolley.it/",
+		log,
+	)
 	now := func() time.Time { return time.Now() }
 
 	importer := domain.NewMatchImporter(
