@@ -41,7 +41,7 @@ func (c *Client) GetUpcomingMatches() (domain.Matches, error) {
 	url := c.baseUri + "/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=0"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return domain.Matches{}, err
+		return domain.Matches{}, fmt.Errorf("err: %w, uri: %s", err, url)
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("X-RapidAPI-Host", "flashscore.p.rapidapi.com")

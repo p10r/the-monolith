@@ -8,7 +8,7 @@ import (
 	"github.com/p10r/pedro/serve/statistics"
 	"github.com/p10r/pedro/serve/testutil"
 	"log/slog"
-	"net"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -16,11 +16,8 @@ import (
 )
 
 type fixture struct {
-	flashscoreServer *httptest.Server
-	discordServer    *testutil.DiscordServer
-	plusLigaWebsite  *httptest.Server
-	superLegaWebsite *httptest.Server
-	importer         *domain.MatchImporter
+	server   *httptest.Server
+	importer *domain.MatchImporter
 }
 
 func newFixture(
@@ -33,7 +30,17 @@ func newFixture(
 
 	apiKey := "random_api_key"
 
-	var flashscoreServer *httptest.Server
+	mux := http.NewServeMux()
+	mux.Handle("GET /flashscore/v1/events/list", testutil.NewFlashscoreServer(t, apiKey))
+	mux.Handle("POST /discord", testutil.NewDiscordServer(t, log))
+	mux.Handle("GET /plusliga", testutil.NewPlusLigaServer(
+		t, testutil.MustReadFile(t, "../testdata/statistics/plusliga.html"),
+	))
+	mux.Handle("GET /superlega", testutil.NewSuperLegaServer(
+		t, testutil.MustReadFile(t, "../testdata/statistics/superlega-italy-m.html"),
+	))
+	server := httptest.NewServer(mux)
+
 	var fsClient *flashscore.Client
 	if runAgainstFlashscore {
 		key := os.Getenv("FLASHSCORE_API_KEY")
@@ -43,11 +50,9 @@ func newFixture(
 
 		fsClient = flashscore.NewClient("https://flashscore.p.rapidapi.com", key, log)
 	} else {
-		flashscoreServer = testutil.NewFlashscoreServer(t, apiKey)
-		fsClient = flashscore.NewClient(flashscoreServer.URL, apiKey, log)
+		fsClient = flashscore.NewClient(server.URL+"/flashscore", apiKey, log)
 	}
 
-	var discordServer *testutil.DiscordServer
 	var discordClient *discord.Client
 	if runAgainstDiscord {
 		uri := os.Getenv("DISCORD_URI")
@@ -56,52 +61,24 @@ func newFixture(
 		}
 		discordClient = discord.NewClient(uri, log)
 	} else {
-		discordServer = testutil.NewDiscordServer(t, log)
-		discordClient = discord.NewClient(discordServer.URL, log)
+		discordClient = discord.NewClient(server.URL+"/discord", log)
 	}
 
-	// We set a static string so the approval test doesn't break
-	listener, err := net.Listen("tcp", "127.0.0.1:58773")
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-	plusLigaWebsite := testutil.NewPlusLigaServer(
-		t,
-		testutil.MustReadFile(t, "../testdata/statistics/plusliga.html"),
-	)
-	plusLigaWebsite.Listener = listener
-	plusLigaWebsite.Start()
-
-	listener2, err := net.Listen("tcp", "127.0.0.1:58774")
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-	superLegaWebsite := testutil.NewSuperLegaServer(
-		t,
-		testutil.MustReadFile(t, "../testdata/statistics/superlega-italy-m.html"),
-	)
-	superLegaWebsite.Listener = listener2
-	superLegaWebsite.Start()
-
-	aggr := statistics.NewAggregator(plusLigaWebsite.URL, superLegaWebsite.URL, log)
+	aggr := statistics.NewAggregator(server.URL+"/plusliga", server.URL+"/superlega", log)
 
 	may28th := func() time.Time {
 		return time.Date(2024, 5, 28, 0, 0, 0, 0, time.UTC)
 	}
 
-	importer := domain.NewMatchImporter(
-		fsClient,
-		discordClient,
-		aggr,
-		favLeagues,
-		may28th,
-		log,
-	)
 	return fixture{
-		flashscoreServer,
-		discordServer,
-		plusLigaWebsite,
-		superLegaWebsite,
-		importer,
+		server,
+		domain.NewMatchImporter(
+			fsClient,
+			discordClient,
+			aggr,
+			favLeagues,
+			may28th,
+			log,
+		),
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/testutil"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -117,8 +118,7 @@ func TestPlusLigaScraper(t *testing.T) {
 
 	t.Run("round-trip", func(t *testing.T) {
 		f := testutil.MustReadFile(t, "../testdata/statistics/plusliga.html")
-		plusLigaSite := testutil.NewPlusLigaServer(t, f)
-		plusLigaSite.Start()
+		plusLigaSite := httptest.NewServer(testutil.NewPlusLigaServer(t, f))
 		defer plusLigaSite.Close()
 
 		plusLiga := newPlusLiga(plusLigaSite.URL, &http.Client{})

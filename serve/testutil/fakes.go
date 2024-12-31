@@ -2,24 +2,16 @@ package testutil
 
 import (
 	"encoding/json"
-	"io"
 	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
-type DiscordServer struct {
-	*httptest.Server
-	Requests *[][]byte
-}
-
-func NewDiscordServer(t *testing.T, logger *slog.Logger) *DiscordServer {
+func NewDiscordServer(t *testing.T, logger *slog.Logger) http.HandlerFunc {
 	t.Helper()
 	log := logger.With(slog.String("adapter", "discord_fake"))
 
-	var reqs [][]byte
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			log.Info("DiscordServer: Received invalid request")
 			w.WriteHeader(400)
@@ -28,38 +20,16 @@ func NewDiscordServer(t *testing.T, logger *slog.Logger) *DiscordServer {
 
 		log.Info("DiscordServer: Received request")
 
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			t.Fatalf("Cannot read body")
-			return
-		}
-		defer r.Body.Close()
-		reqs = append(reqs, body)
-
 		w.WriteHeader(204)
-	}))
-
-	return &DiscordServer{server, &reqs}
+	}
 }
 
-func NewFlashscoreServer(t *testing.T, apiKey string) *httptest.Server {
+func NewFlashscoreServer(t *testing.T, apiKey string) http.HandlerFunc {
 	t.Helper()
 
 	//nolint
 	//https://flashscore.p.rapidapi.com/v1/events/list?locale=en_GB&timezone=-4&sport_id=12&indent_days=0
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "GET" {
-			w.WriteHeader(400)
-			t.Fatalf("Flashscore Server: Invalid req method")
-			return
-		}
-
-		if r.URL.Path != "/v1/events/list" {
-			w.WriteHeader(400)
-			t.Fatalf("Flashscore Server: Invalid URL path")
-			return
-		}
-
+	return func(w http.ResponseWriter, r *http.Request) {
 		apiKeyHeader := r.Header.Get("X-RapidAPI-Key")
 		if apiKeyHeader != apiKey {
 			w.WriteHeader(400)
@@ -81,25 +51,23 @@ func NewFlashscoreServer(t *testing.T, apiKey string) *httptest.Server {
 		if err != nil {
 			t.Fatalf("could not set response: %v", err)
 		}
-	}))
+	}
 }
 
-func NewPlusLigaServer(t *testing.T, resBody []byte) *httptest.Server {
+func NewPlusLigaServer(t *testing.T, resBody []byte) http.HandlerFunc {
 	t.Helper()
 
-	//nolint:lll
-	return httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(resBody)
-	}))
+	}
 }
 
-func NewSuperLegaServer(t *testing.T, resBody []byte) *httptest.Server {
+func NewSuperLegaServer(t *testing.T, resBody []byte) http.HandlerFunc {
 	t.Helper()
 
-	//nolint:lll
-	return httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(resBody)
-	}))
+	}
 }

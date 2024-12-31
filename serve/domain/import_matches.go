@@ -102,7 +102,7 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 func (importer *MatchImporter) fetchAllMatches() (Matches, error) {
 	m, err := importer.flashscore.GetUpcomingMatches()
 	if err != nil {
-		return nil, fmt.Errorf("could not fetch matches from flashscore: %v", err)
+		return nil, fmt.Errorf("could not fetch matches from flashscore: err: %v", err)
 	}
 	return m, err
 }
