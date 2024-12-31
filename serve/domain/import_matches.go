@@ -65,8 +65,6 @@ func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matc
 		return Matches{}, nil
 	}
 
-	importer.log.Info(fmt.Sprintf("%v matches coming up today", len(upcoming)))
-
 	err = importer.discord.SendUpcomingMatches(ctx, upcoming, importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
