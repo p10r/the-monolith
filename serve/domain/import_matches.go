@@ -18,7 +18,7 @@ type Discord interface {
 }
 
 type Statistics interface {
-	EnrichMatches(matches FinishedMatches) FinishedMatches
+	EnrichMatches(matches FinishedMatchesByLeague) FinishedMatchesByLeague
 }
 
 type MatchImporter struct {
@@ -87,8 +87,13 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		return nil
 	}
 
-	matchesWithStats := importer.statistics.EnrichMatches(finished)
-	err = importer.discord.SendFinishedMatches(ctx, matchesWithStats, importer.clock())
+	unwrapped := FinishedMatches{}
+	matchesWithStats := importer.statistics.EnrichMatches(finished.ToMap())
+	for _, finishedMatches := range matchesWithStats {
+		unwrapped = append(unwrapped, finishedMatches...)
+	}
+
+	err = importer.discord.SendFinishedMatches(ctx, unwrapped, importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
 		return err

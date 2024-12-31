@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -41,51 +40,41 @@ func NewAggregator(
 	}
 }
 
-func (a *Aggregator) EnrichMatches(matches domain.FinishedMatches) domain.FinishedMatches {
-	matchesMap := map[matchKey]domain.FinishedMatch{}
-	for _, match := range matches {
-		matchesMap[newMatchKey(match.HomeName, match.AwayName)] = match
+func (a *Aggregator) EnrichMatches(
+	matches domain.FinishedMatchesByLeague,
+) domain.FinishedMatchesByLeague {
+	plKey := domain.NewLeagueKey("Poland: PlusLiga")
+	itaKey := domain.NewLeagueKey("Italy: SuperLega")
+
+	plFound, plNotFound := a.getPolishMenMatches(matches[plKey])
+	itaFound, itaNotFound := a.getItalianMenMatches(matches[itaKey])
+
+	for _, match := range append(plNotFound, itaNotFound...) {
+		a.log.Error("Not found: %s-%s", match.HomeName, match.AwayName)
 	}
 
-	// Get all PlusLiga Matches
-	var plMatches domain.FinishedMatches
-	var itaMatches domain.FinishedMatches
-	for _, match := range matches {
-		if strings.ToLower(match.Country) == "poland" {
-			plMatches = append(plMatches, match)
-		}
-		if strings.ToLower(match.Country) == "italy" {
-			itaMatches = append(itaMatches, match)
-		}
-	}
+	matches[plKey] = append(plFound, plNotFound...)
+	matches[itaKey] = append(itaFound, itaNotFound...)
 
-	// Get stats for PlusLiga matches
-	plFound, notFound, err := a.plusLiga.GetStatsFor(plMatches)
+	return matches
+}
+
+func (a *Aggregator) getPolishMenMatches(
+	matches domain.FinishedMatches,
+) (domain.FinishedMatches, domain.FinishedMatches) {
+	plFound, plNotFound, err := a.plusLiga.GetStatsFor(matches)
 	if err != nil {
 		a.log.Error(l.Error("Plusliga err: %w", err))
 	}
-	for _, match := range notFound {
-		a.log.Error("Not found on PlusLiga website: %s-%s", match.HomeName, match.AwayName)
-	}
+	return plFound, plNotFound
+}
 
-	// Get stats for SuperLega matches
-	itaFound, notFound, err := a.superLega.GetStatsFor(itaMatches)
+func (a *Aggregator) getItalianMenMatches(
+	itaMenMatches domain.FinishedMatches,
+) (domain.FinishedMatches, domain.FinishedMatches) {
+	itaFound, itaNotFound, err := a.superLega.GetStatsFor(itaMenMatches)
 	if err != nil {
-		a.log.Error(l.Error("Plusliga err: %w", err))
+		a.log.Error(l.Error("SuperLega err: %w", err))
 	}
-	for _, match := range notFound {
-		a.log.Error("Not found on SuperLega website: %s-%s", match.HomeName, match.AwayName)
-	}
-
-	// Overwrite statsUrl of domain.Match
-	for _, foundMatch := range append(plFound, itaFound...) {
-		matchesMap[newMatchKey(foundMatch.HomeName, foundMatch.AwayName)] = foundMatch
-	}
-
-	// map back to slice
-	var unwrapped domain.FinishedMatches
-	for _, match := range matchesMap {
-		unwrapped = append(unwrapped, match)
-	}
-	return unwrapped
+	return itaFound, itaNotFound
 }

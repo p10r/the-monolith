@@ -1,5 +1,13 @@
 package domain
 
+import "strings"
+
+type LeagueKey string
+
+func NewLeagueKey(fullFlashscoreName string) LeagueKey {
+	return LeagueKey(strings.ToLower(fullFlashscoreName))
+}
+
 type Match struct {
 	HomeName         string
 	AwayName         string
@@ -12,6 +20,10 @@ type Match struct {
 	AwayScoreCurrent int
 }
 
+func (m Match) LeagueKey() LeagueKey {
+	return LeagueKey(strings.ToLower(m.FlashscoreName))
+}
+
 type Matches []Match
 
 type FinishedMatch struct {
@@ -19,4 +31,18 @@ type FinishedMatch struct {
 	StatsUrl string
 }
 
+func (m FinishedMatch) LeagueKey() LeagueKey {
+	return LeagueKey(strings.ToLower(m.FlashscoreName))
+}
+
 type FinishedMatches []FinishedMatch
+
+type FinishedMatchesByLeague map[LeagueKey]FinishedMatches
+
+func (m FinishedMatches) ToMap() FinishedMatchesByLeague {
+	out := map[LeagueKey]FinishedMatches{}
+	for _, match := range m {
+		out[match.LeagueKey()] = append(out[match.LeagueKey()], match)
+	}
+	return out
+}
