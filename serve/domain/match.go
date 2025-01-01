@@ -4,6 +4,12 @@ import "strings"
 
 type LeagueKey string
 
+func (k LeagueKey) CountryEquals(country string) bool {
+	keyCountry := strings.Split(string(k), ":")[0]
+
+	return strings.EqualFold(keyCountry, country)
+}
+
 func NewLeagueKey(fullFlashscoreName string) LeagueKey {
 	return LeagueKey(strings.ToLower(fullFlashscoreName))
 }

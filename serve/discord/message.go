@@ -32,7 +32,7 @@ func NewUpcomingMatchesMsg(matches domain.Matches, currentTime time.Time) Messag
 	for league, matchesForCountry := range sortUpcomingByLeague(matches) {
 		fullName := matchesForCountry[0].Country + ": " + matchesForCountry[0].League
 		fields = append(fields, Fields{
-			Name:   flag(league) + fullName,
+			Name:   flag(domain.NewLeagueKey(league)) + fullName,
 			Value:  upcomingText(matchesForCountry),
 			Inline: false,
 		})
@@ -41,34 +41,29 @@ func NewUpcomingMatchesMsg(matches domain.Matches, currentTime time.Time) Messag
 	return Message{fmt.Sprintf("Games for %s", date), []Embeds{{fields}}}
 }
 
-func NewFinishedMatchesMsg(matches domain.FinishedMatches, currentTime time.Time) Message {
-	date := currentTime.Format("Monday, 2 January 2006")
-
+func NewFinishedMatchesMsg(
+	matches domain.FinishedMatchesByLeague,
+	currentTime time.Time,
+) Message {
 	var fields []Fields
-	for league, matchesForCountry := range sortFinishedByLeague(matches) {
-		fullName := matchesForCountry[0].Country + ": " + matchesForCountry[0].League
-		fields = append(fields, Fields{
-			Name:   flag(league) + fullName,
+	for league, matchesForCountry := range matches {
+		f := Fields{
+			Name:   flag(league) + string(league),
 			Value:  finishedText(matchesForCountry),
 			Inline: false,
-		})
+		}
+
+		fields = append(fields, f)
 	}
 
-	return Message{fmt.Sprintf("Results for %s", date), []Embeds{{fields}}}
+	return Message{
+		Content: fmt.Sprintf("Results for %s", currentTime.Format("Monday, 2 January 2006")),
+		Embeds:  []Embeds{{fields}},
+	}
 }
 
 func sortUpcomingByLeague(matches domain.Matches) map[string]domain.Matches {
 	countries := make(map[string]domain.Matches)
-	for _, m := range matches {
-		//TODO store leagues also in DB, use this identifier here
-		fullName := m.Country + ": " + m.League
-		countries[fullName] = append(countries[fullName], m)
-	}
-	return countries
-}
-
-func sortFinishedByLeague(matches domain.FinishedMatches) map[string]domain.FinishedMatches {
-	countries := make(map[string]domain.FinishedMatches)
 	for _, m := range matches {
 		//TODO store leagues also in DB, use this identifier here
 		fullName := m.Country + ": " + m.League
@@ -94,42 +89,44 @@ func finishedText(matches domain.FinishedMatches) string {
 
 	var texts []string
 	for _, m := range matches {
-		//nolint:lll
-		formatted := fmt.Sprintf("**%v - %v**\t\t\tScore:\t||%v\t:\t%v||", m.HomeName, m.AwayName, m.HomeScoreCurrent, m.AwayScoreCurrent)
+		formatted := fmt.Sprintf("**%v - %v**\t\t\tScore:\t||%v\t:\t%v||",
+			m.HomeName, m.AwayName, m.HomeScoreCurrent, m.AwayScoreCurrent)
+
 		if m.StatsUrl != "" {
 			formatted = formatted + "\t\t\t[📊 Statistics](" + m.StatsUrl + ")"
 		}
+
 		texts = append(texts, formatted)
 	}
 	return strings.Join(texts, "\n")
 }
 
-func flag(leagueName string) string {
-	if strings.Contains(leagueName, "Poland") {
+func flag(key domain.LeagueKey) string {
+	if key.CountryEquals("Poland") {
 		return "🇵🇱"
 	}
-	if strings.Contains(leagueName, "Italy") {
+	if key.CountryEquals("Italy") {
 		return "🇮🇹"
 	}
-	if strings.Contains(leagueName, "France") {
+	if key.CountryEquals("France") {
 		return "🇫🇷"
 	}
-	if strings.Contains(leagueName, "Germany") {
+	if key.CountryEquals("Germany") {
 		return "🇩🇪"
 	}
-	if strings.Contains(leagueName, "Russia") {
+	if key.CountryEquals("Russia") {
 		return "🇷🇺"
 	}
-	if strings.Contains(leagueName, "Turkey") {
+	if key.CountryEquals("Turkey") {
 		return "🇹🇷"
 	}
-	if strings.Contains(leagueName, "Europe") {
+	if key.CountryEquals("Europe") {
 		return "🇪🇺"
 	}
-	if strings.Contains(leagueName, "USA") {
+	if key.CountryEquals("USA") {
 		return "🇺🇸"
 	}
-	if strings.Contains(leagueName, "Japan") {
+	if key.CountryEquals("Japan") {
 		return "🇯🇵"
 	}
 	return ""

@@ -19,6 +19,23 @@ type Serve struct {
 	log                    *slog.Logger
 }
 
+func NewServeProdApp(
+	flashscoreUri, flashscoreApiKey, discordUri string,
+	log *slog.Logger,
+	importUpcomingSchedule string,
+	importFinishedSchedule string,
+) *Serve {
+	return NewServeApp(
+		flashscoreUri,
+		flashscoreApiKey,
+		discordUri,
+		domain.FavouriteLeagues,
+		log,
+		importUpcomingSchedule,
+		importFinishedSchedule,
+	)
+}
+
 // NewServeApp wires Serve App together.
 // Expects an already opened connection.
 func NewServeApp(

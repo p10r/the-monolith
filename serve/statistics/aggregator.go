@@ -43,14 +43,14 @@ func NewAggregator(
 func (a *Aggregator) EnrichMatches(
 	matches domain.FinishedMatchesByLeague,
 ) domain.FinishedMatchesByLeague {
-	plKey := domain.NewLeagueKey("Poland: PlusLiga")
-	itaKey := domain.NewLeagueKey("Italy: SuperLega")
+	plKey := domain.NewLeagueKey(domain.PolandMen)
+	itaKey := domain.NewLeagueKey(domain.ItalyMen)
 
 	plFound, plNotFound := a.getPolishMenMatches(matches[plKey])
 	itaFound, itaNotFound := a.getItalianMenMatches(matches[itaKey])
 
-	for _, match := range append(plNotFound, itaNotFound...) {
-		a.log.Error("Not found: %s-%s", match.HomeName, match.AwayName)
+	for _, notFound := range append(plNotFound, itaNotFound...) {
+		a.log.Error("Not found: %s-%s", notFound.HomeName, notFound.AwayName)
 	}
 
 	matches[plKey] = append(plFound, plNotFound...)

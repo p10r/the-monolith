@@ -14,7 +14,7 @@ type Flashscore interface {
 
 type Discord interface {
 	SendUpcomingMatches(context.Context, Matches, time.Time) error
-	SendFinishedMatches(context.Context, FinishedMatches, time.Time) error
+	SendFinishedMatches(context.Context, FinishedMatchesByLeague, time.Time) error
 }
 
 type Statistics interface {
@@ -87,13 +87,9 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		return nil
 	}
 
-	unwrapped := FinishedMatches{}
 	matchesWithStats := importer.statistics.EnrichMatches(finished.ToMap())
-	for _, finishedMatches := range matchesWithStats {
-		unwrapped = append(unwrapped, finishedMatches...)
-	}
 
-	err = importer.discord.SendFinishedMatches(ctx, unwrapped, importer.clock())
+	err = importer.discord.SendFinishedMatches(ctx, matchesWithStats, importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
 		return err

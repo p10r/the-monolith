@@ -83,7 +83,7 @@ func (c *Client) SendUpcomingMatches(
 
 func (c *Client) SendFinishedMatches(
 	_ context.Context,
-	matches domain.FinishedMatches,
+	matches domain.FinishedMatchesByLeague,
 	now time.Time,
 ) error {
 	msg := NewFinishedMatchesMsg(matches, now)
