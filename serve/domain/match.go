@@ -11,7 +11,7 @@ func (k LeagueKey) CountryEquals(country string) bool {
 }
 
 func NewLeagueKey(fullFlashscoreName string) LeagueKey {
-	return LeagueKey(strings.ToLower(fullFlashscoreName))
+	return LeagueKey(fullFlashscoreName)
 }
 
 type Match struct {
