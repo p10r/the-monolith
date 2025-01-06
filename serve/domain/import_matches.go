@@ -87,9 +87,9 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		return nil
 	}
 
-	matchesWithStats := importer.statistics.EnrichMatches(finished.ToMap())
+	//matchesWithStats := importer.statistics.EnrichMatches(finished.ToMap())
 
-	err = importer.discord.SendFinishedMatches(ctx, matchesWithStats, importer.clock())
+	err = importer.discord.SendFinishedMatches(ctx, finished.ToMap(), importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
 		return err
