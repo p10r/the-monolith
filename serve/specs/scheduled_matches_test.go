@@ -19,9 +19,8 @@ func TestMain(m *testing.M) {
 
 func TestImportMatches(t *testing.T) {
 	ctx := context.TODO()
-	favs := []string{"Europe: Champions League - Play Offs", "USA: PVF Women"}
 
-	f := newFixture(t, favs, false, false)
+	f := newFixture(t, false, false)
 	defer f.server.Close()
 
 	_, err := f.importer.ImportScheduledMatches(ctx)

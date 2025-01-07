@@ -22,7 +22,6 @@ type fixture struct {
 
 func newFixture(
 	t *testing.T,
-	favLeagues []string,
 	runAgainstDiscord bool,
 	runAgainstFlashscore bool,
 ) fixture {
@@ -76,7 +75,6 @@ func newFixture(
 			fsClient,
 			discordClient,
 			aggr,
-			favLeagues,
 			may28th,
 			log,
 		),

@@ -42,7 +42,7 @@ const (
 	JapanMen                           = "JAPAN: SV.League"
 )
 
-var FavouriteLeagues = []string{
+var favouriteLeagues = []string{
 	ItalyMen,
 	ItalyMenPlayoffs,
 	ItalyMenCup,

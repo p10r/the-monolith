@@ -9,59 +9,65 @@ import (
 
 func TestDomain(t *testing.T) {
 	t.Run("filters for scheduled matches", func(t *testing.T) {
-		expected := domain.Matches{
+		input := domain.Matches{
 			{
-				HomeName:         "Trentino",
-				AwayName:         "Jastrzebski",
-				StartTime:        1714917600,
-				FlashscoreName:   "Europe: Champions League - Play Offs",
-				Country:          "Europe",
-				League:           "Champions League - Play Offs",
-				Stage:            "SCHEDULED",
-				HomeScoreCurrent: 3,
-				AwayScoreCurrent: 0,
+				HomeName:       "Trentino",
+				AwayName:       "Jastrzebski",
+				FlashscoreName: "Europe: Champions League - Play Offs",
+				Stage:          "SCHEDULED",
 			},
 			{
-				HomeName:         "Resovia",
-				AwayName:         "Zaksa",
-				StartTime:        1714917600,
-				FlashscoreName:   "Europe: Champions League - Play Offs",
-				Country:          "Europe",
-				League:           "Champions League - Play Offs",
-				Stage:            "SCHEDULED",
-				HomeScoreCurrent: 3,
-				AwayScoreCurrent: 0,
+				HomeName:       "Resovia",
+				AwayName:       "Zaksa",
+				FlashscoreName: "Europe: Champions League - Play Offs",
+				Stage:          "FINISHED",
 			},
 		}
 
-		m := testutil.Matches(t)
-		favs := []string{"Europe: Champions League - Play Offs"}
-		matches := m.FilterScheduled(favs)
+		expected := domain.Matches{
+			{
+				HomeName:       "Trentino",
+				AwayName:       "Jastrzebski",
+				FlashscoreName: "Europe: Champions League - Play Offs",
+				Stage:          "SCHEDULED",
+			},
+		}
+
+		matches := input.Scheduled()
 		assert.Equal(t, matches, expected)
 	})
 
 	t.Run("filters for finished matches", func(t *testing.T) {
-		expected := domain.Matches{
-			domain.Match{
-				HomeName:         "Mok Mursa",
-				AwayName:         "HAOK Mladost",
-				StartTime:        1714932000,
-				FlashscoreName:   "Croatia: Superliga - Play Offs",
-				Country:          "Croatia",
-				League:           "Superliga - Play Offs",
-				Stage:            "FINISHED",
-				HomeScoreCurrent: 2,
-				AwayScoreCurrent: 3,
+		input := domain.Matches{
+			{
+				HomeName:       "Trentino",
+				AwayName:       "Jastrzebski",
+				FlashscoreName: "Europe: Champions League - Play Offs",
+				Stage:          "SCHEDULED",
+			},
+			{
+				HomeName:       "Resovia",
+				AwayName:       "Zaksa",
+				FlashscoreName: "Europe: Champions League - Play Offs",
+				Stage:          "FINISHED",
 			},
 		}
 
-		m := testutil.Matches(t)
-		matches := m.FilterFinished([]string{"Croatia: Superliga - Play Offs"})
+		expected := domain.Matches{
+			{
+				HomeName:       "Resovia",
+				AwayName:       "Zaksa",
+				FlashscoreName: "Europe: Champions League - Play Offs",
+				Stage:          "FINISHED",
+			},
+		}
+
+		matches := input.Finished()
 		assert.Equal(t, matches, expected)
 	})
 
 	t.Run("handles 0 scheduled matches", func(t *testing.T) {
-		m := domain.Matches{}.FilterScheduled([]string{"Italy: SuperLega"})
+		m := domain.Matches{}.Scheduled()
 		assert.Equal(t, len(m), 0)
 	})
 
@@ -102,9 +108,7 @@ func TestDomain(t *testing.T) {
 			},
 		}
 
-		favourites := []string{"Europe: Champions League - Play Offs", "USA: PVF Women"}
-
-		matches := testutil.Matches(t).FilterScheduled(favourites)
+		matches := testutil.Matches(t).Scheduled()
 		assert.Equal(t, matches, expected)
 	})
 }

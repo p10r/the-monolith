@@ -29,7 +29,6 @@ func NewServeProdApp(
 		flashscoreUri,
 		flashscoreApiKey,
 		discordUri,
-		domain.FavouriteLeagues,
 		log,
 		importUpcomingSchedule,
 		importFinishedSchedule,
@@ -40,7 +39,6 @@ func NewServeProdApp(
 // Expects an already opened connection.
 func NewServeApp(
 	flashscoreUri, flashscoreApiKey, discordUri string,
-	favouriteLeagues []string,
 	log *slog.Logger,
 	importUpcomingSchedule string,
 	importFinishedSchedule string,
@@ -70,7 +68,6 @@ func NewServeApp(
 		flashscoreClient,
 		discordClient,
 		stats,
-		favouriteLeagues,
 		now,
 		log,
 	)

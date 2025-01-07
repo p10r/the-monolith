@@ -8,17 +8,12 @@ import (
 
 func TestFinishedMatches(t *testing.T) {
 	ctx := context.TODO()
-	favs := []string{
-		"Europe: Champions League Women - Play Offs",
-		"Poland: PlusLiga",
-		"Italy: SuperLega",
-	}
 
 	// run direnv allow . before running
 	t.Run("run against prod", func(t *testing.T) {
 		t.Skip()
 
-		f := newFixture(t, favs, true, false)
+		f := newFixture(t, true, false)
 		defer f.server.Close()
 
 		err := f.importer.ImportFinishedMatches(ctx)

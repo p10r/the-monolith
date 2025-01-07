@@ -25,7 +25,6 @@ type MatchImporter struct {
 	flashscore Flashscore
 	discord    Discord
 	statistics Statistics
-	favLeagues []string
 	clock      func() time.Time
 	log        *slog.Logger
 }
@@ -34,7 +33,6 @@ func NewMatchImporter(
 	flashscore Flashscore,
 	discord Discord,
 	statistics Statistics,
-	favLeagues []string,
 	clock func() time.Time,
 	log *slog.Logger,
 ) *MatchImporter {
@@ -42,7 +40,6 @@ func NewMatchImporter(
 		flashscore,
 		discord,
 		statistics,
-		favLeagues,
 		clock,
 		log,
 	}
@@ -59,7 +56,7 @@ func (importer *MatchImporter) ImportScheduledMatches(ctx context.Context) (Matc
 	}
 
 	//TODO remove error, return empty slice
-	upcoming := matches.FilterScheduled(importer.favLeagues)
+	upcoming := matches.Favourites().Scheduled()
 	if len(upcoming) == 0 {
 		importer.log.Info("No upcoming games today")
 		return Matches{}, nil
@@ -81,7 +78,7 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		return err
 	}
 
-	finished := flashscoreMatches.FilterFinished(importer.favLeagues)
+	finished := flashscoreMatches.Finished()
 	if len(finished) == 0 {
 		importer.log.Info("No finished games today")
 		return nil
