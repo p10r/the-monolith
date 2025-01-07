@@ -40,10 +40,10 @@ var domainToPlusLigaMappings = map[string]string{
 }
 
 func (m plusLigaMatches) ZipWith(
-	dm domain.FinishedMatches,
-) (zipped domain.FinishedMatches, notFound domain.FinishedMatches) {
-	zipped = domain.FinishedMatches{}
-	notFound = domain.FinishedMatches{}
+	dm domain.Matches,
+) (zipped domain.Matches, notFound domain.Matches) {
+	zipped = domain.Matches{}
+	notFound = domain.Matches{}
 
 	for _, d := range dm {
 		plusLigaHome := domainToPlusLigaMappings[d.HomeName]
@@ -90,9 +90,9 @@ func (scraper *plusLigaScraper) GetAllStats() (statUrls []string, err error) {
 	return urls, nil
 }
 
-func (scraper *plusLigaScraper) GetStatsFor(dm domain.FinishedMatches) (
-	matched domain.FinishedMatches,
-	notFound domain.FinishedMatches,
+func (scraper *plusLigaScraper) GetStatsFor(dm domain.Matches) (
+	matched domain.Matches,
+	notFound domain.Matches,
 	err error,
 ) {
 	page, err := scraper.getAllMatchesPage()

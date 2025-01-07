@@ -68,36 +68,28 @@ func TestSuperLegaScraper(t *testing.T) {
 			newMatchKey(match2.homeTeamId, match2.awayTeamId): match2,
 		}
 
-		domainMatches := domain.FinishedMatches{
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Piacenza",
-					AwayName: "Cisterna",
-				},
+		domainMatches := domain.Matches{
+			domain.Match{
+				HomeName: "Piacenza",
+				AwayName: "Cisterna",
 				StatsUrl: "",
 			},
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Trentino",
-					AwayName: "Milano",
-				},
+			domain.Match{
+				HomeName: "Trentino",
+				AwayName: "Milano",
 				StatsUrl: "",
 			},
 		}
 
-		expected := domain.FinishedMatches{
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Piacenza",
-					AwayName: "Cisterna",
-				},
+		expected := domain.Matches{
+			domain.Match{
+				HomeName: "Piacenza",
+				AwayName: "Cisterna",
 				StatsUrl: match1.statsUrl,
 			},
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Trentino",
-					AwayName: "Milano",
-				},
+			domain.Match{
+				HomeName: "Trentino",
+				AwayName: "Milano",
 				StatsUrl: match2.statsUrl,
 			},
 		}

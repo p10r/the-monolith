@@ -78,36 +78,28 @@ func TestPlusLigaScraper(t *testing.T) {
 			newMatchKey(match2.homeTeam, match2.awayTeam): match2,
 		}
 
-		domainMatches := domain.FinishedMatches{
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Lublin",
-					AwayName: "Slepsk Suwalki",
-				},
+		domainMatches := domain.Matches{
+			domain.Match{
+				HomeName: "Lublin",
+				AwayName: "Slepsk Suwalki",
 				StatsUrl: "",
 			},
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Zawierce",
-					AwayName: "Norwid Czestochowa",
-				},
+			domain.Match{
+				HomeName: "Zawierce",
+				AwayName: "Norwid Czestochowa",
 				StatsUrl: "",
 			},
 		}
 
-		expected := domain.FinishedMatches{
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Lublin",
-					AwayName: "Slepsk Suwalki",
-				},
+		expected := domain.Matches{
+			domain.Match{
+				HomeName: "Lublin",
+				AwayName: "Slepsk Suwalki",
 				StatsUrl: match1.statsUrl,
 			},
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName: "Zawierce",
-					AwayName: "Norwid Czestochowa",
-				},
+			domain.Match{
+				HomeName: "Zawierce",
+				AwayName: "Norwid Czestochowa",
 				StatsUrl: match2.statsUrl,
 			},
 		}

@@ -41,19 +41,17 @@ func TestDomain(t *testing.T) {
 	})
 
 	t.Run("filters for finished matches", func(t *testing.T) {
-		expected := domain.FinishedMatches{
-			domain.FinishedMatch{
-				Match: domain.Match{
-					HomeName:         "Mok Mursa",
-					AwayName:         "HAOK Mladost",
-					StartTime:        1714932000,
-					FlashscoreName:   "Croatia: Superliga - Play Offs",
-					Country:          "Croatia",
-					League:           "Superliga - Play Offs",
-					Stage:            "FINISHED",
-					HomeScoreCurrent: 2,
-					AwayScoreCurrent: 3,
-				},
+		expected := domain.Matches{
+			domain.Match{
+				HomeName:         "Mok Mursa",
+				AwayName:         "HAOK Mladost",
+				StartTime:        1714932000,
+				FlashscoreName:   "Croatia: Superliga - Play Offs",
+				Country:          "Croatia",
+				League:           "Superliga - Play Offs",
+				Stage:            "FINISHED",
+				HomeScoreCurrent: 2,
+				AwayScoreCurrent: 3,
 			},
 		}
 

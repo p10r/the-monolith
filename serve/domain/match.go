@@ -1,6 +1,8 @@
 package domain
 
-import "strings"
+import (
+	"strings"
+)
 
 type LeagueKey string
 
@@ -24,6 +26,7 @@ type Match struct {
 	Stage            string
 	HomeScoreCurrent int
 	AwayScoreCurrent int
+	StatsUrl         string // Set by statistics package
 }
 
 func (m Match) LeagueKey() LeagueKey {
@@ -32,22 +35,11 @@ func (m Match) LeagueKey() LeagueKey {
 
 type Matches []Match
 
-type FinishedMatch struct {
-	Match
-	StatsUrl string
-}
+type MatchesByLeague map[LeagueKey]Matches
 
-func (m FinishedMatch) LeagueKey() LeagueKey {
-	return LeagueKey(strings.ToLower(m.FlashscoreName))
-}
-
-type FinishedMatches []FinishedMatch
-
-type FinishedMatchesByLeague map[LeagueKey]FinishedMatches
-
-func (m FinishedMatches) ToMap() FinishedMatchesByLeague {
-	out := map[LeagueKey]FinishedMatches{}
-	for _, match := range m {
+func (matches Matches) ToMap() MatchesByLeague {
+	out := map[LeagueKey]Matches{}
+	for _, match := range matches {
 		out[match.LeagueKey()] = append(out[match.LeagueKey()], match)
 	}
 	return out

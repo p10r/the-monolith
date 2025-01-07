@@ -34,10 +34,10 @@ type superLegaMatch struct {
 type superLegaMatches map[matchKey]superLegaMatch
 
 func (m superLegaMatches) ZipWith(
-	domainMatches domain.FinishedMatches,
-) (zipped domain.FinishedMatches, notFound domain.FinishedMatches) {
-	zipped = domain.FinishedMatches{}
-	notFound = domain.FinishedMatches{}
+	domainMatches domain.Matches,
+) (zipped domain.Matches, notFound domain.Matches) {
+	zipped = domain.Matches{}
+	notFound = domain.Matches{}
 
 	for _, dm := range domainMatches {
 		superLegaHome := domainToSuperLegaIds[dm.HomeName]
@@ -67,9 +67,9 @@ func newSuperLegaScraper(baseUrl string, client *http.Client) *superLegaScraper 
 	return &superLegaScraper{baseUrl: strings.TrimSuffix(baseUrl, "/"), client: client}
 }
 
-func (scraper *superLegaScraper) GetStatsFor(dm domain.FinishedMatches) (
-	matched domain.FinishedMatches,
-	notFound domain.FinishedMatches,
+func (scraper *superLegaScraper) GetStatsFor(dm domain.Matches) (
+	matched domain.Matches,
+	notFound domain.Matches,
 	err error,
 ) {
 	page, err := scraper.getAllMatchesPage()

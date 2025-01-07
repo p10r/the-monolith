@@ -41,8 +41,8 @@ func NewAggregator(
 }
 
 func (a *Aggregator) EnrichMatches(
-	matches domain.FinishedMatchesByLeague,
-) domain.FinishedMatchesByLeague {
+	matches domain.MatchesByLeague,
+) domain.MatchesByLeague {
 	plKey := domain.NewLeagueKey(domain.PolandMen)
 	itaKey := domain.NewLeagueKey(domain.ItalyMen)
 
@@ -60,8 +60,8 @@ func (a *Aggregator) EnrichMatches(
 }
 
 func (a *Aggregator) getPolishMenMatches(
-	matches domain.FinishedMatches,
-) (domain.FinishedMatches, domain.FinishedMatches) {
+	matches domain.Matches,
+) (domain.Matches, domain.Matches) {
 	plFound, plNotFound, err := a.plusLiga.GetStatsFor(matches)
 	if err != nil {
 		a.log.Error(l.Error("Plusliga err: %w", err))
@@ -70,8 +70,8 @@ func (a *Aggregator) getPolishMenMatches(
 }
 
 func (a *Aggregator) getItalianMenMatches(
-	itaMenMatches domain.FinishedMatches,
-) (domain.FinishedMatches, domain.FinishedMatches) {
+	itaMenMatches domain.Matches,
+) (domain.Matches, domain.Matches) {
 	itaFound, itaNotFound, err := a.superLega.GetStatsFor(itaMenMatches)
 	if err != nil {
 		a.log.Error(l.Error("SuperLega err: %w", err))

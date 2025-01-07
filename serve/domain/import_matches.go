@@ -14,11 +14,11 @@ type Flashscore interface {
 
 type Discord interface {
 	SendUpcomingMatches(context.Context, Matches, time.Time) error
-	SendFinishedMatches(context.Context, FinishedMatchesByLeague, time.Time) error
+	SendFinishedMatches(context.Context, MatchesByLeague, time.Time) error
 }
 
 type Statistics interface {
-	EnrichMatches(matches FinishedMatchesByLeague) FinishedMatchesByLeague
+	EnrichMatches(matches MatchesByLeague) MatchesByLeague
 }
 
 type MatchImporter struct {
@@ -87,9 +87,9 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		return nil
 	}
 
-	//matchesWithStats := importer.statistics.EnrichMatches(finished.ToMap())
+	matchesWithStats := importer.statistics.EnrichMatches(finished.ToMap())
 
-	err = importer.discord.SendFinishedMatches(ctx, finished.ToMap(), importer.clock())
+	err = importer.discord.SendFinishedMatches(ctx, matchesWithStats, importer.clock())
 	if err != nil {
 		importer.log.Error(l.Error("send to discord error", err))
 		return err

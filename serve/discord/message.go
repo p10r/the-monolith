@@ -42,7 +42,7 @@ func NewUpcomingMatchesMsg(matches domain.Matches, currentTime time.Time) Messag
 }
 
 func NewFinishedMatchesMsg(
-	matches domain.FinishedMatchesByLeague,
+	matches domain.MatchesByLeague,
 	currentTime time.Time,
 ) Message {
 	var fields []Fields
@@ -81,9 +81,9 @@ func upcomingText(matches domain.Matches) string {
 	return strings.Join(texts, "\n")
 }
 
-func finishedText(matches domain.FinishedMatches) string {
+func finishedText(matches domain.Matches) string {
 	// Sort, to always have the same order in the message
-	slices.SortFunc(matches, func(a, b domain.FinishedMatch) int {
+	slices.SortFunc(matches, func(a, b domain.Match) int {
 		return cmp.Compare(fmt.Sprintf("%v", a), fmt.Sprintf("%v", b))
 	})
 
