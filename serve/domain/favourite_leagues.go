@@ -1,7 +1,11 @@
 package domain
 
-import "slices"
+import (
+	"slices"
+	"strings"
+)
 
+// New leagues inside this must be lowercase
 var favouriteLeagues = []string{
 	"italy: superlega",
 	"italy: superlega - play offs",
@@ -45,14 +49,9 @@ var favouriteLeagues = []string{
 }
 
 func (matches Matches) Favourites() Matches {
-	var lowerCaseFavs []string
-	for _, favourite := range favouriteLeagues {
-		lowerCaseFavs = append(lowerCaseFavs, lowerCase(favourite))
-	}
-
 	filtered := Matches{}
 	for _, match := range matches {
-		if slices.Contains(lowerCaseFavs, lowerCase(match.FlashscoreName)) {
+		if slices.Contains(favouriteLeagues, strings.ToLower(match.FlashscoreName)) {
 			filtered = append(filtered, match)
 		}
 	}

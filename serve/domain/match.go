@@ -39,7 +39,7 @@ func (matches Matches) Scheduled() Matches {
 	scheduled := Matches{}
 
 	for _, match := range matches {
-		if lowerCase(match.Stage) == lowerCase("SCHEDULED") {
+		if strings.EqualFold(match.Stage, "SCHEDULED") {
 			scheduled = append(scheduled, match)
 		}
 	}
@@ -52,7 +52,7 @@ func (matches Matches) Scheduled() Matches {
 func (matches Matches) Finished() Matches {
 	finished := Matches{}
 	for _, match := range matches {
-		if lowerCase(match.Stage) == lowerCase("FINISHED") {
+		if strings.EqualFold(match.Stage, "FINISHED") {
 			finished = append(finished, match)
 		}
 	}
@@ -62,10 +62,6 @@ func (matches Matches) Finished() Matches {
 	}
 
 	return finished
-}
-
-func lowerCase(s string) string {
-	return strings.ToLower(strings.TrimSpace(s))
 }
 
 type MatchesByLeague map[LeagueKey]Matches
