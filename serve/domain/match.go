@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"slices"
 	"strings"
 )
 
@@ -35,26 +34,6 @@ func (m Match) LeagueKey() LeagueKey {
 }
 
 type Matches []Match
-
-func (matches Matches) Favourites() Matches {
-	var lowerCaseFavs []string
-	for _, favourite := range favouriteLeagues {
-		lowerCaseFavs = append(lowerCaseFavs, lowerCase(favourite))
-	}
-
-	filtered := Matches{}
-	for _, match := range matches {
-		if slices.Contains(lowerCaseFavs, lowerCase(match.FlashscoreName)) {
-			filtered = append(filtered, match)
-		}
-	}
-
-	if len(filtered) == 0 {
-		return Matches{}
-	}
-
-	return filtered
-}
 
 func (matches Matches) Scheduled() Matches {
 	scheduled := Matches{}

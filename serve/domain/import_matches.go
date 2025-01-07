@@ -78,7 +78,7 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		return err
 	}
 
-	finished := flashscoreMatches.Finished()
+	finished := flashscoreMatches.Favourites().Finished()
 	if len(finished) == 0 {
 		importer.log.Info("No finished games today")
 		return nil

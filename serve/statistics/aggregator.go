@@ -43,8 +43,8 @@ func NewAggregator(
 func (a *Aggregator) EnrichMatches(
 	matches domain.MatchesByLeague,
 ) domain.MatchesByLeague {
-	plKey := domain.NewLeagueKey(domain.PolandMen)
-	itaKey := domain.NewLeagueKey(domain.ItalyMen)
+	plKey := domain.NewLeagueKey("italy: superlega")
+	itaKey := domain.NewLeagueKey("poland: plusliga")
 
 	plFound, plNotFound := a.getPolishMenMatches(matches[plKey])
 	itaFound, itaNotFound := a.getItalianMenMatches(matches[itaKey])
