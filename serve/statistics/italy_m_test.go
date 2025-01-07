@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"fmt"
 	"github.com/alecthomas/assert/v2"
-	"github.com/p10r/pedro/serve/domain"
 	"github.com/p10r/pedro/serve/testutil"
 	"net/http"
 	"slices"
@@ -17,7 +16,7 @@ func TestSuperLegaScraper(t *testing.T) {
 	t.Run("parses all matches with results", func(t *testing.T) {
 		s := newSuperLegaScraper("", nil)
 		f := testutil.MustReadFile(t, "../testdata/statistics/superlega-italy-m.html")
-		res := testutil.SomeRes(f)
+		res := testutil.OkRes(f)
 
 		stats, err := s.parseStats(res)
 		assert.NoError(t, err)
@@ -50,52 +49,6 @@ func TestSuperLegaScraper(t *testing.T) {
 		fmt.Printf("expected: %+v", sortedByStatUrl(expected))
 
 		assert.Equal(t, sortedByStatUrl(expected), sortedByStatUrl(actual))
-	})
-
-	t.Run("maps Super lega matches to Serve Matches", func(t *testing.T) {
-		match1 := superLegaMatch{
-			homeTeamId: "6554",
-			awayTeamId: "6552",
-			statsUrl:   "http://www.legavolley.it/match/38285",
-		}
-		match2 := superLegaMatch{
-			homeTeamId: "6556",
-			awayTeamId: "6551",
-			statsUrl:   "http://www.legavolley.it/match/38283",
-		}
-		slm := superLegaMatches{
-			newMatchKey(match1.homeTeamId, match1.awayTeamId): match1,
-			newMatchKey(match2.homeTeamId, match2.awayTeamId): match2,
-		}
-
-		domainMatches := domain.Matches{
-			domain.Match{
-				HomeName: "Piacenza",
-				AwayName: "Cisterna",
-				StatsUrl: "",
-			},
-			domain.Match{
-				HomeName: "Trentino",
-				AwayName: "Milano",
-				StatsUrl: "",
-			},
-		}
-
-		expected := domain.Matches{
-			domain.Match{
-				HomeName: "Piacenza",
-				AwayName: "Cisterna",
-				StatsUrl: match1.statsUrl,
-			},
-			domain.Match{
-				HomeName: "Trentino",
-				AwayName: "Milano",
-				StatsUrl: match2.statsUrl,
-			},
-		}
-
-		zipped, _ := slm.ZipWith(domainMatches)
-		assert.Equal(t, expected, zipped)
 	})
 
 	t.Run("run against prod", func(t *testing.T) {

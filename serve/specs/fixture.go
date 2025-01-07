@@ -1,6 +1,7 @@
 package specifications
 
 import (
+	"fmt"
 	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
@@ -29,15 +30,14 @@ func newFixture(
 
 	apiKey := "random_api_key"
 
+	plusLigaPage := testutil.MustReadFile(t, "../testdata/statistics/plusliga.html")
+	superLegaPage := testutil.MustReadFile(t, "../testdata/statistics/superlega-italy-m.html")
+
 	mux := http.NewServeMux()
 	mux.Handle("GET /flashscore/v1/events/list", testutil.NewFlashscoreServer(t, apiKey))
 	mux.Handle("POST /discord", testutil.NewDiscordServer(t, log))
-	mux.Handle("GET /plusliga", testutil.NewPlusLigaServer(
-		t, testutil.MustReadFile(t, "../testdata/statistics/plusliga.html"),
-	))
-	mux.Handle("GET /superlega", testutil.NewSuperLegaServer(
-		t, testutil.MustReadFile(t, "../testdata/statistics/superlega-italy-m.html"),
-	))
+	mux.Handle("GET /plusliga", testutil.NewPlusLigaServer(t, plusLigaPage))
+	mux.Handle("GET /superlega", testutil.NewSuperLegaServer(t, superLegaPage))
 	server := httptest.NewServer(mux)
 
 	var fsClient *flashscore.Client
@@ -63,7 +63,17 @@ func newFixture(
 		discordClient = discord.NewClient(server.URL+"/discord", log)
 	}
 
-	aggr := statistics.NewAggregator(server.URL+"/plusliga", server.URL+"/superlega", log)
+	aggr := statistics.NewAggregator(server.URL+"/plusliga", server.URL+"/superlega", log,
+		testutil.NewTestClient(func(req *http.Request) *http.Response {
+			if req.URL.String() == "/superlega/calendario/?lang=en" {
+				return testutil.OkRes(superLegaPage)
+			}
+			if req.URL.String() == "/plusliga/games.html" {
+				return testutil.OkRes(plusLigaPage)
+			}
+			panic(fmt.Sprintf("err, req URL was: %s", req.URL.String()))
+		}),
+	)
 
 	may28th := func() time.Time {
 		return time.Date(2024, 5, 28, 0, 0, 0, 0, time.UTC)

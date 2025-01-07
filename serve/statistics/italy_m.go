@@ -9,52 +9,53 @@ import (
 	"strings"
 )
 
+type superLegaTeamId string
+
+func (i superLegaTeamId) toDomain() string {
+	return superLegaToDomainMappings[i]
+}
+
 // Every team links to a team page on the SuperLega page.
 // Instead of parsing the string, we use the id of the match page.
 // E.g.: Milano: http://www.legavolley.it/team/6551
-var domainToSuperLegaIds = map[string]string{
-	"Milano":          "6551",
-	"Cisterna":        "6552",
-	"Lube Civitanova": "6553",
-	"Piacenza":        "6554",
-	"Taranto":         "6555",
-	"Trentino":        "6556",
-	"Monza":           "6557",
-	"Padova":          "6558",
-	"Verona":          "6559",
-	"Perugia":         "6560",
-	"Modena":          "6561",
-	"Grottazzolina":   "6592",
+var superLegaToDomainMappings = map[superLegaTeamId]string{
+	"6551": "Milano",
+	"6552": "Cisterna",
+	"6553": "Lube Civitanova",
+	"6554": "Piacenza",
+	"6555": "Taranto",
+	"6556": "Trentino",
+	"6557": "Monza",
+	"6558": "Padova",
+	"6559": "Verona",
+	"6560": "Perugia",
+	"6561": "Modena",
+	"6592": "Grottazzolina",
 }
 
 type superLegaMatch struct {
-	homeTeamId, awayTeamId, statsUrl string
+	homeTeamId superLegaTeamId
+	awayTeamId superLegaTeamId
+	statsUrl   string
 }
 
-type superLegaMatches map[matchKey]superLegaMatch
-
-func (m superLegaMatches) ZipWith(
-	domainMatches domain.Matches,
-) (zipped domain.Matches, notFound domain.Matches) {
-	zipped = domain.Matches{}
-	notFound = domain.Matches{}
-
-	for _, dm := range domainMatches {
-		superLegaHome := domainToSuperLegaIds[dm.HomeName]
-		superLegaAway := domainToSuperLegaIds[dm.AwayName]
-		key := newMatchKey(superLegaHome, superLegaAway)
-
-		slm, ok := m[key]
-		if !ok {
-			notFound = append(notFound, dm)
-			continue
-		}
-
-		dm.StatsUrl = slm.statsUrl
-		zipped = append(zipped, dm)
+func (m superLegaMatch) toDomain() domain.StatSheet {
+	return domain.StatSheet{
+		League: "italy: superlega",
+		Home:   m.homeTeamId.toDomain(),
+		Away:   m.awayTeamId.toDomain(),
+		Url:    m.statsUrl,
 	}
+}
 
-	return zipped, nil
+type superLegaMatches []superLegaMatch
+
+func (m superLegaMatches) toDomain() domain.StatSheets {
+	statSheets := domain.StatSheets{}
+	for _, match := range m {
+		statSheets = append(statSheets, match.toDomain())
+	}
+	return statSheets
 }
 
 type superLegaScraper struct {
@@ -63,27 +64,21 @@ type superLegaScraper struct {
 }
 
 func newSuperLegaScraper(baseUrl string, client *http.Client) *superLegaScraper {
-
 	return &superLegaScraper{baseUrl: strings.TrimSuffix(baseUrl, "/"), client: client}
 }
 
-func (scraper *superLegaScraper) GetStatsFor(dm domain.Matches) (
-	matched domain.Matches,
-	notFound domain.Matches,
-	err error,
-) {
+func (scraper *superLegaScraper) GetStats() (superLegaMatches, error) {
 	page, err := scraper.getAllMatchesPage()
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not fetch superLegaScraper match page: %w", err)
+		return nil, fmt.Errorf("could not fetch superLegaScraper match page: %w", err)
 	}
 
-	plMatches, err := scraper.parseStats(page)
+	matches, err := scraper.parseStats(page)
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not parse superLegaScraper match page: %w", err)
+		return nil, fmt.Errorf("could not parse superLegaScraper match page: %w", err)
 	}
 
-	zipped, notFound := plMatches.ZipWith(dm)
-	return zipped, notFound, nil
+	return matches, nil
 }
 
 func (scraper *superLegaScraper) getAllMatchesPage() (*http.Response, error) {
@@ -153,11 +148,12 @@ func (scraper *superLegaScraper) parseStats(res *http.Response) (matches superLe
 				awayTeamId := superLegaUrlRegex.FindString(onClickContent[2])
 				statId := superLegaUrlRegex.FindString(onClickContent[1])
 
-				matches[newMatchKey(homeTeamId, awayTeamId)] = superLegaMatch{
-					homeTeamId: homeTeamId,
-					awayTeamId: awayTeamId,
+				match := superLegaMatch{
+					homeTeamId: superLegaTeamId(homeTeamId),
+					awayTeamId: superLegaTeamId(awayTeamId),
 					statsUrl:   "http://www.legavolley.it/match/" + statId,
 				}
+				matches = append(matches, match)
 			})
 		})
 	return matches, nil

@@ -2,6 +2,7 @@ package serve
 
 import (
 	"context"
+	"github.com/p10r/pedro/pkg/httputil"
 	"github.com/p10r/pedro/pkg/l"
 	"github.com/p10r/pedro/serve/discord"
 	"github.com/p10r/pedro/serve/domain"
@@ -61,6 +62,7 @@ func NewServeApp(
 		"https://www.plusliga.pl",
 		"https://www.legavolley.it/",
 		log,
+		httputil.NewDefaultClient(),
 	)
 	now := func() time.Time { return time.Now() }
 
