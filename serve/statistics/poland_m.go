@@ -26,10 +26,9 @@ type plusLigaMatch struct {
 
 func (m plusLigaMatch) toDomain() domain.StatSheet {
 	return domain.StatSheet{
-		League: "poland: plusliga",
-		Home:   m.homeTeam.toDomain(),
-		Away:   m.awayTeam.toDomain(),
-		Url:    m.statsUrl,
+		Home: m.homeTeam.toDomain(),
+		Away: m.awayTeam.toDomain(),
+		Url:  m.statsUrl,
 	}
 }
 

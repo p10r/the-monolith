@@ -20,7 +20,7 @@ type Discord interface {
 type StatSheets []StatSheet
 
 type StatSheet struct {
-	League, Home, Away, Url string
+	Home, Away, Url string
 }
 
 type Statistics interface {

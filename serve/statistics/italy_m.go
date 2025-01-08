@@ -41,10 +41,9 @@ type superLegaMatch struct {
 
 func (m superLegaMatch) toDomain() domain.StatSheet {
 	return domain.StatSheet{
-		League: "italy: superlega",
-		Home:   m.homeTeamId.toDomain(),
-		Away:   m.awayTeamId.toDomain(),
-		Url:    m.statsUrl,
+		Home: m.homeTeamId.toDomain(),
+		Away: m.awayTeamId.toDomain(),
+		Url:  m.statsUrl,
 	}
 }
 
