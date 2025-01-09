@@ -1,8 +1,10 @@
 package discord
 
 import (
+	"cmp"
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -36,7 +38,17 @@ func NewUpcomingMatchesMsg(matches domain.Matches, currentTime time.Time) Messag
 		})
 	}
 
-	return Message{fmt.Sprintf("Games for %s", date), []Embeds{{fields}}}
+	msg := Message{
+		Content: fmt.Sprintf("Games for %s", date),
+		Embeds:  []Embeds{{fields}},
+	}
+
+	// Sort, to always have the same order in the message to help approval tests
+	slices.SortFunc(msg.Embeds[0].Fields, func(a, b Fields) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+
+	return msg
 }
 
 func NewFinishedMatchesMsg(
