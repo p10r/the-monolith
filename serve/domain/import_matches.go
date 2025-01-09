@@ -8,26 +8,6 @@ import (
 	"time"
 )
 
-type Flashscore interface {
-	GetUpcomingMatches() (Matches, error)
-}
-
-type Discord interface {
-	SendUpcomingMatches(context.Context, Matches, time.Time) error
-	SendFinishedMatches(context.Context, MatchesByLeague, time.Time) error
-}
-
-type StatSheets []StatSheet
-
-type StatSheet struct {
-	Home, Away, Url string
-}
-
-type Statistics interface {
-	GetItalianMenStats() StatSheets
-	GetPolishMenStats() StatSheets
-}
-
 type MatchImporter struct {
 	flashscore Flashscore
 	discord    Discord
@@ -90,6 +70,10 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		importer.log.Info("No finished games today")
 		return nil
 	}
+
+	italianMenStats := importer.statistics.GetItalianMenStats()
+	polandMenStats := importer.statistics.GetPolishMenStats()
+	finished = finished.ZipWith(append(polandMenStats, italianMenStats...))
 
 	err = importer.discord.SendFinishedMatches(ctx, finished.ToMap(), importer.clock())
 	if err != nil {

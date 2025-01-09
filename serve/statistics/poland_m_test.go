@@ -10,7 +10,7 @@ import (
 )
 
 func TestPlusLigaScraper(t *testing.T) {
-	plusLigaBaseUrl := "plusliga-url"
+	plusLigaBaseUrl := "https://www.plusliga.pl"
 	plusLiga := plusLigaScraper{baseUrl: plusLigaBaseUrl}
 
 	t.Run("scrapes matches", func(t *testing.T) {
@@ -22,22 +22,22 @@ func TestPlusLigaScraper(t *testing.T) {
 			{
 				homeTeam: "BOGDANKA LUK Lublin",
 				awayTeam: "Ślepsk Malow Suwałki",
-				statsUrl: "plusliga-url/games/action/show/id/1103632.html",
+				statsUrl: "https://www.plusliga.pl/games/action/show/id/1103632.html",
 			},
 			{
 				homeTeam: "Aluron CMC Warta Zawiercie",
 				awayTeam: "Steam Hemarpol Norwid Częstochowa",
-				statsUrl: "plusliga-url/games/action/show/id/1103637.html",
+				statsUrl: "https://www.plusliga.pl/games/action/show/id/1103637.html",
 			},
 			{
 				homeTeam: "PSG Stal Nysa",
 				awayTeam: "Cuprum Stilon Gorzów",
-				statsUrl: "plusliga-url/games/action/show/id/1103635.html",
+				statsUrl: "https://www.plusliga.pl/games/action/show/id/1103635.html",
 			},
 			{
 				homeTeam: "Nowak-Mosty MKS Będzin",
 				awayTeam: "Trefl Gdańsk",
-				statsUrl: "plusliga-url/games/action/show/id/1103634.html",
+				statsUrl: "https://www.plusliga.pl/games/action/show/id/1103634.html",
 			},
 		}
 

@@ -122,7 +122,7 @@ func (scraper *plusLigaScraper) parseStats(res *http.Response) (matches plusLiga
 			match := plusLigaMatch{
 				homeTeam: plusligaTeamId(homeTeam),
 				awayTeam: plusligaTeamId(awayTeam),
-				statsUrl: scraper.baseUrl + statsUrl,
+				statsUrl: "https://www.plusliga.pl" + statsUrl,
 			}
 			matches = append(matches, match)
 		})

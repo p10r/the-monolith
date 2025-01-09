@@ -7,7 +7,11 @@ import (
 	"testing"
 )
 
-func NewDiscordServer(t *testing.T, logger *slog.Logger) http.HandlerFunc {
+func NewDiscordServer(
+	t *testing.T,
+	logger *slog.Logger,
+	reqRecorder func(*http.Request),
+) http.HandlerFunc {
 	t.Helper()
 	log := logger.With(slog.String("adapter", "discord_fake"))
 
@@ -18,6 +22,7 @@ func NewDiscordServer(t *testing.T, logger *slog.Logger) http.HandlerFunc {
 			return
 		}
 
+		reqRecorder(r)
 		log.Info("DiscordServer: Received request")
 
 		w.WriteHeader(204)

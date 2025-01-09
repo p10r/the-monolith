@@ -62,12 +62,12 @@ func TestStats(t *testing.T) {
 		firstMatch := domain.StatSheet{
 			Home: "Zawierce",
 			Away: "Lublin",
-			Url:  "/plusliga/games/action/show/id/1103460.html",
+			Url:  "https://www.plusliga.pl/games/action/show/id/1103460.html",
 		}
 		secondMatch := domain.StatSheet{
 			Home: "Projekt Warszawa",
 			Away: "Kedzierzyn-Kozle",
-			Url:  "/plusliga/games/action/show/id/1103464.html",
+			Url:  "https://www.plusliga.pl/games/action/show/id/1103464.html",
 		}
 
 		actual := statistics.GetPolishMenStats()

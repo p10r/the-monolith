@@ -1,10 +1,8 @@
 package discord
 
 import (
-	"cmp"
 	"fmt"
 	"github.com/p10r/pedro/serve/domain"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -32,7 +30,7 @@ func NewUpcomingMatchesMsg(matches domain.Matches, currentTime time.Time) Messag
 	for league, matchesForCountry := range sortUpcomingByLeague(matches) {
 		fullName := matchesForCountry[0].Country + ": " + matchesForCountry[0].League
 		fields = append(fields, Fields{
-			Name:   flag(domain.NewLeagueKey(league)) + fullName,
+			Name:   flag(domain.NewLeagueKey(league)) + strings.ToTitle(fullName),
 			Value:  upcomingText(matchesForCountry),
 			Inline: false,
 		})
@@ -65,7 +63,6 @@ func NewFinishedMatchesMsg(
 func sortUpcomingByLeague(matches domain.Matches) map[string]domain.Matches {
 	countries := make(map[string]domain.Matches)
 	for _, m := range matches {
-		//TODO store leagues also in DB, use this identifier here
 		fullName := m.Country + ": " + m.League
 		countries[fullName] = append(countries[fullName], m)
 	}
@@ -82,11 +79,6 @@ func upcomingText(matches domain.Matches) string {
 }
 
 func finishedText(matches domain.Matches) string {
-	// Sort, to always have the same order in the message
-	slices.SortFunc(matches, func(a, b domain.Match) int {
-		return cmp.Compare(fmt.Sprintf("%v", a), fmt.Sprintf("%v", b))
-	})
-
 	var texts []string
 	for _, m := range matches {
 		formatted := fmt.Sprintf("**%v - %v**\t\t\tScore:\t||%v\t:\t%v||",
@@ -98,6 +90,7 @@ func finishedText(matches domain.Matches) string {
 
 		texts = append(texts, formatted)
 	}
+
 	return strings.Join(texts, "\n")
 }
 
