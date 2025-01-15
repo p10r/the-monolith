@@ -47,6 +47,7 @@ var favouriteLeagues = []string{
 	"europe: european championships",
 	"japan: sv.league",
 	"usa: pvf women",
+	"usa: lovb women",
 }
 
 func (matches Matches) Favourites() Matches {
