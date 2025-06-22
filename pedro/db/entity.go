@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/monolith/pedro/domain"
 	"strconv"
 	"strings"
 )

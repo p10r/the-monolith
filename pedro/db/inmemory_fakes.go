@@ -4,7 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/monolith/pedro/domain"
 	"slices"
 	"sync/atomic"
 )

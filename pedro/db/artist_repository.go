@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"github.com/p10r/pedro/pedro/domain"
-	"github.com/p10r/pedro/pkg/sqlite"
+	"github.com/p10r/monolith/pedro/domain"
+	"github.com/p10r/monolith/pkg/sqlite"
 )
 
 type SqliteArtistRepository struct {

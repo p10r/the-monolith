@@ -1,10 +1,10 @@
 package ra_test
 
 import (
-	"github.com/p10r/pedro/pedro/domain"
-	"github.com/p10r/pedro/pedro/domain/expect"
-	"github.com/p10r/pedro/pedro/ra"
-	"github.com/p10r/pedro/pkg/l"
+	"github.com/p10r/monolith/pedro/domain"
+	"github.com/p10r/monolith/pedro/domain/expect"
+	"github.com/p10r/monolith/pedro/ra"
+	"github.com/p10r/monolith/pkg/l"
 	"testing"
 )
 

@@ -3,8 +3,8 @@ package env
 import (
 	"context"
 	"fmt"
-	"github.com/p10r/pedro/giftbox"
-	"github.com/p10r/pedro/pkg/sqlite"
+	"github.com/p10r/monolith/giftbox"
+	"github.com/p10r/monolith/pkg/sqlite"
 	"net/http"
 	"net/http/httptest"
 	"net/url"

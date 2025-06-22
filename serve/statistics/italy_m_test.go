@@ -4,7 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"github.com/alecthomas/assert/v2"
-	"github.com/p10r/pedro/serve/testutil"
+	"github.com/p10r/monolith/serve/testutil"
 	"net/http"
 	"slices"
 	"strconv"

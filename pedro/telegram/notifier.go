@@ -3,8 +3,8 @@ package telegram
 import (
 	"context"
 	"fmt"
-	"github.com/p10r/pedro/pedro/domain"
-	"github.com/p10r/pedro/pkg/l"
+	"github.com/p10r/monolith/pedro/domain"
+	"github.com/p10r/monolith/pkg/l"
 	"gopkg.in/telebot.v3"
 	"log/slog"
 	"strconv"

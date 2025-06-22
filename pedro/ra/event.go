@@ -3,8 +3,8 @@ package ra
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/p10r/pedro/pedro/domain"
-	"github.com/p10r/pedro/pkg/l"
+	"github.com/p10r/monolith/pedro/domain"
+	"github.com/p10r/monolith/pkg/l"
 	"log/slog"
 	"net/http"
 	"time"

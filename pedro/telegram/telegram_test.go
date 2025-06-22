@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"github.com/p10r/pedro/pedro/domain"
+	"github.com/p10r/monolith/pedro/domain"
 	"testing"
 	"time"
 )

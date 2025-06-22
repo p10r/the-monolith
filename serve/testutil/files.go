@@ -2,8 +2,8 @@ package testutil
 
 import (
 	json2 "encoding/json"
-	"github.com/p10r/pedro/serve/domain"
-	"github.com/p10r/pedro/serve/flashscore"
+	"github.com/p10r/monolith/serve/domain"
+	"github.com/p10r/monolith/serve/flashscore"
 	"os"
 	"testing"
 )

@@ -2,8 +2,8 @@ package ra_test
 
 import (
 	"errors"
-	"github.com/p10r/pedro/pedro/domain/expect"
-	"github.com/p10r/pedro/pedro/ra"
+	"github.com/p10r/monolith/pedro/domain/expect"
+	"github.com/p10r/monolith/pedro/ra"
 	"net/http/httptest"
 	"testing"
 )

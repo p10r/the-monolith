@@ -2,9 +2,9 @@ package db
 
 import (
 	"context"
-	d "github.com/p10r/pedro/pedro/domain"
-	"github.com/p10r/pedro/pedro/domain/expect"
-	"github.com/p10r/pedro/pkg/sqlite"
+	d "github.com/p10r/monolith/pedro/domain"
+	"github.com/p10r/monolith/pedro/domain/expect"
+	"github.com/p10r/monolith/pkg/sqlite"
 	"testing"
 )
 

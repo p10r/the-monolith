@@ -3,9 +3,9 @@ package statistics
 import (
 	"fmt"
 	"github.com/alecthomas/assert/v2"
-	"github.com/p10r/pedro/pkg/l"
-	"github.com/p10r/pedro/serve/domain"
-	"github.com/p10r/pedro/serve/testutil"
+	"github.com/p10r/monolith/pkg/l"
+	"github.com/p10r/monolith/serve/domain"
+	"github.com/p10r/monolith/serve/testutil"
 	"net/http"
 	"testing"
 )

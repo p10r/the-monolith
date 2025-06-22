@@ -2,7 +2,7 @@ package domain
 
 import (
 	"fmt"
-	"github.com/p10r/pedro/pedro/domain/expect"
+	"github.com/p10r/monolith/pedro/domain/expect"
 	"testing"
 )
 

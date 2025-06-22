@@ -3,7 +3,7 @@ package giftbox
 import (
 	"context"
 	"fmt"
-	"github.com/p10r/pedro/pkg/sqlite"
+	"github.com/p10r/monolith/pkg/sqlite"
 	"log"
 )
 

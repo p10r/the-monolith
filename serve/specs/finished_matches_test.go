@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/alecthomas/assert/v2"
 	approvals "github.com/approvals/go-approval-tests"
-	"github.com/p10r/pedro/serve/testutil"
+	"github.com/p10r/monolith/serve/testutil"
 	"testing"
 )
 

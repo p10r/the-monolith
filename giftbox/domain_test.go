@@ -2,7 +2,7 @@ package giftbox_test
 
 import (
 	"github.com/alecthomas/assert/v2"
-	"github.com/p10r/pedro/giftbox"
+	"github.com/p10r/monolith/giftbox"
 	"testing"
 )
 

@@ -2,8 +2,8 @@ package domain_test
 
 import (
 	"github.com/alecthomas/assert/v2"
-	"github.com/p10r/pedro/serve/domain"
-	"github.com/p10r/pedro/serve/testutil"
+	"github.com/p10r/monolith/serve/domain"
+	"github.com/p10r/monolith/serve/testutil"
 	"testing"
 )
 

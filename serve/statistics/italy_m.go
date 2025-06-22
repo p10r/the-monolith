@@ -3,7 +3,7 @@ package statistics
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/p10r/pedro/serve/domain"
+	"github.com/p10r/monolith/serve/domain"
 	"net/http"
 	"regexp"
 	"strings"

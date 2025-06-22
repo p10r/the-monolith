@@ -12,14 +12,14 @@
 ## Deployment
 
 ```
-docker build -t pedro .
+docker build -t monolith .
 # to inspect:
-docker run -it pedro
+docker run -it monolith
 
-docker run pedro
+docker run monolith
 
 fly launch
-fly volume create pedrovolume -r ams -n 1
+fly volume create monolithvolume -r ams -n 1
 fly deploy
 fly logs
 ```
@@ -34,9 +34,9 @@ article.
 
 ```
 cd prod/
-scp root@<app name in fly.toml>.internal:/data/pedro.db .
-scp root@<app name in fly.toml>.internal:/data/pedro.db-shm .
-scp root@<app name in fly.toml>.internal:/data/pedro.db-wal .
+scp root@<app name in fly.toml>.internal:/data/monolith.db .
+scp root@<app name in fly.toml>.internal:/data/monolith.db-shm .
+scp root@<app name in fly.toml>.internal:/data/monolith.db-wal .
 ```
 
 ## TODOs

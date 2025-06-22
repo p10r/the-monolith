@@ -2,7 +2,7 @@ package flashscore
 
 import (
 	json2 "encoding/json"
-	"github.com/p10r/pedro/serve/domain"
+	"github.com/p10r/monolith/serve/domain"
 	"io"
 	"strconv"
 	"strings"

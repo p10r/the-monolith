@@ -1,8 +1,8 @@
 package statistics
 
 import (
-	"github.com/p10r/pedro/pkg/l"
-	"github.com/p10r/pedro/serve/domain"
+	"github.com/p10r/monolith/pkg/l"
+	"github.com/p10r/monolith/serve/domain"
 	"log/slog"
 	"net/http"
 )

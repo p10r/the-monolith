@@ -1,6 +1,6 @@
 package statistics
 
-import "github.com/p10r/pedro/serve/domain"
+import "github.com/p10r/monolith/serve/domain"
 
 type Scraper interface {
 	GetStatsFor(dm domain.Matches) (

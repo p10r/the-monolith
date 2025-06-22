@@ -3,7 +3,7 @@ package discord
 import (
 	"cmp"
 	"fmt"
-	"github.com/p10r/pedro/serve/domain"
+	"github.com/p10r/monolith/serve/domain"
 	"slices"
 	"strconv"
 	"strings"

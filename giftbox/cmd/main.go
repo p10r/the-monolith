@@ -2,7 +2,7 @@ package main
 
 import (
 	json2 "encoding/json"
-	"github.com/p10r/pedro/giftbox"
+	"github.com/p10r/monolith/giftbox"
 	"github.com/skip2/go-qrcode"
 	"log"
 	"net/http"
@@ -19,14 +19,14 @@ type GiftRef struct {
 
 // Generate QR-Codes
 // Run:
-// direnv allow . && go run main.go
+// mkdir tmp && cd tmp && direnv allow . && go run ../giftbox/cmd/main.go
 func main() {
 	apiKey := os.Getenv("GIFT_BOX_API_KEY")
 	if apiKey == "" {
 		log.Fatal("GIFT_BOX_API_KEY not set")
 	}
 
-	gifts := fetchGifts(apiKey)
+	gifts := fetchPendingGifts(apiKey)
 	refs := toGiftIDs(gifts)
 	writeQRCodes(refs)
 }
@@ -44,7 +44,7 @@ func toGiftIDs(gifts giftbox.Gifts) []GiftRef {
 	var refs []GiftRef
 	for _, gift := range gifts {
 		ref := GiftRef{
-			url: baseUrl + "/allGiftsRes?pending-only=true" + string(gift.ID),
+			url: baseUrl + "/gifts/redeem?id=" + string(gift.ID),
 			id:  string(gift.ID),
 		}
 		refs = append(refs, ref)
@@ -52,7 +52,7 @@ func toGiftIDs(gifts giftbox.Gifts) []GiftRef {
 	return refs
 }
 
-func fetchGifts(key string) giftbox.Gifts {
+func fetchPendingGifts(key string) giftbox.Gifts {
 	req, err := http.NewRequest("GET", baseUrl+"/gifts?pending-only=true", nil)
 	if err != nil {
 		log.Fatal(err)

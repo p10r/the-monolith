@@ -2,12 +2,12 @@ package serve
 
 import (
 	"context"
-	"github.com/p10r/pedro/pkg/httputil"
-	"github.com/p10r/pedro/pkg/l"
-	"github.com/p10r/pedro/serve/discord"
-	"github.com/p10r/pedro/serve/domain"
-	"github.com/p10r/pedro/serve/flashscore"
-	"github.com/p10r/pedro/serve/statistics"
+	"github.com/p10r/monolith/pkg/httputil"
+	"github.com/p10r/monolith/pkg/l"
+	"github.com/p10r/monolith/serve/discord"
+	"github.com/p10r/monolith/serve/domain"
+	"github.com/p10r/monolith/serve/flashscore"
+	"github.com/p10r/monolith/serve/statistics"
 	"github.com/robfig/cron/v3"
 	"log/slog"
 	"time"
