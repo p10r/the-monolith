@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/p10r/monolith/giftbox"
-	"github.com/p10r/monolith/pedro/telegram"
 	"github.com/p10r/monolith/pkg/l"
 	"github.com/p10r/monolith/pkg/sqlite"
 	"github.com/p10r/monolith/serve"
@@ -66,13 +65,6 @@ func main() {
 	}
 	log.Info(fmt.Sprintf("DSN is set to %v", cfg.DSN))
 
-	pedroApp := telegram.NewPedro(
-		conn,
-		cfg.TelegramToken,
-		cfg.AllowedUserIds,
-		handler,
-	)
-
 	serveApp := serve.NewServeProdApp(
 		flashscoreUri,
 		cfg.FlashscoreApiKey,
@@ -107,7 +99,13 @@ func main() {
 		},
 	)
 
-	go pedroApp.Start()
+	//pedroApp := telegram.NewPedro(
+	//	conn,
+	//	cfg.TelegramToken,
+	//	cfg.AllowedUserIds,
+	//	handler,
+	//)
+	//go pedroApp.Start()
 	go serveApp.StartBackgroundJobs(ctx)
 	if err := server.ListenAndServe(ctx); err != nil {
 		log.Error(l.Error("didn't shut down gracefully", err))
