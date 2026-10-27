@@ -7,14 +7,19 @@ import (
 
 // New leagues inside this must be lowercase
 var favouriteLeagues = []string{
+	"brazil: superliga",
+	"brazil: superliga women",
 	"italy: superlega",
 	"italy: superlega - play offs",
 	"italy: coppa italia a1",
 	"italy: coppa italia a1 women",
 	"italy: serie a1 women",
 	"italy: serie a1 women - playoffs",
-	"poland: plusliga",
-	"poland: plusliga - play offs",
+	"italy: serie a1 women - 5th-12th places",
+	"poland: tauron liga",
+	"poland: tauron liga - play offs",
+	"poland: tauron liga women",
+	"poland: super cup",
 	"france: ligue a - play offs",
 	"france: ligue a",
 	"russia: super league - play offs",
