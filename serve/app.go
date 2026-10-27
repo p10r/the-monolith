@@ -2,12 +2,10 @@ package serve
 
 import (
 	"context"
-	"github.com/p10r/monolith/pkg/httputil"
 	"github.com/p10r/monolith/pkg/l"
 	"github.com/p10r/monolith/serve/discord"
 	"github.com/p10r/monolith/serve/domain"
 	"github.com/p10r/monolith/serve/flashscore"
-	"github.com/p10r/monolith/serve/statistics"
 	"github.com/robfig/cron/v3"
 	"log/slog"
 	"time"
@@ -58,18 +56,11 @@ func NewServeApp(
 
 	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey, log)
 	discordClient := discord.NewClient(discordUri, log)
-	stats := statistics.NewAggregator(
-		"https://www.plusliga.pl",
-		"https://www.legavolley.it/",
-		log,
-		httputil.NewDefaultClient(),
-	)
 	now := func() time.Time { return time.Now() }
 
 	importer := domain.NewMatchImporter(
 		flashscoreClient,
 		discordClient,
-		stats,
 		now,
 		log,
 	)

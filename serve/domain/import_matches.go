@@ -11,7 +11,6 @@ import (
 type MatchImporter struct {
 	flashscore Flashscore
 	discord    Discord
-	statistics Statistics
 	clock      func() time.Time
 	log        *slog.Logger
 }
@@ -19,14 +18,12 @@ type MatchImporter struct {
 func NewMatchImporter(
 	flashscore Flashscore,
 	discord Discord,
-	statistics Statistics,
 	clock func() time.Time,
 	log *slog.Logger,
 ) *MatchImporter {
 	return &MatchImporter{
 		flashscore,
 		discord,
-		statistics,
 		clock,
 		log,
 	}
@@ -70,10 +67,6 @@ func (importer *MatchImporter) ImportFinishedMatches(ctx context.Context) error 
 		importer.log.Info("No finished games today")
 		return nil
 	}
-
-	italianMenStats := importer.statistics.GetItalianMenStats()
-	polandMenStats := importer.statistics.GetPolishMenStats()
-	finished = finished.ZipWith(append(polandMenStats, italianMenStats...))
 
 	err = importer.discord.SendFinishedMatches(ctx, finished.ToMap(), importer.clock())
 	if err != nil {

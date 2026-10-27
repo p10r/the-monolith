@@ -26,7 +26,6 @@ type Match struct {
 	Stage            string
 	HomeScoreCurrent int
 	AwayScoreCurrent int
-	StatsUrl         string // Set by statistics package
 }
 
 func (m Match) LeagueKey() LeagueKey {

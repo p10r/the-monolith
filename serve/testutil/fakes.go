@@ -58,21 +58,3 @@ func NewFlashscoreServer(t *testing.T, apiKey string) http.HandlerFunc {
 		}
 	}
 }
-
-func NewPlusLigaServer(t *testing.T, resBody []byte) http.HandlerFunc {
-	t.Helper()
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(resBody)
-	}
-}
-
-func NewSuperLegaServer(t *testing.T, resBody []byte) http.HandlerFunc {
-	t.Helper()
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write(resBody)
-	}
-}
