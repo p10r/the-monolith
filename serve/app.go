@@ -2,105 +2,126 @@ package serve
 
 import (
 	"context"
-	"github.com/p10r/monolith/pkg/l"
-	"github.com/p10r/monolith/serve/discord"
-	"github.com/p10r/monolith/serve/domain"
-	"github.com/p10r/monolith/serve/flashscore"
-	"github.com/robfig/cron/v3"
 	"log/slog"
+	"net"
+	"net/http"
 	"time"
+
+	"github.com/p10r/monolith/pkg/l"
+	"github.com/robfig/cron/v3"
 )
 
+// Serve fetches volleyball matches from Flashscore and posts them to Discord.
 type Serve struct {
-	importer               *domain.MatchImporter
-	importUpcomingSchedule string // CRON
+	flashscoreBaseURL string
+	flashscoreAPIKey  string
+	discordURL        string
+	httpClient        *http.Client
+	now               func() time.Time
+	log               *slog.Logger
+
+	importUpcomingSchedule string
 	importFinishedSchedule string
-	log                    *slog.Logger
 }
 
-func NewServeProdApp(
-	flashscoreUri, flashscoreApiKey, discordUri string,
+func New(
+	flashscoreBaseURL, flashscoreAPIKey, discordURL string,
 	log *slog.Logger,
-	importUpcomingSchedule string,
-	importFinishedSchedule string,
+	importUpcomingSchedule, importFinishedSchedule string,
 ) *Serve {
-	return NewServeApp(
-		flashscoreUri,
-		flashscoreApiKey,
-		discordUri,
-		log,
-		importUpcomingSchedule,
-		importFinishedSchedule,
-	)
-}
-
-// NewServeApp wires Serve App together.
-// Expects an already opened connection.
-func NewServeApp(
-	flashscoreUri, flashscoreApiKey, discordUri string,
-	log *slog.Logger,
-	importUpcomingSchedule string,
-	importFinishedSchedule string,
-) *Serve {
-	log.Info("Starting Serve App")
-
-	if flashscoreUri == "" {
+	if flashscoreBaseURL == "" {
 		log.Error("flashscoreUri has not been set")
 	}
-	if flashscoreApiKey == "" {
+	if flashscoreAPIKey == "" {
 		log.Error("flashscoreApiKey has not been set")
 	}
-	if discordUri == "" {
+	if discordURL == "" {
 		log.Error("DISCORD_URI has not been set")
 	}
 
-	flashscoreClient := flashscore.NewClient(flashscoreUri, flashscoreApiKey, log)
-	discordClient := discord.NewClient(discordUri, log)
-	now := func() time.Time { return time.Now() }
-
-	importer := domain.NewMatchImporter(
-		flashscoreClient,
-		discordClient,
-		now,
-		log,
-	)
-
 	return &Serve{
-		importer,
-		importUpcomingSchedule,
-		importFinishedSchedule,
-		log,
+		flashscoreBaseURL: flashscoreBaseURL,
+		flashscoreAPIKey:  flashscoreAPIKey,
+		discordURL:        discordURL,
+		httpClient: &http.Client{
+			Timeout: 10 * time.Second,
+			Transport: &http.Transport{
+				DialContext: (&net.Dialer{
+					Timeout:   10 * time.Second,
+					KeepAlive: 10 * time.Second,
+				}).DialContext,
+				TLSHandshakeTimeout:   5 * time.Second,
+				ResponseHeaderTimeout: 5 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+			},
+		},
+		now:                    time.Now,
+		log:                    log.With(slog.String("app", "serve")),
+		importUpcomingSchedule: importUpcomingSchedule,
+		importFinishedSchedule: importFinishedSchedule,
 	}
 }
 
 func (s *Serve) StartBackgroundJobs(ctx context.Context) {
 	c := cron.New()
-	_, err := c.AddFunc(s.importUpcomingSchedule, func() {
-		_, err := s.importer.ImportScheduledMatches(ctx)
-		if err != nil {
+
+	if _, err := c.AddFunc(s.importUpcomingSchedule, func() {
+		if _, err := s.importScheduledMatches(); err != nil {
 			s.log.Error(l.Error("serve import scheduled failed", err))
 		}
-	})
-	if err != nil {
-		s.log.Error(l.Error("serve run failed", err))
+	}); err != nil {
+		s.log.Error(l.Error("add serve import scheduled job", err))
 	}
 
-	_, err = c.AddFunc(s.importFinishedSchedule, func() {
-		err = s.importer.ImportFinishedMatches(ctx)
-		if err != nil {
-			s.log.Error(l.Error("serve import finished failed", err))
+	if _, err := c.AddFunc(s.importFinishedSchedule, func() {
+		if err := s.importFinishedMatches(); err != nil {
+			s.log.Error(l.Error("serve import finished job", err))
 		}
-	})
-	if err != nil {
-		s.log.Error(l.Error("serve run failed", err))
+	}); err != nil {
+		s.log.Error(l.Error("add import finished job", err))
 	}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			c.Start()
-		}
+	c.Start()
+	<-ctx.Done()
+	c.Stop()
+}
+
+func (s *Serve) importScheduledMatches() (Matches, error) {
+	matches, err := s.fetchMatches()
+	if err != nil {
+		return nil, err
 	}
+
+	scheduled := matches.Favourites().Scheduled()
+	if len(scheduled) == 0 {
+		s.log.Info("No scheduled matches today")
+		return nil, nil
+	}
+
+	if err := s.sendScheduledMatches(scheduled, s.now()); err != nil {
+		s.log.Error(l.Error("send scheduled matches to discord", err))
+		return nil, err
+	}
+
+	return scheduled, nil
+}
+
+func (s *Serve) importFinishedMatches() error {
+	matches, err := s.fetchMatches()
+	if err != nil {
+		return err
+	}
+
+	finished := matches.Favourites().Finished()
+	if len(finished) == 0 {
+		s.log.Info("No finished matches today")
+		return nil
+	}
+
+	if err := s.sendFinishedMatches(finished.ToMap(), s.now()); err != nil {
+		s.log.Error(l.Error("send finished matches to discord", err))
+		return err
+	}
+
+	return nil
 }

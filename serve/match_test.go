@@ -1,15 +1,13 @@
-package domain_test
+package serve
 
 import (
 	"github.com/alecthomas/assert/v2"
-	"github.com/p10r/monolith/serve/domain"
-	"github.com/p10r/monolith/serve/testutil"
 	"testing"
 )
 
 func TestDomain(t *testing.T) {
 	t.Run("filters for scheduled matches", func(t *testing.T) {
-		input := domain.Matches{
+		input := Matches{
 			{
 				HomeName:       "Trentino",
 				AwayName:       "Jastrzebski",
@@ -23,8 +21,7 @@ func TestDomain(t *testing.T) {
 				Stage:          "FINISHED",
 			},
 		}
-
-		expected := domain.Matches{
+		expected := Matches{
 			{
 				HomeName:       "Trentino",
 				AwayName:       "Jastrzebski",
@@ -32,13 +29,11 @@ func TestDomain(t *testing.T) {
 				Stage:          "SCHEDULED",
 			},
 		}
-
 		matches := input.Scheduled()
 		assert.Equal(t, matches, expected)
 	})
-
 	t.Run("filters for finished matches", func(t *testing.T) {
-		input := domain.Matches{
+		input := Matches{
 			{
 				HomeName:       "Trentino",
 				AwayName:       "Jastrzebski",
@@ -52,8 +47,7 @@ func TestDomain(t *testing.T) {
 				Stage:          "FINISHED",
 			},
 		}
-
-		expected := domain.Matches{
+		expected := Matches{
 			{
 				HomeName:       "Resovia",
 				AwayName:       "Zaksa",
@@ -61,18 +55,15 @@ func TestDomain(t *testing.T) {
 				Stage:          "FINISHED",
 			},
 		}
-
 		matches := input.Finished()
 		assert.Equal(t, matches, expected)
 	})
-
 	t.Run("handles 0 scheduled matches", func(t *testing.T) {
-		m := domain.Matches{}.Scheduled()
+		m := Matches{}.Scheduled()
 		assert.Equal(t, len(m), 0)
 	})
-
 	t.Run("filters for favourites", func(t *testing.T) {
-		expected := domain.Matches{
+		expected := Matches{
 			{
 				HomeName:         "Trentino",
 				AwayName:         "Jastrzebski",
@@ -107,8 +98,7 @@ func TestDomain(t *testing.T) {
 				AwayScoreCurrent: 0,
 			},
 		}
-
-		matches := testutil.Matches(t).Scheduled()
+		matches := matchesFromTestdata(t).Scheduled()
 		assert.Equal(t, matches, expected)
 	})
 }

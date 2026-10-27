@@ -65,7 +65,7 @@ func main() {
 	}
 	log.Info(fmt.Sprintf("DSN is set to %v", cfg.DSN))
 
-	serveApp := serve.NewServeProdApp(
+	serveApp := serve.New(
 		flashscoreUri,
 		cfg.FlashscoreApiKey,
 		cfg.DiscordUri,

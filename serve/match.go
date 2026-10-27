@@ -1,4 +1,4 @@
-package domain
+package serve
 
 import (
 	"strings"
@@ -35,32 +35,21 @@ func (m Match) LeagueKey() LeagueKey {
 type Matches []Match
 
 func (matches Matches) Scheduled() Matches {
-	scheduled := Matches{}
-
-	for _, match := range matches {
-		if strings.EqualFold(match.Stage, "SCHEDULED") {
-			scheduled = append(scheduled, match)
-		}
-	}
-	if len(scheduled) == 0 {
-		return Matches{}
-	}
-	return scheduled
+	return matches.withStage("SCHEDULED")
 }
 
 func (matches Matches) Finished() Matches {
-	finished := Matches{}
+	return matches.withStage("FINISHED")
+}
+
+func (matches Matches) withStage(stage string) Matches {
+	var filtered Matches
 	for _, match := range matches {
-		if strings.EqualFold(match.Stage, "FINISHED") {
-			finished = append(finished, match)
+		if strings.EqualFold(match.Stage, stage) {
+			filtered = append(filtered, match)
 		}
 	}
-
-	if len(finished) == 0 {
-		return Matches{}
-	}
-
-	return finished
+	return filtered
 }
 
 type MatchesByLeague map[LeagueKey]Matches

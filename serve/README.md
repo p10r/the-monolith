@@ -47,8 +47,10 @@ fly deploy
 
 ## Testing
 
-There's a skipped test in `discord/discord_test.go` if you want to check that the discord message gets properly.
-formatted
+`go test ./serve/...` runs:
+
+- a single end-to-end test (`serve/app_test.go`) against fake Flashscore and Discord servers
+- in-memory tests for match filtering and Flashscore response parsing
 
 ## TODOs
 
