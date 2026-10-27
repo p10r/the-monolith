@@ -14,7 +14,6 @@ require (
 	github.com/samber/slog-telegram/v2 v2.4.2
 	github.com/sethvargo/go-envconfig v1.3.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
-	gopkg.in/telebot.v3 v3.3.8
 )
 
 require (

@@ -17,14 +17,13 @@ import (
 )
 
 type Config struct {
-	TelegramToken    string  `env:"TELEGRAM_TOKEN"`
-	TelegramAdmin    string  `env:"TELEGRAM_ADMIN_USER"`
-	DSN              string  `env:"DSN"`
-	AllowedUserIds   []int64 `env:"ALLOWED_USER_IDS"`
-	FlashscoreApiKey string  `env:"FLASHSCORE_API_KEY"`
-	DiscordUri       string  `env:"DISCORD_URI"`
-	GiftBoxApiKey    string  `env:"GIFT_BOX_API_KEY"`
-	ServeApiKey      string  `env:"SERVE_API_KEY"`
+	TelegramToken    string `env:"TELEGRAM_TOKEN"`
+	TelegramAdmin    string `env:"TELEGRAM_ADMIN_USER"`
+	DSN              string `env:"DSN"`
+	FlashscoreApiKey string `env:"FLASHSCORE_API_KEY"`
+	DiscordUri       string `env:"DISCORD_URI"`
+	GiftBoxApiKey    string `env:"GIFT_BOX_API_KEY"`
+	ServeApiKey      string `env:"SERVE_API_KEY"`
 }
 
 const serveImportUpcomingSchedule = "0 6 * * *"
@@ -99,13 +98,6 @@ func main() {
 		},
 	)
 
-	//pedroApp := telegram.NewPedro(
-	//	conn,
-	//	cfg.TelegramToken,
-	//	cfg.AllowedUserIds,
-	//	handler,
-	//)
-	//go pedroApp.Start()
 	go serveApp.StartBackgroundJobs(ctx)
 	if err := server.ListenAndServe(ctx); err != nil {
 		log.Error(l.Error("didn't shut down gracefully", err))
